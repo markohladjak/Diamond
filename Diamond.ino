@@ -17,10 +17,6 @@
 #define APPSK  "12345678"
 #endif
 
-String Messages = "No messages to display!!!";
-StringLog* _log; // Логи скетча
-int i = 0;
-
 const char *softAP_ssid = APSSID;
 const char *softAP_password = APPSK;
 
@@ -45,33 +41,30 @@ class Workplace
 public:
   enum class States { Work, Ready, Free, SOS };
 
-  States _state = State::Free;
+  States _state = States::Free;
 
-  States State() { return _state };
+  States State() { return _state; }
   
   void SetState(States state)
   {
     _state = state;
   }
-}
+};
 
-WorkplaceState WP1;
+Workplace WP1;
 
 String Page(){
   String str = responseHTML;
   
-  str.replace("@{M1State0}", WP1.State() == States::Work ? "checked" : "");
-  str.replace("@{M1State1}", WP1.State() == States::Ready ? "checked" : "");
-  str.replace("@{M1State2}", WP1.State() == States::Free ? "checked" : "");
-  str.replace("@{M1State3}", WP1.State() == States::SOS ? "checked" : "");
+  str.replace("@{M1State0}", WP1.State() == Workplace::States::Work ? "checked" : "");
+  str.replace("@{M1State1}", WP1.State() == Workplace::States::Ready ? "checked" : "");
+  str.replace("@{M1State2}", WP1.State() == Workplace::States::Free ? "checked" : "");
+  str.replace("@{M1State3}", WP1.State() == Workplace::States::SOS ? "checked" : "");
   
   return str;
   }
 
 void setup() {
-
-_log = new StringLog();
-
   Serial.begin(115200);
   WiFi.begin(APSSID, APPSK);
 
