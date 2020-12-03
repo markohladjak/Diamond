@@ -7,10 +7,10 @@ R"~~~~(
   </head>
   <body>
       <form id="mainForm" name="mainForm">
-          <input type="radio" name="rads" value="1">
-          <input type="radio" name="rads" value="2">
-          <input type="radio" name="rads" value="3" checked>
-          <input type="radio" name="rads" value="4">
+          <input type="radio" name="rads" value="1" @{M1State0}>
+          <input type="radio" name="rads" value="2" @{M1State1}>
+          <input type="radio" name="rads" value="3" @{M1State2}>
+          <input type="radio" name="rads" value="4" @{M1State3}>
       </form>
       
       <span id="result">EEEEEEEEE</span>
@@ -24,10 +24,10 @@ R"~~~~(
               
               switch(radVal)
               {
-                  case '1': window.location.href = 'socket1On'; break;
-                  case '2': window.location.href = 'socket1On'; break;
-                  case '3': window.location.href = 'socket1On'; break;
-                  case '4': window.location.href = 'socket1On'; break;
+                  case '1': window.location.href = 'M1State0'; break;
+                  case '2': window.location.href = 'M1State1'; break;
+                  case '3': window.location.href = 'M1State2'; break;
+                  case '4': window.location.href = 'M1State3'; break;
               }
           }
       </script>

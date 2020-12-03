@@ -5,20 +5,11 @@
 
 #include <mcp_can.h>
 #include <SPI.h>
-#include "StringLog.h"
-
-long unsigned int rxId;
-unsigned char len = 0;
-unsigned char rxBuf[8];
-char msgString[128]; 
-
 
 //#define CS_PIN D1     // ESP8266 default SPI pins
 //#define CLOCK_PIN D5  // Should work with any other GPIO pins, since the library does not formally
 //#define MOSI_PIN D7   // use SPI, but rather performs pin bit banging to emulate SPI communication.
 //#define MISO_PIN D6
-#define CAN0_INT 4 
-MCP_CAN CAN0(5); 
 
 
 #ifndef APSSID
@@ -44,29 +35,47 @@ IPAddress netMsk(255, 255, 255, 0);
 ESP8266WebServer webServer(80);
 
 
-
 String responseHTML = 
 #include "C:\Projects\Diamond\Server.html"
 ;
 
 
-                      // Replaces placeholder with DHT values
-String processor(const String& var){
-  //Serial.println(var);
-  if(var == "READDATA"){
-//    return readDHTTemperature();  
+class Workplace
+{
+public:
+  enum class States { Work, Ready, Free, SOS };
+
+  States _state = State::Free;
+
+  States State() { return _state };
+  
+  void SetState(States state)
+  {
+    _state = state;
   }
-  return String();
 }
+
+WorkplaceState WP1;
+
+String Page(){
+  String str = responseHTML;
+  
+  str.replace("@{M1State0}", WP1.State() == States::Work ? "checked" : "");
+  str.replace("@{M1State1}", WP1.State() == States::Ready ? "checked" : "");
+  str.replace("@{M1State2}", WP1.State() == States::Free ? "checked" : "");
+  str.replace("@{M1State3}", WP1.State() == States::SOS ? "checked" : "");
+  
+  return str;
+  }
+
 void setup() {
 
 _log = new StringLog();
 
   Serial.begin(115200);
   WiFi.begin(APSSID, APPSK);
+
   Serial.println("");
-
-
   
   WiFi.mode(WIFI_AP);
   WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
@@ -80,127 +89,21 @@ _log = new StringLog();
 
   // replay to all requests with same HTML
   webServer.onNotFound([]() {
-    webServer.send(200, "text/html", responseHTML);
+    webServer.send(200, "text/html", Page());
   });
 
-  webServer.on("/readData", [](){
-    webServer.send(200, "text/html",_log->encodeStr(_log->text()));
-    /*webServer.send(200, "text/html", Messages);
-    Serial.println("/readData");
-    if(!digitalRead(CAN0_INT))                         // If CAN0_INT pin is low, read receive buffer
-    {
-      CAN0.readMsgBuf(&rxId, &len, rxBuf);      // Read data: len = data length, buf = data byte(s)
-      
-      if((rxId & 0x80000000) == 0x80000000)     // Determine if ID is standard (11 bits) or extended (29 bits)
-        sprintf(msgString, "Extended ID: 0x%.8lX  DLC: %1d  Data:", (rxId & 0x1FFFFFFF), len);
-      else
-        sprintf(msgString, "Standard ID: 0x%.3lX       DLC: %1d  Data:", rxId, len);
-    
-      Serial.print(msgString);
-    
-      if((rxId & 0x40000000) == 0x40000000){    // Determine if message is a remote request frame.
-        sprintf(msgString, " REMOTE REQUEST FRAME");
-        Serial.print(msgString);
-      } else {
-        for(byte i = 0; i<len; i++){
-          sprintf(msgString, " 0x%.2X", rxBuf[i]);
-          Serial.print(msgString);
-        }
-      }
-          
-      Serial.println();
-    }
-    //delay(10);*/
-  });
+  webServer.on("/M1State0", [](){ WP1.SetState(Workplace::States::Work); });
+  webServer.on("/M1State1", [](){ WP1.SetState(Workplace::States::Ready); });
+  webServer.on("/M1State2", [](){ WP1.SetState(Workplace::States::Free); });
+  webServer.on("/M1State3", [](){ WP1.SetState(Workplace::States::SOS); });
 
+  webServer.send(200, "text/html", Page());
 
-  webServer.on("/socket1On", [](){
-    webServer.send(200, "text/html", responseHTML);
-    Serial.println("/socket1On");
-   
-    byte data[5] = {0x49, 0xAA, 0x00, 0x00, 0x00};
-    byte data1[6] = {0x0A, 0x02, 0x80, 0x00, 0x00, 0x00};
-
-    
-
-    byte sndStat = CAN0.sendMsgBuf(0x291, 0, 5, data);
-    byte sndStat1 = CAN0.sendMsgBuf(0x40A, 0, 6, data1);
-    if(sndStat && sndStat1 == CAN_OK){
-      Serial.println(CAN0.sendMsgBuf(0x291, 0, 5, data));
-      Serial.println(CAN0.sendMsgBuf(0x40A, 0, 6, data1));
-    } else {
-      Serial.println("Error Sending Message...");
-    }
-    //delay(1000);
-  });
-
-  webServer.on("/socket2On", [](){
-    webServer.send(200, "text/html", responseHTML);
-    Serial.println("/socket2On");
-
-    byte data[5] = {0x89, 0x00, 0x05, 0x00, 0x00};
-    byte data1[6] = {0x00, 0x02, 0x80, 0x00, 0x00, 0x00};
-
-    byte sndStat = CAN0.sendMsgBuf(0x291, 0, 5, data);
-    byte sndStat1 = CAN0.sendMsgBuf(0x400, 0, 6, data1);
-    if(sndStat && sndStat1 == CAN_OK){
-      Serial.println(CAN0.sendMsgBuf(0x291, 0, 5, data));
-      Serial.println(CAN0.sendMsgBuf(0x400, 0, 6, data1));
-    } else {
-      Serial.println("Error Sending Message...");
-    }
-    //delay(1000);
-  });
-
-
-  
   webServer.begin();
-
-// Initialize MCP2515 running at 16MHz with a baudrate of 500kb/s and the masks and filters disabled.
-  if(CAN0.begin(MCP_ANY, CAN_100KBPS, MCP_8MHZ) == CAN_OK) Serial.println("MCP2515 Initialized Successfully!");
-  else Serial.println("Error Initializing MCP2515...");
-
-  CAN0.setMode(MCP_NORMAL);   // Change to normal mode to allow messages to be transmitted
-
-  pinMode(CAN0_INT, INPUT);                            // Configuring pin for /INT input
-  
-  Serial.println("MCP2515 Library Receive Example...");
 }
 
 
 void loop() {
   dnsServer.processNextRequest();
   webServer.handleClient();
-
-if(!digitalRead(CAN0_INT))                         // If CAN0_INT pin is low, read receive buffer
-    {
-      CAN0.readMsgBuf(&rxId, &len, rxBuf);      // Read data: len = data length, buf = data byte(s)
-      
-      if((rxId & 0x80000000) == 0x80000000)     // Determine if ID is standard (11 bits) or extended (29 bits)
-        sprintf(msgString, "Extended ID: 0x%.8lX  DLC: %1d  Data:", (rxId & 0x1FFFFFFF), len);
-      else
-        sprintf(msgString, "%.3lX.%1d.", rxId, len);
-      _log->print(msgString);
-      Serial.print(msgString);
-      
-    
-      if((rxId & 0x40000000) == 0x40000000){    // Determine if message is a remote request frame.
-        sprintf(msgString, " REMOTE REQUEST FRAME");
-        Serial.print(msgString);
-      } else {
-        for(byte i = 0; i<len; i++){
-          sprintf(msgString, " %.2X", rxBuf[i]);
-          Serial.print(msgString);
-          _log->print(msgString);
-        }
-      }
-          
-      Serial.println();
-      _log->println(".");
-    }
-    //delay(10);*/
-  //_log->print(i);
-  //_log->println(" - Заповнюй лог тут");
-  i++;
-
 }
