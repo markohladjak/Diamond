@@ -2,8 +2,71 @@ R"~~~~(
 <!DOCTYPE html>
 <html lang='en'>
   <head>
-    <meta name='viewport' content='width=device-width'>
+<!--    <meta name='viewport' content='width=device-width'>-->
     <meta charset='UTF-8'>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <style>
+        .switch {
+          position: relative;
+          display: inline-block;
+          width: 60px;
+          height: 34px;
+        }
+
+        .switch input {
+          opacity: 0;
+          width: 0;
+          height: 0;
+        }
+
+        .slider {
+          position: absolute;
+          cursor: pointer;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: #ccc;
+          -webkit-transition: .9s;
+          transition: .9s;
+        }
+
+        .slider:before {
+          position: absolute;
+          content: "";
+          height: 26px;
+          width: 26px;
+          left: 4px;
+          bottom: 4px;
+          background-color: white;
+          -webkit-transition: .9s;
+          transition: .9s;
+        }
+
+        input:checked + .slider {
+          background-color: #2196F3;
+        }
+
+        input:focus + .slider {
+          box-shadow: 0 0 1px #2196F3;
+        }
+
+        input:checked + .slider:before {
+          -webkit-transform: translateX(26px);
+          -ms-transform: translateX(26px);
+          transform: translateX(26px);
+        }
+
+        /* Rounded sliders */
+        .slider.round {
+          border-radius: 34px;
+        }
+
+        .slider.round:before {
+          border-radius: 50%;
+        }
+    </style>
   </head>
   <body>
       <form id="mainForm" name="mainForm">
@@ -14,6 +77,26 @@ R"~~~~(
       </form>
       
       <span id="result">EEEEEEEEE</span>
+
+      <label class="switch">
+        <input type="checkbox">
+        <span class="slider"></span>
+      </label>
+
+      <label class="switch">
+        <input type="checkbox" checked="">
+        <span class="slider"></span>
+      </label><br><br>
+
+      <label class="switch">
+        <input type="checkbox">
+        <span class="slider round"></span>
+      </label>
+
+      <label class="switch">
+        <input type="checkbox" checked="">
+        <span class="slider round"></span>
+      </label>
 
       <script>
           document.mainForm.onclick = function() {
@@ -31,48 +114,6 @@ R"~~~~(
               }
           }
       </script>
-
-      
-<!--  <form action='/action_page.php'>-->
-<!--  <input type='radio' id='male' name='gender' value='male'>-->
-<!--  <label for='male'>Робота</label><br>-->
-<!--  <input type='radio' id='female' name='gender' value='female'>-->
-<!--  <label for='female'>Готово</label><br>-->
-<!--  <input type='radio' id='other' name='gender' value='other'>-->
-<!--  <label for='other'>Вільно</label><br>-->
-<!--  <input type='radio' id='other' name='gender' value='other'>-->
-<!--  <label for='other'>SOS</label>-->
-<!--</form>-->
-<!--<input type='checkbox' id='other' name='gender' value='other'>-->
-<!-- <span class='slider round'></span>-->
-<!--  <label for='other'>Блок</label>-->
-<!--    <a href="socket1On">-->
-<!--      <button style='width: 100px; height: 40px; font-size: 15px; margin: 10px;'>Робота</button>-->
-<!--    </a>-->
-<!--    <br>-->
-<!--    <a href="socket2On">-->
-<!--      <button style='width: 100px; height: 40px; font-size: 15px; margin: 10px;'>Готово</button>-->
-<!--    </a>-->
-<!--    <br>-->
-<!--    <a href="socket3On">-->
-<!--      <button style='width: 100px; height: 40px; font-size: 15px; margin: 10px;'>Вільно</button>-->
-<!--    </a>-->
-<!--    <br>-->
-<!--    <a href="socket4On">-->
-<!--      <button style='width: 100px; height: 40px; font-size: 15px; margin: 10px;'>SOS</button>-->
-<!--    </a>-->
-<!--    <script>-->
-<!--      setInterval(function ( ) {-->
-<!--        var xhttp = new XMLHttpRequest();-->
-<!--        xhttp.onreadystatechange = function() {-->
-<!--          if (this.readyState == 4 && this.status == 200) {-->
-<!--            document.getElementById('can-log').value = this.responseText;-->
-<!--          }-->
-<!--        };-->
-<!--        xhttp.open('GET', 'readData', true);-->
-<!--        xhttp.send();-->
-<!--      }, 10000);-->
-<!--    </script>-->
   </body>
 </html>
 )~~~~"
