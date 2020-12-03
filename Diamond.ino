@@ -45,55 +45,9 @@ ESP8266WebServer webServer(80);
 
 
 
-String responseHTML = "<!DOCTYPE html>\n\
-<html lang='en'>\n\
-  <head>\n\
-    <meta name='viewport' content='width=device-width'>\n\
-    <meta charset='UTF-8'>\n\
-  </head>\n\
-  <body>\n\
-  <form action='/action_page.php'>\n\
-  <input type='radio' id='male' name='gender' value='male'>\n\
-  <label for='male'>Робота</label><br>\n\
-  <input type='radio' id='female' name='gender' value='female'>\n\
-  <label for='female'>Готово</label><br>\n\
-  <input type='radio' id='other' name='gender' value='other'>\n\
-  <label for='other'>Вільно</label><br>\n\
-  <input type='radio' id='other' name='gender' value='other'>\n\
-  <label for='other'>SOS</label>\n\
-</form>\n\
-<input type='checkbox' id='other' name='gender' value='other'>\n\
- <span class='slider round'></span>\n\
-  <label for='other'>Блок</label>\n\
-    <a href=\"socket1On\">\n\
-      <button style='width: 100px; height: 40px; font-size: 15px; margin: 10px;'>Робота</button>\n\
-    </a>\n\
-    <br>\n\
-    <a href=\"socket2On\">\n\
-      <button style='width: 100px; height: 40px; font-size: 15px; margin: 10px;'>Готово</button>\n\
-    </a>\n\
-    <br>\n\
-    <a href=\"socket3On\">\n\
-      <button style='width: 100px; height: 40px; font-size: 15px; margin: 10px;'>Вільно</button>\n\
-    </a>\n\
-    <br>\n\
-    <a href=\"socket4On\">\n\
-      <button style='width: 100px; height: 40px; font-size: 15px; margin: 10px;'>SOS</button>\n\
-    </a>\n\
-    <script>\n\
-      setInterval(function ( ) {\n\
-        var xhttp = new XMLHttpRequest();\n\
-        xhttp.onreadystatechange = function() {\n\
-          if (this.readyState == 4 && this.status == 200) {\n\
-            document.getElementById('can-log').value = this.responseText;\n\
-          }\n\
-        };\n\
-        xhttp.open('GET', 'readData', true);\n\
-        xhttp.send();\n\
-      }, 10000);\n\
-    </script>\n\
-  </body>\n\
-</html>";
+String responseHTML = 
+#include "C:\Projects\Diamond\Server.html"
+;
 
 
                       // Replaces placeholder with DHT values

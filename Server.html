@@ -1,0 +1,51 @@
+R"~~~~(
+<!DOCTYPE html>
+<html lang='en'>
+  <head>
+    <meta name='viewport' content='width=device-width'>
+    <meta charset='UTF-8'>
+  </head>
+  <body>
+  <form action='/action_page.php'>
+  <input type='radio' id='male' name='gender' value='male'>
+  <label for='male'>Робота</label><br>
+  <input type='radio' id='female' name='gender' value='female'>
+  <label for='female'>Готово</label><br>
+  <input type='radio' id='other' name='gender' value='other'>
+  <label for='other'>Вільно</label><br>
+  <input type='radio' id='other' name='gender' value='other'>
+  <label for='other'>SOS</label>
+</form>
+<input type='checkbox' id='other' name='gender' value='other'>
+ <span class='slider round'></span>
+  <label for='other'>Блок</label>
+    <a href="socket1On">
+      <button style='width: 100px; height: 40px; font-size: 15px; margin: 10px;'>Робота</button>
+    </a>
+    <br>
+    <a href="socket2On">
+      <button style='width: 100px; height: 40px; font-size: 15px; margin: 10px;'>Готово</button>
+    </a>
+    <br>
+    <a href="socket3On">
+      <button style='width: 100px; height: 40px; font-size: 15px; margin: 10px;'>Вільно</button>
+    </a>
+    <br>
+    <a href="socket4On">
+      <button style='width: 100px; height: 40px; font-size: 15px; margin: 10px;'>SOS</button>
+    </a>
+    <script>
+      setInterval(function ( ) {
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+          if (this.readyState == 4 && this.status == 200) {
+            document.getElementById('can-log').value = this.responseText;
+          }
+        };
+        xhttp.open('GET', 'readData', true);
+        xhttp.send();
+      }, 10000);
+    </script>
+  </body>
+</html>
+)~~~~"
