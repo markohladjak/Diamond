@@ -10,14 +10,8 @@ MCP_CAN CAN0(10);     // Set CS to pin 10
 
 void setup()
 {
-  pinMode(A0,INPUT_PULLUP);
-  pinMode(A1,INPUT_PULLUP);
-  pinMode(A2,INPUT_PULLUP);
-  pinMode(A3,INPUT_PULLUP);
-  pinMode(A4,INPUT_PULLUP);
-  pinMode(A5,INPUT_PULLUP);
-  pinMode(A6,INPUT_PULLUP);
-  pinMode(A7,INPUT_PULLUP);
+  for (int i = 14; i <= 21; ++i) // A0 to A8 set INPUT_PULLUP
+    pinMode(i,INPUT_PULLUP);
 
   Serial.begin(115200);
 
@@ -26,7 +20,8 @@ void setup()
 
   CAN0.setMode(MCP_NORMAL);   // Change to normal mode to allow messages to be transmitted
 
-  Serial.println(A1);
+  Serial.println(A0);
+  Serial.println(A7);
 }
 
 byte frame[8] = {0x70, 0x05, 0x30, 0x15, 0x00, 0x00, 0x00, 0x00};
@@ -53,7 +48,7 @@ void loop()
 
 void SetLights(byte state)
 {
-    frame[5] = state;
+    frame[5] = state << 4;
     CAN0.sendMsgBuf(0x750, 0, 8, frame);
 
     active = (bool)state;
@@ -66,6 +61,7 @@ void PrintState(byte state)
     if (state & LIGHT_SIDE) Serial.print("габарит ");
     if (state & LIGHT_LOW) Serial.print("ближнє ");
     if (state & LIGHT_HIGH) Serial.print("дальнє ");
+    if (state == LIGHT_OFF) Serial.print("вимкнено ");
     
     Serial.println();
 }
