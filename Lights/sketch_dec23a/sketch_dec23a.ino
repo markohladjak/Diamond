@@ -10,8 +10,8 @@ MCP_CAN CAN0(10);     // Set CS to pin 10
 
 void setup()
 {
-  for (int i = 14; i <= 21; ++i) // A0 to A8 set INPUT_PULLUP
-    pinMode(i,INPUT_PULLUP);
+  for (int i = 14; i <= 21; ++i) // A0 to A8 set INPUT_PULLUP (A0 = 14, A1 = 15,... A7 = 21)
+    pinMode(i, INPUT_PULLUP);
 
   Serial.begin(115200);
 
@@ -19,9 +19,6 @@ void setup()
   else Serial.println("Error Initializing MCP2515...");
 
   CAN0.setMode(MCP_NORMAL);   // Change to normal mode to allow messages to be transmitted
-
-  Serial.println(A0);
-  Serial.println(A7);
 }
 
 byte frame[8] = {0x70, 0x05, 0x30, 0x15, 0x00, 0x00, 0x00, 0x00};
