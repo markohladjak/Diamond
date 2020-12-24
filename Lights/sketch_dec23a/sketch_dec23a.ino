@@ -4,9 +4,10 @@
 MCP_CAN CAN0(10);     // Set CS to pin 10
 
 #define LIGHT_OFF   0x0
-#define LIGHT_HIGH  0x2
-#define LIGHT_LOW   0x4
-#define LIGHT_SIDE  0x8
+#define LIGHT_SIDE  0x1
+#define LIGHT_LOW   0x2
+#define LIGHT_HIGH  0x4
+#define LIGHT_DRL   0x8
 
 void setup()
 {
@@ -21,7 +22,8 @@ void setup()
   CAN0.setMode(MCP_NORMAL);   // Change to normal mode to allow messages to be transmitted
 }
 
-byte frame[8] = {0x70, 0x05, 0x30, 0x15, 0x00, 0x00, 0x00, 0x00};
+byte frame[8] = {0x12, 0x00, 0x88, 0x00, 0x00, 0x00, 0x00, 0x00};
+
 bool active = false;
 
 void SetLights(byte data);
@@ -32,8 +34,9 @@ void loop()
   bool side = analogRead(A1) < 100;
   bool low = analogRead(A2) < 100;
   bool high = analogRead(A3) < 100;
+  bool drl = analogRead(A4) < 100;
 
-  byte state = side * LIGHT_SIDE + low * LIGHT_LOW + high * LIGHT_HIGH;
+  byte state = side * LIGHT_SIDE + low * LIGHT_LOW + high * LIGHT_HIGH + drl * LIGHT_DRL;
   
   if( state )
     SetLights( state );
@@ -45,7 +48,7 @@ void loop()
 
 void SetLights(byte state)
 {
-    frame[5] = state << 4;
+    frame[3] = state << 4;
     CAN0.sendMsgBuf(0x750, 0, 8, frame);
 
     active = (bool)state;
