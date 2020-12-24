@@ -1,9 +1,13 @@
+#include <ESPAsyncTCP.h>
+
+#include <ESPAsyncWebServer.h>
+
+
 #include <ESP8266WiFi.h>
 #include <DNSServer.h>
-#include <ESP8266WebServer.h>
-#include <DNSServer.h>
 
-#include <mcp_can.h>
+
+//#include <mcp_can.h>
 #include <SPI.h>
 
 //#define CS_PIN D1     // ESP8266 default SPI pins
@@ -28,11 +32,11 @@ DNSServer dnsServer;
 IPAddress apIP(172, 217, 28, 1);
 IPAddress netMsk(255, 255, 255, 0);
 
-ESP8266WebServer webServer(80);
+AsyncWebServer webServer(80);
 
 
 String responseHTML = 
-#include "C:\Projects\Diamond\Server.html"
+#include "./Server.h"
 ;
 
 
@@ -81,16 +85,16 @@ void setup() {
   dnsServer.start(DNS_PORT, "*", apIP);
 
   // replay to all requests with same HTML
-  webServer.onNotFound([]() {
-    webServer.send(200, "text/html", Page());
-  });
+//  webServer.onNotFound([]() {
+//    webServer.send(200, "text/html", Page());
+//  });
 
-  webServer.on("/M1State0", [](){ WP1.SetState(Workplace::States::Work); });
-  webServer.on("/M1State1", [](){ WP1.SetState(Workplace::States::Ready); });
-  webServer.on("/M1State2", [](){ WP1.SetState(Workplace::States::Free); });
-  webServer.on("/M1State3", [](){ WP1.SetState(Workplace::States::SOS); });
+//  webServer.on("/M1State0", [](){ WP1.SetState(Workplace::States::Work); });
+//  webServer.on("/M1State1", [](){ WP1.SetState(Workplace::States::Ready); });
+//  webServer.on("/M1State2", [](){ WP1.SetState(Workplace::States::Free); });
+//  webServer.on("/M1State3", [](){ WP1.SetState(Workplace::States::SOS); });
 
-  webServer.send(200, "text/html", Page());
+//  webServer.send(200, "text/html", Page());
 
   webServer.begin();
 }
@@ -98,5 +102,5 @@ void setup() {
 
 void loop() {
   dnsServer.processNextRequest();
-  webServer.handleClient();
+//  webServer.handleClient();
 }

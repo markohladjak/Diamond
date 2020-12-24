@@ -50,6 +50,18 @@
             <div class="test_div1" id="test_div1"></div>
     </div>
 
+     <form id="tweet-form" th:action="@{/tweets/tweet}" th:object="${tweet}" method="post">
+       <div class="row">
+         <div class="col">
+       <input type="text" th:field="*{content}" class="form-control"  placeholder="What's happening? Tell us!">
+         </div>
+         <div class="col">
+           <input id="submit-form" class="form-control" type="button" value="Submit" />
+         </div>
+       </div>
+     </form>
+     
+     
     <script>
 
 
