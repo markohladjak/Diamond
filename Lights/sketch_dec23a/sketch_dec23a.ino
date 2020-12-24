@@ -61,6 +61,7 @@ void PrintState(byte state)
     if (state & LIGHT_SIDE) Serial.print("габарит ");
     if (state & LIGHT_LOW) Serial.print("ближнє ");
     if (state & LIGHT_HIGH) Serial.print("дальнє ");
+    if (state & LIGHT_DRL) Serial.print("DRL ");
     if (state == LIGHT_OFF) Serial.print("вимкнено ");
     
     Serial.println();
