@@ -9,6 +9,11 @@ MCP_CAN CAN0(10);     // Set CS to pin 10
 #define LIGHT_HIGH  0x4
 #define LIGHT_DRL   0x8
 
+class LightsCommand 
+{
+  
+}
+
 void setup()
 {
   for (int i = 14; i <= 21; ++i) // A0 to A8 set INPUT_PULLUP (A0 = 14, A1 = 15,... A7 = 21)
@@ -49,7 +54,7 @@ void loop()
 void SetLights(byte state)
 {
     frame[3] = state << 4;
-    CAN0.sendMsgBuf(0x750, 0, 8, frame);
+    CAN0.sendMsgBuf(0x622, 0, 8, frame);
 
     active = (bool)state;
     
