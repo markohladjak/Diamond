@@ -21,7 +21,7 @@ void setup()
 
   Serial.begin(115200);
 
-  if(CAN0.begin(MCP_ANY, CAN_250KBPS, MCP_8MHZ) == CAN_OK) Serial.println("MCP2515 Initialized Successfully!");
+  if(CAN0.begin(MCP_ANY, CAN_500KBPS, MCP_8MHZ) == CAN_OK) Serial.println("MCP2515 Initialized Successfully!");
   else Serial.println("Error Initializing MCP2515...");
 
   CAN0.setMode(MCP_NORMAL);   // Change to normal mode to allow messages to be transmitted
@@ -36,10 +36,10 @@ void PrintState(byte state);
 
 void loop()
 {
-  bool side = analogRead(A1) < 100;
-  bool low = analogRead(A2) < 100;
-  bool high = analogRead(A3) < 100;
-  bool drl = analogRead(A4) < 100;
+  bool side = analogRead(A2) < 100;
+  bool low = analogRead(A3) < 100;
+  bool high = analogRead(A4) < 100;
+  bool drl = analogRead(A5) < 100;
 
   byte state = side * LIGHT_SIDE + low * LIGHT_LOW + high * LIGHT_HIGH + drl * LIGHT_DRL;
   
