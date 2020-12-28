@@ -15,30 +15,14 @@
 //#define MOSI_PIN D7   // use SPI, but rather performs pin bit banging to emulate SPI communication.
 //#define MISO_PIN D6
 
-
-#ifndef APSSID
-#define APSSID "Diamond"
-#define APPSK  "12345678"
-#endif
-
-const char *softAP_ssid = APSSID;
-const char *softAP_password = APPSK;
-
-const char *myHostname = "esp8266";
-
-const byte DNS_PORT = 53;
-DNSServer dnsServer;
-
-IPAddress apIP(172, 217, 28, 1);
-IPAddress netMsk(255, 255, 255, 0);
+const char *ssid = "Marko";
+const char *password = "mmmmmmmm";
 
 AsyncWebServer webServer(80);
 
-
 String responseHTML = 
-#include "./Server.h"
+#include "./test.h"
 ;
-
 
 class Workplace
 {
@@ -64,43 +48,71 @@ String Page(){
   str.replace("@{M1State1}", WP1.State() == Workplace::States::Ready ? "checked" : "");
   str.replace("@{M1State2}", WP1.State() == Workplace::States::Free ? "checked" : "");
   str.replace("@{M1State3}", WP1.State() == Workplace::States::SOS ? "checked" : "");
-  
+
+
+  Serial.println(str);
+
   return str;
   }
 
+void initWiFi();
+
 void setup() {
   Serial.begin(115200);
-  WiFi.begin(APSSID, APPSK);
 
-  Serial.println("");
+  Serial.println("Work");
+
+  initWiFi();
   
-  WiFi.mode(WIFI_AP);
-  WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
-  WiFi.softAP("DNSServer CaptivePortal example");
-  WiFi.softAPConfig(apIP, apIP, netMsk);
-  WiFi.softAP(softAP_ssid, softAP_password);
-
-  // if DNSServer is started with "*" for domain name, it will reply with
-  // provided IP to all DNS request
-  dnsServer.start(DNS_PORT, "*", apIP);
-
-  // replay to all requests with same HTML
 //  webServer.onNotFound([]() {
 //    webServer.send(200, "text/html", Page());
 //  });
-
+//
 //  webServer.on("/M1State0", [](){ WP1.SetState(Workplace::States::Work); });
 //  webServer.on("/M1State1", [](){ WP1.SetState(Workplace::States::Ready); });
 //  webServer.on("/M1State2", [](){ WP1.SetState(Workplace::States::Free); });
 //  webServer.on("/M1State3", [](){ WP1.SetState(Workplace::States::SOS); });
 
-//  webServer.send(200, "text/html", Page());
+  webServer.onNotFound([](AsyncWebServerRequest *request){
+    Serial.println("onNotFound");
 
+    request->send_P(200, "text/html", Page().c_str());
+  });
+
+  webServer.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
+    Serial.println("on");
+
+    request->send_P(200, "text/html", Page().c_str());
+  });
+  
   webServer.begin();
 }
 
 
 void loop() {
-  dnsServer.processNextRequest();
 //  webServer.handleClient();
+//    Serial.println("loop");
+}
+
+void initWiFi() {
+    if (WiFi.status() == WL_NO_SHIELD) {
+      Serial.println("WiFi shield not present");
+      while (true);
+    }
+    
+    WiFi.mode(WIFI_STA);
+    WiFi.begin(ssid, password);
+
+    IPAddress ip(192,168,0,35);
+    IPAddress gateway(192,168,0,1);
+    IPAddress subnet(255,255,255,0);
+    
+    WiFi.config(ip, gateway, subnet);
+
+    Serial.print("Connecting to WiFi ..");
+    while (WiFi.status() != WL_CONNECTED) {
+        Serial.print('.');
+        delay(1000);
+    }
+    Serial.println(WiFi.localIP());
 }
