@@ -12,49 +12,6 @@ R"~~~~(
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Diamond</title>
     
-    <style>
-.button {
-  background-color: #004A7F;
-  -webkit-border-radius: 10px;
-  border-radius: 10px;
-  border: none;
-  color: #FFFFFF;
-  cursor: pointer;
-  display: inline-block;
-  font-family: Arial;
-  font-size: 20px;
-  padding: 5px 10px;
-  text-align: center;
-  text-decoration: none;
-  -webkit-animation: glowing 1500ms infinite;
-  -moz-animation: glowing 1500ms infinite;
-  -o-animation: glowing 1500ms infinite;
-  animation: glowing 1500ms infinite;
-}
-@-webkit-keyframes glowing {
-  0% { background-color: #B20000; -webkit-box-shadow: 0 0 3px #B20000; }
-  50% { background-color: #FF0000; -webkit-box-shadow: 0 0 40px #FF0000; }
-  100% { background-color: #B20000; -webkit-box-shadow: 0 0 3px #B20000; }
-}
-
-@-moz-keyframes glowing {
-  0% { background-color: #B20000; -moz-box-shadow: 0 0 3px #B20000; }
-  50% { background-color: #FF0000; -moz-box-shadow: 0 0 40px #FF0000; }
-  100% { background-color: #B20000; -moz-box-shadow: 0 0 3px #B20000; }
-}
-
-@-o-keyframes glowing {
-  0% { background-color: #B20000; box-shadow: 0 0 3px #B20000; }
-  50% { background-color: #FF0000; box-shadow: 0 0 40px #FF0000; }
-  100% { background-color: #B20000; box-shadow: 0 0 3px #B20000; }
-}
-
-@keyframes glowing {
-  0% { background-color: #B20000; box-shadow: 0 0 3px #B20000; }
-  50% { background-color: #FF0000; box-shadow: 0 0 40px #FF0000; }
-  100% { background-color: #B20000; box-shadow: 0 0 3px #B20000; }
-}
-    </style>
   </head>
   <body>
 <div class="container">
@@ -89,27 +46,9 @@ R"~~~~(
                           
                         </tbody>
                       </table>
-                      <audio id="myAudio">
-                        <source src="C:\Users\admin\Desktop\beep-30b.mp3" type="audio/mp3">
-                        Your browser does not support the audio element.
-                      </audio>
                 </div>
               </div>
             </div>
-            <!-- <div class="card">
-              <div class="card-header" id="headingTwo">
-                <h2 class="mb-0">
-                  <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                    План
-                  </button>
-                </h2>
-              </div>
-              <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample">
-                <div class="card-body">
-                  Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
-                </div>
-              </div>
-            </div> -->
         </div>
 </div>
               
@@ -134,14 +73,6 @@ R"~~~~(
     <script src="https://cdn.djsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" integrity="sha384-w1Q4orYjBQndcko6MimVbzY0tgp4pWB4lZ7lr30WKz0vr/aWKhXdBNmNb5D92v7s" crossorigin="anonymous"></script>
     -->
-
-    <script>
-      
-     var x = document.getElementById("myAudio"); 
-     function playAudio() { 
-     x.play(); 
-} 
-      </script>
       
     <script>
       

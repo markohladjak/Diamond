@@ -103,11 +103,11 @@ void initWiFi() {
     WiFi.mode(WIFI_STA);
     WiFi.begin(ssid, password);
 
-    IPAddress ip(192,168,0,35);
-    IPAddress gateway(192,168,0,1);
-    IPAddress subnet(255,255,255,0);
+    //IPAddress ip(192,168,0,35);
+    //IPAddress gateway(192,168,0,1);
+    //IPAddress subnet(255,255,255,0);
     
-    WiFi.config(ip, gateway, subnet);
+    //WiFi.config(ip, gateway, subnet);
 
     Serial.print("Connecting to WiFi ..");
     while (WiFi.status() != WL_CONNECTED) {
