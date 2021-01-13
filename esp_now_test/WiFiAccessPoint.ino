@@ -51,7 +51,7 @@ ESP8266WebServer server(80);
 
 uint8_t broadcastAddress[] = {0x84, 0x0D, 0x8E, 0x85, 0xD9, 0x6C};
 
-const long interval = 10000;
+const long interval = 100;
 unsigned long previousMillis = 0;
 
 /* Just a little test message.  Go to http://192.168.4.1 in a web browser
@@ -90,7 +90,7 @@ void OnDataSent(uint8_t *mac_addr, uint8_t sendStatus) {
 // Callback when data is received
 void OnDataRecv(uint8_t * mac, uint8_t *incomingData, uint8_t len) {
 	Serial.println("Received data: " + String((char*)incomingData)
-			+ "    MAC: " + String((char*)mac));
+			+ "    MAC: " + MACtoSTR(mac));
 
 	Serial.println();
 
@@ -103,18 +103,38 @@ void setup() {
   Serial.println();
   Serial.print("Configuring access point...");
   /* You can remove the password parameter if you want the AP to be open. */
-  WiFi.softAP(ssid, password);
+  // Set device as a Wi-Fi Station
+  WiFi.mode(WIFI_STA);
+  WiFi.disconnect();
 
-  IPAddress myIP = WiFi.softAPIP();
-  Serial.print("AP IP address: ");
-  Serial.println(myIP);
+//  WiFi.begin("ESP_WIFI");
+//  while (WiFi.status() != WL_CONNECTED) {
+//    delay(1000);
+//    Serial.println("Setting as a Wi-Fi Station..");
+//  }
+
+  Serial.println();
+
+  Serial.print("Connected, IP address: ");
+  Serial.println(WiFi.localIP());
+  Serial.print("Channel : ");
+  Serial.println(WiFi.channel());
+
+//  WiFi.softAP(ssid, password);
+//
+//  IPAddress myIP = WiFi.softAPIP();
+//  Serial.print("AP IP address: ");
+//  Serial.println(myIP);
 
   Serial.print("ESP Board MAC Address:  ");
   Serial.println(WiFi.macAddress());
 
-  server.on("/", handleRoot);
-  server.begin();
-  Serial.println("HTTP server started");
+//  server.on("/", handleRoot);
+//  server.begin();
+//  Serial.println("HTTP server started");
+
+
+
 
   // Init ESP-NOW
   if (esp_now_init() != 0) {
@@ -126,13 +146,13 @@ void setup() {
 
   esp_now_register_send_cb(OnDataSent);
 
-  esp_now_add_peer(broadcastAddress, ESP_NOW_ROLE_COMBO, 1, NULL, 0);
+  esp_now_add_peer(broadcastAddress, ESP_NOW_ROLE_COMBO, 13, NULL, 0);
 
   esp_now_register_recv_cb(OnDataRecv);
 }
 
 void loop() {
-  server.handleClient();
+//  server.handleClient();
 
   unsigned long currentMillis = millis();
   if (currentMillis - previousMillis >= interval) {
