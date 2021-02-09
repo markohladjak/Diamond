@@ -1,0 +1,90 @@
+R"~~~(
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+</head>
+<body onload="onloadHandler()">
+
+<script>
+//  $(document).ready(function() {
+//    $("#myToggleButton").button();
+    // $('a#button').click(function() {
+    //   $(this).toggleClass("down");
+    // });
+//  });
+
+	serverSendInit();
+	
+	function onloadHandler()
+	{
+		
+	}
+	
+	function onClickHandler()
+	{
+		console.log(httpGet("http://192.168.4.1/click"));
+	}
+	
+	function makeid(length) {
+   var result           = '';
+   var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+   var charactersLength = characters.length;
+   for ( var i = 0; i < length; i++ ) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+   }
+   return result;
+}
+
+	function serverSendInit()
+	{
+		if (!!window.EventSource) {
+			var source = new EventSource('/events');
+
+		    source.addEventListener('open', function(e) {
+		    	console.log("Events Connected");
+		  	}, false);
+	
+		  source.addEventListener('error', function(e) {
+		    if (e.target.readyState != EventSource.OPEN) {
+		      console.log("Events Disconnected");
+		    }
+		  }, false);
+	
+	  	source.addEventListener('message', function(e) {
+	    	console.log("message", e.data);
+	  	}, false);
+	
+	  	source.addEventListener('msg', function(e) {
+	    	console.log("msg", e.data);
+	    	document.getElementById("serverData").innerHTML = e.data + "  " + " wwwww";
+	  	}, false);
+		}
+	}
+
+	function httpGet(theUrl)
+    {
+        var xmlHttp = new XMLHttpRequest();
+        xmlHttp.open( "GET", theUrl, false ); // false for synchronous request
+        xmlHttp.send(null);
+        return xmlHttp.responseText;
+	}
+
+</script>
+
+
+<ul>
+<li>
+<label>text from server:     </label>
+<label id="serverData"></label>
+</li>
+<li>
+<button onclick="onClickHandler()">Click me</button>
+</li>
+</ul>
+
+
+
+</body>
+</html>
+)~~~"
