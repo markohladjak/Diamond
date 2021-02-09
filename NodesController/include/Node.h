@@ -11,6 +11,7 @@
 #include <INode.h>
 #include <IDevice.h>
 #include <vector>
+#include <LogService.h>
 
 namespace diamon {
 
@@ -19,8 +20,10 @@ class Node: public INode {
 
 	std::vector<IDevice*> _devices;
 
+	LogService *_logService;
+
 public:
-	Node(int id);
+	Node(uint64_t id);
 	virtual ~Node();
 	
 	void AddDevice(IDevice *device);

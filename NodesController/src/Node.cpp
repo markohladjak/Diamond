@@ -6,11 +6,14 @@
  */
 
 #include <Node.h>
+#include <LogService.h>
 
 namespace diamon {
 
-Node::Node(int id) {
+Node::Node(uint64_t id) {
 	_id = id;
+
+	_logService = new LogService();
 }
 
 Node::~Node() {
@@ -21,6 +24,8 @@ void Node::AddDevice(IDevice *device) {
 }
 
 void Node::Process() {
+	for (auto device: _devices)
+		device->update();
 }
 
 } /* namespace diamon */

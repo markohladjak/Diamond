@@ -10,17 +10,38 @@
 
 #include <IController.h>
 #include <IDevice.h>
+#include "RGBRele.h"
+#include <map>
+#include <Events.h>
+#include <LiftState.h>
 
 namespace diamon {
 
 
+typedef void (*StateChangedHandler)(LiftState state, void *obj);
+
 class Lift: public IDevice {
 public:
-	Lift();
-	~Lift() {};
+	Lift(int Rpin, int Gpin, int Bpin);
+	~Lift();
 
-	bool ExecuteCommand(ICommand* command) { return true; }
-	DeviceState GetState() { return 0; }
+	bool ExecuteCommand(ICommand* command) override
+	{ return true; }
+
+	const LiftState& GetState() { return _state; }
+	void SetState(const LiftState& state) { set_state(state); }
+
+	TEvent<LiftState> StateChangedEvent;
+
+	void update() override;
+
+private:
+	LiftState _state;
+
+	RGBRele *RGBMonitor;
+
+	void set_state(LiftState state);
+	void show_state();
 };
 
 } /* namespace diamon */

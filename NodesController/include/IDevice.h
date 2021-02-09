@@ -9,15 +9,16 @@
 #define INCLUDE_IDEVICE_H_
 
 #include <ICommand.h>
+#include "IInLoop.h"
 
 namespace diamon {
 
-typedef int DeviceState;
+class DeviceState { };
 
-class IDevice {
+
+class IDevice: public IInLoop {
 public:
 		virtual bool ExecuteCommand(ICommand* command) = 0;
-		virtual DeviceState GetState() = 0;
 
 		virtual ~IDevice() {};
 };
