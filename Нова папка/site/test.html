@@ -41,36 +41,6 @@
       top: 640px;
       /* z-index: -1; */
     }
-    #b2 {
-      position: absolute;
-      left: 620px;
-      top: 640px;
-      /* z-index: -1; */
-    }
-    #b3 {
-      position: absolute;
-      left: 574px;
-      top: 640px;
-      /* z-index: -1; */
-    }
-    #b4 {
-      position: absolute;
-      left: 528px;
-      top: 640px;
-      /* z-index: -1; */
-    }
-    #b5 {
-      position: absolute;
-      left: 490px;
-      top: 640px;
-      /* z-index: -1; */
-    }
-    #b6 {
-      position: absolute;
-      left: 666px;
-      top: 640px;
-      /* z-index: -1; */
-    }
   </style>
 
 
@@ -110,8 +80,8 @@
 
               <div id="postViewContainer"></div>
 
-              <tr>
-                <th scope="row">1</th>
+              <!-- <tr>
+                <th scope="row">1</th> 
                 <td>
                   <button class='btn-success' type="button" id="work#" onClick="onWork()">Робота</button>
                   <button class='btn-warning' type="button" id="done#" onClick="onDone()">Готово</button>
@@ -121,7 +91,7 @@
                 <td>
                   <button class="" type="button" onClick="toggleActive()">Вкл.</button>
                 </td>
-              </tr>
+              </tr> -->
 
               <!-- <tr>
                 <th scope="row">2</th>
@@ -169,11 +139,6 @@
             <div class="container" style="overflow-x:auto">
               <img id="plan" src="Scheme1.svg">
               <button id="b1">P.1</button>
-              <button id="b2">P.2</button>
-              <button id="b3">P.3</button>
-              <button id="b4">P.4</button>
-              <button id="b5">P.5</button>
-              <button id="b6">P.6</button>
               <div class="modal-dialog modal-xl">modal</div>
             </div>
           </div>
@@ -208,36 +173,107 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" integrity="sha384-w1Q4orYjBQndcko6MimVbzY0tgp4pWB4lZ7lr30WKz0vr/aWKhXdBNmNb5D92v7s" crossorigin="anonymous"></script>
     -->
   <script>
-    var els = generatePostView(5);
+    // var els = generatePostView(5);
 
-    els.forEach(el => {
-      document.getElementById("postViewContainer").appendChild(el);
-    })
+    // els.forEach(el => {
+    //   document.getElementById("postViewContainer").appendChild(el);
+    // })
 
     //   console.log(httpGet("http://192.168.4.1/"));
 
-    function generatePostView(count) {
-      var res = [];
+    addDevice("1");
+    addDevice("2");
+    addDevice("3");
+    addDevice("4");
 
-      for (var i = 0; i < count; i++) {
-        var postID = "postID_" + i;
-        var postNum = "postNum_" + i;
+    setDeviceState(' { "id" : "3", "state" : "Sos" } ');
 
-        var postText = `<p><input type="radio" name="${postNum}" value="Work" onchange="myFunction(this)"> Робота</p>
-                        <p><input type="radio" name="${postNum}"" value="Ready" onchange="myFunction(this)"> Готово</p>
-                        <p><input type="radio" name="${postNum}"" value="Free" onchange="myFunction(this)"> Вільно</p>
-                        <p><input type="radio" name="${postNum}"" value="Sos" onchange="myFunction(this)"> Sos</p>`
+    removeDevice("3");
 
-        var div = document.createElement('div');
+    function generatePostView(id) {
+      var radioID = "radioID" + id;
 
-        div.classList.add("postView");
-        div.id = postID;
-        div.innerHTML = postText;
+      var postText = `<div id="${id}">
+                          <p><input type="radio" name="${radioID}" value="Busy" onchange="myFunction(this)"> Робота</p>
+                          <p><input type="radio" name="${radioID}" value="Ready" onchange="myFunction(this)"> Готово</p>
+                          <p><input type="radio" name="${radioID}" value="Free" onchange="myFunction(this)"> Вільно</p>
+                          <p><input type="radio" name="${radioID}" value="Sos" onchange="myFunction(this)"> Sos</p>
+                      </div>`
 
-        res.push(div);
+      var div = document.createElement('div');
+
+      div.classList.add("postView");
+      div.id = radioID;
+      div.innerHTML = postText;
+
+      return div;
+    }
+
+    function serverSendInit() {
+      if (!!window.EventSource) {
+        var source = new EventSource('/events');
+
+        source.addEventListener('open', function (e) {
+          console.log("Events Connected");
+        }, false);
+
+        source.addEventListener('error', function (e) {
+          if (e.target.readyState != EventSource.OPEN) {
+            console.log("Events Disconnected");
+          }
+        }, false);
+
+        source.addEventListener('message', function (e) {
+          console.log("message", e.data);
+        }, false);
+
+        source.addEventListener('msg', function (e) {
+          console.log("msg", e.data);
+          processMessage(e.data);
+        }, false);
       }
+    }
 
-      return res;
+    function httpGet(theUrl) {
+      var xmlHttp = new XMLHttpRequest();
+      xmlHttp.open("GET", theUrl, false); // false for synchronous request
+      xmlHttp.send(null);
+      return xmlHttp.responseText;
+    }
+
+    function processMessage(msg) {
+      var m = JSON.parse(msg, function (key, value) {
+        switch (key) {
+          case "add": addDevice(value);
+            break;
+          case "rem": removeDevice(value);
+            break;
+          case "set": setDeviceState(value);
+            break;
+        }
+      });
+    }
+
+    function addDevice(id) {
+      var el = generatePostView(id);
+
+      document.getElementById("postViewContainer").appendChild(el);
+    }
+
+    function removeDevice(id) {
+      document.getElementById(id).remove();
+    }
+
+    function setDeviceState(msg){
+      var m = JSON.parse(msg);
+
+      var radioID = "radioID" + m.id;
+
+      var node = document.getElementsByName(radioID).forEach( function (item) {
+        if (item.value == m.state) 
+          item.checked = true; 
+      });
+
     }
 
     function myFunction(el) {
@@ -245,8 +281,8 @@
     }
 
 
-    Url url = new Uri(urlString);
-    NameValueCollection outer = HttpUtility.ParseQueryString(uri.Query);
+    // Url url = new Uri(urlString);
+    //NameValueCollection outer = HttpUtility.ParseQueryString(uri.Query);
 
     // function httpGet(theUrl)
     // {
