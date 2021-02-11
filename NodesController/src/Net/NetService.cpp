@@ -13,6 +13,10 @@ namespace diamon {
 #define   MESH_PREFIX     "Tenda_0AD898"
 #define   MESH_PASSWORD   "12345678"
 
+painlessMesh *NetService::mesh = NULL;
+std::map<uint64_t, NetService*> NetService::nodes;
+
+
 void receivedCallback(uint32_t from, TSTRING &msg)
 {
 	LogService::Log("============================ OnReceive  ======================== ", msg);
@@ -20,6 +24,7 @@ void receivedCallback(uint32_t from, TSTRING &msg)
 
 void newConnectionCallback(uint32_t nodeId)
 {
+//	LogService::Log("mesh->getStationIP(): ", NetService::mesh->getStationIP());
 }
 
 bool blink = false;
@@ -28,6 +33,7 @@ void changedConnectionCallback()
 {
 	blink = NetService::mesh->isRoot();
 
+	LogService::Log("mesh->getStationIP(): ", String(NetService::mesh->getStationIP()));
 }
 
 void nodeTimeAdjustedCallback(int32_t offset)
@@ -35,9 +41,13 @@ void nodeTimeAdjustedCallback(int32_t offset)
 
 }
 
-painlessMesh *NetService::mesh = NULL;
-std::map<uint64_t, NetService*> NetService::nodes;
-
+void WiFiStationConnected(WiFiEvent_t event, WiFiEventInfo_t info)
+{
+    Serial.println("Connected to AP!");
+    Serial.print("IP Address: ");
+    Serial.println(NetService::mesh->getStationIP());
+//	LogService::Log("mesh->getStationIP(): ", NetService::mesh->getStationIP());
+}
 
 NetService::NetService(NetAddress address) {
 	if (mesh == NULL) {
@@ -48,13 +58,14 @@ NetService::NetService(NetAddress address) {
 		mesh->setDebugMsgTypes( ERROR | MESH_STATUS | CONNECTION | SYNC | COMMUNICATION | GENERAL | MSG_TYPES | REMOTE ); // all types on
 
 
-//		mesh->stationManual(MESH_PREFIX, MESH_PASSWORD);
+		mesh->stationManual("Marko", "mmmmmmmm");
 
 		mesh->onReceive(&receivedCallback);
 		mesh->onNewConnection(&newConnectionCallback);
 		mesh->onChangedConnections(&changedConnectionCallback);
 		mesh->onNodeTimeAdjusted(&nodeTimeAdjustedCallback);
 
+		WiFi.onEvent(WiFiStationConnected, SYSTEM_EVENT_STA_GOT_IP);
 
 		pinMode(LED_BUILTIN, OUTPUT);
 	}

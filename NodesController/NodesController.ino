@@ -5,6 +5,7 @@
 #include <Arduino.h>
 #include <LogService.h>
 #include "Net/NetService.h"
+#include <UI/WebServer.h>
 
 #include <WiFi.h>
 
@@ -23,7 +24,7 @@ LiftControlBox *liftControlBox;
 
 NetService *netService;
 
-String ESPEFuseMacStr();
+WebServer *webServer;
 
 
 void setup()
@@ -39,6 +40,9 @@ void setup()
 	liftControlBox = new LiftControlBox(lift, *pinsDef);
 
 	netService = new NetService(ESP.getEfuseMac());
+
+	webServer = new WebServer(80);
+
 
 //	netService = new NetService(NODE_ID);
 //	netService.OnReceive([](INetMsg &msg){
@@ -60,6 +64,7 @@ void loop()
 
 	netService->update();
 
+	webServer->update();
 
 //	netService.update();
 

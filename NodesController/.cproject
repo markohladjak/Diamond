@@ -73,7 +73,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="libraries/ESPAsyncWebServer/.git|libraries/ESPAsyncWebServer/.github|libraries/ESPAsyncTCP-master/.github|libraries/ESPAsyncTCP-master/ssl|libraries/ESPAsyncWebServer-master/.github|libraries/AsyncTCP-master/.github|libraries/Painless_Mesh/doxygen|src|libraries/?*/**/?xamples/**|libraries/?*/**/?xtras/**|libraries/?*/**/test*/**|libraries/?*/**/third-party/**|libraries/**/._*|libraries/?*/utility/*/*" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
+						<entry excluding="libraries/?*/**/test*/**|libraries/ESPAsyncTCP-master/.github|libraries/?*/**/?xamples/**|libraries/AsyncTCP-master/.github|libraries/?*/**/?xtras/**|src|libraries/ESPAsyncWebServer-master/.github|libraries/ESPAsyncTCP-master/ssl|libraries/?*/**/third-party/**|libraries/Painless_Mesh/doxygen|libraries/?*/utility/*/*|libraries/ESPAsyncWebServer/.git|libraries/**/._*|libraries/ESPAsyncWebServer/.github" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
@@ -152,7 +152,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="libraries/ESPAsyncWebServer/.git|libraries/ESPAsyncWebServer/.github|libraries/ESPAsyncTCP-master/.github|libraries/ESPAsyncTCP-master/ssl|libraries/ESPAsyncWebServer-master/.github|libraries/AsyncTCP-master/.github|libraries/Painless_Mesh/doxygen|src|libraries/?*/**/?xamples/**|libraries/?*/**/?xtras/**|libraries/?*/**/test*/**|libraries/?*/**/third-party/**|libraries/**/._*|libraries/?*/utility/*/*" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
+						<entry excluding="libraries/?*/**/test*/**|libraries/ESPAsyncTCP-master/.github|libraries/?*/**/?xamples/**|libraries/AsyncTCP-master/.github|libraries/?*/**/?xtras/**|src|libraries/ESPAsyncWebServer-master/.github|libraries/ESPAsyncTCP-master/ssl|libraries/?*/**/third-party/**|libraries/Painless_Mesh/doxygen|libraries/?*/utility/*/*|libraries/ESPAsyncWebServer/.git|libraries/**/._*|libraries/ESPAsyncWebServer/.github" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
