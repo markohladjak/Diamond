@@ -41,7 +41,7 @@ void setup()
 
 	netService = new NetService(ESP.getEfuseMac());
 
-	webServer = new WebServer(80);
+	webServer = new WebServer(80, new NodesServer(lift));
 
 
 //	netService = new NetService(NODE_ID);

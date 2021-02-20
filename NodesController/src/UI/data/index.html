@@ -39,6 +39,11 @@ R"~~~(
       }
     }
 
+	body {
+		background: red;
+	}
+	
+
 	.test_resize {
 		grid-area: header;
 		border-style: solid;
@@ -231,10 +236,10 @@ R"~~~(
 
       var postText = `<div class="deviceView" id="${id}">
 						  <label><span>${id}</span></label>
-                          <label class="btn btn-outline-primary"><input type="radio" name="${radioID}" value="Busy" onchange="myFunction(this)"><span>Busy</span></label>
-                          <label class="btn btn-outline-primary"><input type="radio" name="${radioID}" value="Ready" onchange="myFunction(this)"><span>Ready</span></label>
-                          <label class="btn btn-primary"><input type="radio" name="${radioID}" value="Free" onchange="myFunction(this)"><span>Free</span></label>
-                          <label class="btn btn-danger"><input type="radio" name="${radioID}" value="Sos" onchange="myFunction(this)"><span>Sos</span></label>
+                          <label class="btn btn-outline-primary"><input type="radio" name="${radioID}" value="Busy" onchange="deviceStateSelected(this)"><span>Busy</span></label>
+                          <label class="btn btn-outline-primary"><input type="radio" name="${radioID}" value="Ready" onchange="deviceStateSelected(this)"><span>Ready</span></label>
+                          <label class="btn btn-primary"><input type="radio" name="${radioID}" value="Free" onchange="deviceStateSelected(this)"><span>Free</span></label>
+                          <label class="btn btn-danger"><input type="radio" name="${radioID}" value="Sos" onchange="deviceStateSelected(this)"><span>Sos</span></label>
                       </div>`
 
       var div = document.createElement('div');
@@ -268,6 +273,12 @@ R"~~~(
           console.log("msg", e.data);
           processMessage(e.data);
         }, false);
+
+        source.addEventListener('state', function (e) {
+          console.log("state", e.data);
+
+          refreshAll(e.data);
+        }, false);
       }
     }
 
@@ -283,7 +294,7 @@ R"~~~(
 		console.log(m);
 
         switch (m.command) {
-          case "add": addDevice(m.id);
+          case "add": addDevice(m.id, m.state);
             break;
           case "rem": removeDevice(m.id);
             break;
@@ -292,10 +303,14 @@ R"~~~(
         }
     }
 
-    function addDevice(id) {
+    function addDevice(id, state) {
       var el = generatePostView(id);
 
       document.getElementById("postViewContainer").appendChild(el);
+
+	  setDeviceState(id, state);
+
+      console.log("addDevice", id, state);
     }
 
     function removeDevice(id) {
@@ -312,8 +327,28 @@ R"~~~(
 
     }
 
-    function myFunction(el) {
-      console.log(el.parentElement.parentElement.id, ": ", el.value);
+	function refreshAll(data) {
+		console.log("refreshAll", data);
+		
+		container = document.getElementById("postViewContainer");
+		
+		container.innerHTML = '';
+		
+      	var m = JSON.parse(data); 
+
+		addDevice(m.id, m.state);
+	}
+	
+    function deviceStateSelected(el) {
+		var id = el.parentElement.parentElement.id;
+		var state = el.value;
+		
+		var url = window.location.href + `request?type=state&id=${id}&state=${state}`;
+
+		httpGet(url);
+		
+		console.log("deviceStateSelected", url);
+        console.log(id, ": ",state);
     }
 
 

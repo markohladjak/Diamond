@@ -38,6 +38,15 @@ public:
 	States operator = (States s) { return State = s; }
 
 	static String ToString(States state) { return StatesDescription[state]; }
+	static LiftState FromString(String str) {
+		for (auto it = StatesDescription.begin(); it != StatesDescription.end(); ++it)
+		    if (it->second == str)
+		        return it->first;
+
+		return LiftState::NONE;
+	}
+
+	String ToString() { return StatesDescription[State]; }
 };
 
 } /* namespace diamon */

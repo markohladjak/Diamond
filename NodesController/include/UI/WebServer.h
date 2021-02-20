@@ -10,6 +10,7 @@
 
 #include <ArduinoJson.h>
 #include <IInLoop.h>
+#include <NodesServer.h>
 
 #ifdef ESP32
 #include <AsyncTCP.h>
@@ -21,14 +22,22 @@
 namespace diamon {
 
 class WebServer : public IInLoop {
+	NodesServer *_nodesServer = NULL;
+
 public:
 	AsyncWebServer *_server;
 	AsyncEventSource *_events;
 
-	WebServer(int port);
+	WebServer(int port, NodesServer *nodesServer);
 	virtual ~WebServer();
 
 	void update() override;
+
+	void SendList();
+	void PrecessRequest(const StaticJsonDocument<100> *request);
+
+	void OnDeviceStateChanged(uint64_t id, LiftState state);
+
 };
 
 } /* namespace diamon */
