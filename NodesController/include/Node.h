@@ -10,23 +10,26 @@
 
 #include <INode.h>
 #include <IDevice.h>
-#include <vector>
+#include <map>
 #include <LogService.h>
+#include <Net/INetService.h>
 
 namespace diamon {
 
 class Node: public INode {
-	int _id;
-
-	std::vector<IDevice*> _devices;
+	std::map<IDevice*, INetService*> _devices;
 
 	LogService *_logService;
 
+	void OnLiftStateChanged(LiftState state);
+
+	void Subscribe(IDevice* device);
+
 public:
-	Node(uint64_t id);
+	Node();
 	virtual ~Node();
 	
-	void AddDevice(IDevice *device);
+	void AddDevice(IDevice *device, INetService *netService);
 
 	void Process();
 };

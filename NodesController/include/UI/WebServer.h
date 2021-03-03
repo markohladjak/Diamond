@@ -33,10 +33,10 @@ public:
 
 	void update() override;
 
-	void SendList();
+	void RefreshAllItems();
 	void PrecessRequest(const StaticJsonDocument<100> *request);
 
-	void OnDeviceStateChanged(uint64_t id, LiftState state);
+	void OnDeviceStateChanged(NetAddress addr, LiftState state);
 
 };
 

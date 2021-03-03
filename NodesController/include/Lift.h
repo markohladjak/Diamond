@@ -40,6 +40,8 @@ private:
 
 	RGBRele *RGBMonitor;
 
+	DeviceType Type() override { return DeviceType::LIFT; }
+
 	void set_state(LiftState state);
 	void show_state();
 };

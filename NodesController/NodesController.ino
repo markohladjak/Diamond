@@ -7,66 +7,91 @@
 #include "Net/NetService.h"
 #include <UI/WebServer.h>
 
-#include <WiFi.h>
-
 using namespace diamon;
 
-#define NODE_ID 0
-
-Node node(ESP.getEfuseMac());
 
 LogService g_logService;
 
-Lift *lift;
+Node *node = 0;
+Lift *lift = 0;
 
 LiftControlBox::PinsDef *pinsDef;
-LiftControlBox *liftControlBox;
+LiftControlBox *liftControlBox = 0;
 
-NetService *netService;
+NetService *liftNet = 0;
+NetService *netService = 0;
 
-WebServer *webServer;
+WebServer *webServer = 0;
 
+bool runServer = ESP.getEfuseMac() == 0x9cd738bd9e7c;
+
+
+void runIndication();
 
 void setup()
 {
-//	WiFi.softAP(ssid, passphrase, channel, ssid_hidden, max_connection);
-
 	LogService::Println("");
 	LogService::Log("setup()", "Initializing started...");
 
-	Lift *lift = new Lift(D5, D6, D7);
+	NetService::IsRoot = runServer;
+
+	liftNet = new NetService(NetAddress::Generate(1));
+
+	node = new Node;
+
+	lift = new Lift(D5, D6, D7);
 
 	pinsDef = new LiftControlBox::PinsDef { D1, D2, D3, D4 };
 	liftControlBox = new LiftControlBox(lift, *pinsDef);
 
-	netService = new NetService(ESP.getEfuseMac());
+	if (runServer) {
+		netService = new NetService(NetAddress::SERVER);
+		NodesServer *nodesServer = new NodesServer(netService);
 
-	webServer = new WebServer(80, new NodesServer(lift));
+		webServer = new WebServer(80, nodesServer);
+	}
 
+	node->AddDevice(lift, liftNet);
 
-//	netService = new NetService(NODE_ID);
-//	netService.OnReceive([](INetMsg &msg){
-//		LogService::Log("NetService: Message Received from:", String(msg.from));
-//	});
-
-	node.AddDevice(lift);
+	runIndication();
 
 	LogService::Log("setup()", "Initializing finished...");
 }
 
-long last_ms = millis();
+Scheduler scheduler;
+
+void runIndication(){
+	pinMode(LED_BUILTIN, OUTPUT);
+
+	static bool lastState;
+
+	scheduler.init();
+
+	new Task(runServer ? 320 : 1000, TASK_FOREVER, [](){
+		digitalWrite(LED_BUILTIN, lastState = !lastState);
+
+	}, &scheduler, true);
+
+//	if (!runServer)
+//		new Task(5000, TASK_FOREVER, [](){
+//			lift->SetState(LiftState::FREE);
+//
+//		}, &scheduler, true);
+}
 
 void loop()
 {
-	node.Process();
+//	return;
 
-	liftControlBox->update();
+	if (node) node->Process();
 
-	netService->update();
+	if (liftControlBox) liftControlBox->update();
+	if (netService) netService->update();
+	if (webServer) webServer->update();
 
-	webServer->update();
+	NetService::update();
 
-//	netService.update();
+	scheduler.execute();
 
 //	long cur_ms;
 //	if ((cur_ms = millis()) - last_ms > 3000) {

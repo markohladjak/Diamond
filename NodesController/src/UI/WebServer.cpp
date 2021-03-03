@@ -9,6 +9,10 @@
 #include <LogService.h>
 #include <Events.h>
 
+
+#include <SPIFFS.h>
+
+
 namespace diamon {
 
 String html =
@@ -22,9 +26,27 @@ WebServer::WebServer(int port, NodesServer *nodesServer) :
 	_server = new AsyncWebServer(port);
 	_events = new AsyncEventSource("/events");
 
+	SPIFFS.begin();
+
 	_server->on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
 		request->send(200, "text/html", html);
 	});
+
+	_server->on("/src/bootstrap.bundle.min.js", HTTP_GET, [](AsyncWebServerRequest *request){
+	    request->send(SPIFFS, "/src/bootstrap.bundle.min.js", "text/javascript");
+		Serial.println("/src/bootstrap.bundle.min.js");
+	});
+
+	_server->on("/src/jquery-3.3.1.min.js", HTTP_GET, [](AsyncWebServerRequest *request){
+	    request->send(SPIFFS, "/src/jquery-3.3.1.min.js", "text/javascript");
+		Serial.println("/src/jquery-3.3.1.min.js");
+	});
+
+	_server->on("/src/bootstrap.min.css", HTTP_GET, [](AsyncWebServerRequest *request){
+	    request->send(SPIFFS, "/src/bootstrap.min.css", "text/css");
+		Serial.println("/src/bootstrap.min.css");
+	});
+
 
 	_server->on("/request", HTTP_GET, [this](AsyncWebServerRequest *request) {
         StaticJsonDocument<100> doc;
@@ -54,7 +76,7 @@ WebServer::WebServer(int port, NodesServer *nodesServer) :
 		client->send("hello!", NULL, millis(), 10000);
 
 
-		SendList();
+		RefreshAllItems();
 	});
 
 	_server->addHandler(_events);
@@ -64,10 +86,26 @@ WebServer::WebServer(int port, NodesServer *nodesServer) :
 	_nodesServer->StateChangedEvent += METHOD_HANDLER(WebServer::OnDeviceStateChanged);
 }
 
-void WebServer::SendList() {
+void WebServer::RefreshAllItems() {
 	auto list = _nodesServer->DevicesList();
+//	auto docSize = _nodesServer->DevicesCount() * 32;
 
-	_events->send((*list.begin()).c_str(), "state");
+//	DynamicJsonDocument d(docSize);
+
+	String json = "{";
+
+	for (auto item: list) {
+		json += "\"" + item.first.ToString() + "\":{";
+//		json += "\"name\":\"";
+		json += "\"state\":\"" + item.second._state.ToString() + "\"";
+		json += "},";
+	}
+
+	json.remove(json.length()-1);
+
+	json += "}";
+
+	_events->send(json.c_str(), "state");
 }
 
 WebServer::~WebServer() {
@@ -110,15 +148,15 @@ void WebServer::PrecessRequest(const StaticJsonDocument<100> *request) {
 		String devID = m["id"];
 		String state = m["state"];
 
-		_nodesServer->SetState((uint64_t)devID.toInt(), LiftState::FromString(state));
+		_nodesServer->RequestState(NetAddress::FromString(devID), LiftState::FromString(state));
 	}
 }
 
-void WebServer::OnDeviceStateChanged(uint64_t id, LiftState state) {
+void WebServer::OnDeviceStateChanged(NetAddress addr, LiftState state) {
 	StaticJsonDocument<100> m;
 
 	m["command"] = "set";
-	m["id"] = (int)id;
+	m["id"] = addr.ToString();
 	m["state"] = state.ToString();
 
 	String msg;

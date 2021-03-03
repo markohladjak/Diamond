@@ -34,4 +34,21 @@ String utils::ESPEFuseMacStr()
 	return mac_str;
 }
 
+uint64_t utils::GenerateDeviceID(byte id) {
+	return ((ESP.getEfuseMac()) << 16) + id;
+}
+
+String utils::UINT64ToString(uint64_t val) {
+	  uint32_t Vh = (unsigned long)((val & 0xFFFFFFFF00000000) >> 32 );
+	  uint32_t Vl = (unsigned long)((val & 0x00000000FFFFFFFF));
+
+	  return String(Vh, HEX) + String(Vl, HEX);
+}
+
+uint64_t utils::StringToUINT64(String val) {
+	const char *str = val.c_str();
+	char *end = (char *)val.c_str() + val.length();
+
+	return strtoull(str, &end, 16);
+}
 } /* namespace diamon */

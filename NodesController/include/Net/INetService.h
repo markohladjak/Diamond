@@ -9,23 +9,22 @@
 #define NETSERVICE_H_
 
 #include <IInLoop.h>
-#include "NetMsg.h"
 #include <Events.h>
+#include <Net/NetMessage.h>
 
 namespace diamon {
 
-class INetService:  public IInLoop {
+class INetService {
 public:
 	virtual ~INetService() { };
 
 	virtual std::list<NetAddress> GetConnectedDevices() = 0;
 
-	virtual void Send(NetAddress to, const NetMsg &msg) = 0;
-	virtual void SendAll(const NetMsg &msg) = 0;
+	virtual void Send(NetMessage& msg, NetAddress to = NetAddress::BROADCAST) = 0;
 
-	virtual void OnReceive(NetAddress from, void (*onReceive)(NetMsg &msg)) = 0;
+	virtual void OnReceive(NetAddress from, void (*onReceive)(NetMessage &msg)) = 0;
 
-	TEvent<NetAddress, NetMsg&> OnReceiveEvent;
+	TEvent<NetAddress, NetMessage*> OnReceiveEvent;
 };
 
 } /* namespace diamon */

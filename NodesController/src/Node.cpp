@@ -7,25 +7,54 @@
 
 #include <Node.h>
 #include <LogService.h>
+#include <Lift.h>
+#include <Events.h>
+#include <Helpers/JsonHelper.h>
+#include <Net/NetAddress.h>
 
 namespace diamon {
 
-Node::Node(uint64_t id) {
-	_id = id;
+#define SERVER_ADDRESS NetAddress::SERVER
 
-	_logService = new LogService();
+Node::Node() {
 }
 
 Node::~Node() {
 }
 
-void Node::AddDevice(IDevice *device) {
-	_devices.push_back(device);
+void Node::AddDevice(IDevice *device, INetService *netService) {
+	_devices[device] = netService;
+
+	switch (device->Type())
+	{
+	case DeviceType::LIFT:
+		((Lift*)device)->StateChangedEvent += METHOD_HANDLER(Node::OnLiftStateChanged);
+		break;
+	case DeviceType::DOOR:
+		break;
+	}
+
+	OnLiftStateChanged(((Lift*)device)->GetState());
+}
+
+void Node::OnLiftStateChanged(LiftState state) {
+	LiftNetMessage msg;
+
+	msg.Event = NetEvent::DEVICE_STATUS_CHANGED;
+	msg.State = state;
+
+	_devices.begin()->second->Send(msg, SERVER_ADDRESS);
+}
+
+void Subscribe(IDevice* device)
+{
+//			lift->StateChangedEvent += METHOD_HANDLER(Node::OnLiftStateChanged);
 }
 
 void Node::Process() {
 	for (auto device: _devices)
-		device->update();
+		device.first->update();
 }
+
 
 } /* namespace diamon */

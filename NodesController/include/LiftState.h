@@ -32,6 +32,7 @@ public:
 	States State = NONE;
 
 	LiftState() {};
+	LiftState(int state) { State = (States)state;};
 	LiftState(States state) { State = state; }
 
 	operator States () { return State; }
@@ -46,7 +47,7 @@ public:
 		return LiftState::NONE;
 	}
 
-	String ToString() { return StatesDescription[State]; }
+	String ToString() const { return StatesDescription[State]; }
 };
 
 } /* namespace diamon */

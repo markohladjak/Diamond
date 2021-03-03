@@ -9,33 +9,42 @@
 #define NODESSERVER_H_
 
 #include <Arduino.h>
-#include <list>
+#include <map>
 #include <LiftState.h>
 #include <Events.h>
-#include <Lift.h>
+#include <Net/INetService.h>
 
 namespace diamon {
 
-typedef std::list<String> DeviceList;
+class Device {
+public:
+	NetAddress _address;
+	LiftState _state;
+};
+
+typedef std::map<NetAddress, Device> DeviceList;
 
 class NodesServer {
 	DeviceList _devices;
 
-	Lift *_lift;
+	INetService *_netService;
+
+	void set_status(NetAddress addr, LiftState state);
 
 public:
-	NodesServer(Lift *lift);
+	NodesServer(INetService *netService = NULL);
 	virtual ~NodesServer();
 
 	size_t DevicesCount();
-	DeviceList DevicesList();
+	DeviceList& DevicesList();
 
-	void SetState(uint64_t id, LiftState state);
+	void RequestState(NetAddress id, LiftState state);
+
+	TEvent<NetAddress, LiftState> DeviceAddedEvent;
+	TEvent<NetAddress, LiftState> StateChangedEvent;
 
 
-	TEvent<uint64_t, LiftState> StateChangedEvent;
-
-	void OnLiftStateChanged(LiftState state);
+	void OnReceiveMessage(NetAddress addr, NetMessage *msg);
 };
 
 } /* namespace diamon */

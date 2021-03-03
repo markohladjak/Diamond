@@ -19,22 +19,30 @@ class NetService: public INetService {
 public:
 	NetAddress Address;
 
+	static bool IsRoot;
+
 	NetService(NetAddress address);
 	~NetService() override;
 
-	void Send(diamon::NetAddress to, const diamon::NetMsg &msg) override;
-	void SendAll(const diamon::NetMsg &msg) override;
+	void Send(NetMessage& msg, NetAddress to = NetAddress::BROADCAST) override;
 
 	std::list<NetAddress> GetConnectedDevices() override;
 
-	void OnReceive(diamon::NetAddress from,	void (*onReceive)(diamon::NetMsg&)) override;
+	void OnReceive(diamon::NetAddress from,	void (*onReceive)(diamon::NetMessage&)) override;
 
-	void update() override;
+	static void update();
 
 private:
-public: static painlessMesh *mesh;
+	static painlessMesh *mesh;
 
-	static std::map<uint64_t, NetService*> nodes;
+	static std::map<NetAddress, NetService*> localNodes;
+
+	static void initMesh();
+
+	static void receivedCallback(uint32_t from, TSTRING &msg);
+
+	static void gotIPCallback(WiFiEvent_t event, WiFiEventInfo_t info);
+
 };
 
 } /* namespace diamon */
