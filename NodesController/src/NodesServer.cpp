@@ -19,6 +19,9 @@ NodesServer::NodesServer(INetService *netService) :
 
 
 	_netService->OnReceiveEvent += METHOD_HANDLER(NodesServer::OnReceiveMessage);
+	_netService->OnLayoutChangedEvent += METHOD_HANDLER(NodesServer::OnNetworkChanged);
+
+	request_report_all();
 }
 
 NodesServer::~NodesServer() {
@@ -33,13 +36,14 @@ DeviceList& NodesServer::DevicesList() {
 }
 
 void NodesServer::RequestState(NetAddress addr, LiftState state) {
-	LogService::Log("SetState", "ID - " + addr + "  STATE - " + state.ToString());
+	LogService::Log("SetState", "ID - " + addr.ToString() + "  STATE - " + state.ToString());
 
 	LiftNetMessage msg;
 
-	msg.Event
+	msg.Event = NetEvent::REQUEST_DEVICE_STATE;
+	msg.State = state;
 
-	_netService->Send(NetMessage(m), addr);
+	_netService->Send(msg, addr);
 }
 
 void NodesServer::set_status(NetAddress addr, LiftState state) {
@@ -61,6 +65,22 @@ void NodesServer::OnReceiveMessage(NetAddress addr, NetMessage *msg){
 		if (msg->Type == DeviceType::LIFT)
 			set_status(addr, ((LiftNetMessage*)msg)->State);
 	}
+}
+
+void NodesServer::OnNetworkChanged() {
+	request_report_all();
+}
+
+void NodesServer::request_report_all() {
+	LogService::Log("request_report_all:","");
+
+	NetAddress addr = NetAddress::BROADCAST;
+	NetMessage msg;
+
+	msg.Event = NetEvent::DEVICE_STATE_REPORT;
+	msg.Type = DeviceType::LIFT;
+
+	_netService->Send(msg, addr);
 }
 
 } /* namespace diamon */

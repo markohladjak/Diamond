@@ -8,6 +8,7 @@
 #include <Net/NetService.h>
 #include <LogService.h>
 #include <Net/NetMessage.h>
+#include <ESPmDNS.h>
 
 using namespace std::placeholders;
 
@@ -16,23 +17,10 @@ namespace diamon {
 #define   MESH_PREFIX     "Tenda_0AD898"
 #define   MESH_PASSWORD   "12345678"
 
-painlessMesh* NetService::mesh = NULL;
+PainlessMesh* NetService::mesh = NULL;
 std::map<NetAddress, NetService*> NetService::localNodes;
 bool NetService::IsRoot = false;
 
-void newConnectionCallback(uint32_t nodeId)
-{
-//	LogService::Log("mesh->getStationIP(): ", NetService::mesh->getStationIP());
-}
-
-bool blink = false;
-
-void changedConnectionCallback()
-{
-//	blink = NetService::mesh->isRoot();
-
-//	LogService::Log("mesh->getStationIP(): ", String(NetService::mesh->getStationIP()));
-}
 
 void nodeTimeAdjustedCallback(int32_t offset)
 {
@@ -56,31 +44,46 @@ NetService::~NetService() {
 }
 
 void NetService::initMesh() {
-	mesh = new painlessMesh;
+	mesh = new PainlessMesh;
 
 	mesh->init("Mesh", MESH_PASSWORD, 5555, wifi_mode_t::WIFI_MODE_APSTA, 3);
 //		mesh->setDebugMsgTypes( ERROR | STARTUP );
 	mesh->setDebugMsgTypes( ERROR | MESH_STATUS | CONNECTION | SYNC | COMMUNICATION | GENERAL | MSG_TYPES | REMOTE ); // all types on
 
+
 	if (IsRoot) {
 		mesh->setRoot();
 		mesh->setHostname("diamond");
 
-	//	mesh->stationManual("Marko", "mmmmmmmm");
+//		mesh->stationManual("Marko", "mmmmmmmm");
 		mesh->stationManual("Tenda_0AD898", "12345678");
-	//	mesh->stationManual("BV6000", "1234567890");
+//		mesh->stationManual("BV6000", "1234567890");
+//		mesh->stationManual("", "");
 
 	//	WiFi.onEvent(std::bind(&NetService::gotIPCallback, this, std::placeholders::_1, std::placeholders::_2), SYSTEM_EVENT_STA_GOT_IP);
-		WiFi.onEvent(gotIPCallback, SYSTEM_EVENT_STA_GOT_IP);
+
+		WiFi.onEvent(wifiEventCallback, SYSTEM_EVENT_SCAN_DONE);
+		WiFi.onEvent(wifiEventCallback, SYSTEM_EVENT_STA_CONNECTED);
+		WiFi.onEvent(wifiEventCallback, SYSTEM_EVENT_STA_DISCONNECTED);
+		WiFi.onEvent(wifiEventCallback, SYSTEM_EVENT_STA_GOT_IP);
+		WiFi.onEvent(wifiEventCallback, SYSTEM_EVENT_STA_LOST_IP);
+
+
+		if (!MDNS.begin("diamond")) { //http://esp32.local
+			Serial.println("Error setting up MDNS responder!");
+		}
 	}
 	else
 		mesh->setContainsRoot();
+
 
 //	mesh->onReceive(std::bind(&NetService::receivedCallback, this, std::placeholders::_1, std::placeholders::_2));
 	mesh->onReceive(receivedCallback);
 	mesh->onNewConnection(&newConnectionCallback);
 	mesh->onChangedConnections(&changedConnectionCallback);
 	mesh->onNodeTimeAdjusted(&nodeTimeAdjustedCallback);
+
+//	mesh->onNodeDelayReceived(onDelayReceived);
 }
 
 void NetService::receivedCallback(uint32_t from, TSTRING &msg)
@@ -107,6 +110,22 @@ void NetService::receivedCallback(uint32_t from, TSTRING &msg)
 		node.second->OnReceiveEvent(m->_from, m);
 }
 
+void NetService::newConnectionCallback(uint32_t nodeId)
+{
+	LogService::Log("NetService::newConnectionCallback(), nodeId: ", String(nodeId));
+
+	for (auto node: localNodes)
+		node.second->OnConnectedEvent();
+}
+
+void NetService::changedConnectionCallback()
+{
+	LogService::Log("NetService::changedConnectionCallback:", "");
+
+	for (auto node: localNodes)
+		node.second->OnLayoutChangedEvent();
+}
+
 void NetService::Send(NetMessage &msg, NetAddress to) {
 	msg._from = Address;
 	msg._to = to;
@@ -115,7 +134,8 @@ void NetService::Send(NetMessage &msg, NetAddress to) {
 		mesh->sendBroadcast(msg);
 
 		for(auto node: localNodes)
-			node.second->OnReceiveEvent(Address, &msg);
+			if (node.second->Address != Address)
+				node.second->OnReceiveEvent(Address, &msg);
 
 		return;
 	}
@@ -127,11 +147,33 @@ void NetService::Send(NetMessage &msg, NetAddress to) {
 		mesh->sendBroadcast(msg);
 }
 
-void NetService::gotIPCallback(WiFiEvent_t event, WiFiEventInfo_t info)
+void NetService::wifiEventCallback(WiFiEvent_t event, WiFiEventInfo_t info)
 {
-    Serial.println("Connected to AP!");
-    Serial.print("IP Address: ");
-    Serial.println(mesh->getStationIP());
+	switch(event) {
+	case SYSTEM_EVENT_SCAN_DONE:
+		LogService::Log("wifiEventCallback:", "SYSTEM_EVENT_SCAN_DONE");
+		break;
+	case SYSTEM_EVENT_STA_CONNECTED:
+		LogService::Log("wifiEventCallback:", "SYSTEM_EVENT_STA_CONNECTED");
+		break;
+	case SYSTEM_EVENT_STA_DISCONNECTED:
+		LogService::Log("wifiEventCallback:", "SYSTEM_EVENT_STA_DISCONNECTED");
+		break;
+	case SYSTEM_EVENT_STA_GOT_IP:
+		LogService::Log("wifiEventCallback:", "SYSTEM_EVENT_STA_GOT_IP");
+	    Serial.println("Connected to AP!");
+	    Serial.print("IP Address: ");
+	    Serial.println(mesh->getStationIP());
+		break;
+	case SYSTEM_EVENT_STA_LOST_IP:
+		LogService::Log("wifiEventCallback:", "SYSTEM_EVENT_STA_LOST_IP");
+		break;
+	default:
+		break;
+	}
+
+	LogService::Log("wifiEventCallback:", "EVENT");
+
 //	LogService::Log("mesh->getStationIP(): ", NetService::mesh->getStationIP());
 }
 
@@ -167,6 +209,24 @@ void NetService::update() {
 //
 //		last_ms = cur_ms;
 //	}
+}
+
+void NetService::_setWIFIMode(WIFIMODE mode, String ssid, String pw) {
+	mesh->stationManual(ssid, pw);
+
+	if (WiFi.isConnected())
+		WiFi.disconnect();
+
+//	mesh->reconnectToAP();
+
+//
+//	mesh-> init(ssid, password, baseScheduler, port, connectMode, channel, hidden, maxconn)
+}
+
+void NetService::setWIFIMode(WIFIMODE mode, String ssid, String pw) {
+	LogService::Log("setWIFIMode", ssid + "   " + pw);
+
+	_setWIFIMode(mode, ssid, pw);
 }
 
 } /* namespace diamon */

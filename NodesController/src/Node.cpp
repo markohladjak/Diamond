@@ -29,15 +29,17 @@ void Node::AddDevice(IDevice *device, INetService *netService) {
 	{
 	case DeviceType::LIFT:
 		((Lift*)device)->StateChangedEvent += METHOD_HANDLER(Node::OnLiftStateChanged);
+		netService->OnReceiveEvent += METHOD_HANDLER(Node::OnMessageReceived);
+//		netService->OnConnectedEvent += METHOD_HANDLER(Node::OnNetworkConnected);
 		break;
 	case DeviceType::DOOR:
 		break;
 	}
 
-	OnLiftStateChanged(((Lift*)device)->GetState());
+//	OnLiftStateChanged(((Lift*)device)->GetState());
 }
 
-void Node::OnLiftStateChanged(LiftState state) {
+void Node::SendState(LiftState state){
 	LiftNetMessage msg;
 
 	msg.Event = NetEvent::DEVICE_STATUS_CHANGED;
@@ -46,9 +48,33 @@ void Node::OnLiftStateChanged(LiftState state) {
 	_devices.begin()->second->Send(msg, SERVER_ADDRESS);
 }
 
+void Node::OnLiftStateChanged(LiftState state) {
+	SendState(state);
+}
+
 void Subscribe(IDevice* device)
 {
 //			lift->StateChangedEvent += METHOD_HANDLER(Node::OnLiftStateChanged);
+}
+
+void Node::OnMessageReceived(NetAddress form, NetMessage *message) {
+	if (message->Type == DeviceType::LIFT) {
+		auto msg = (LiftNetMessage*)message;
+
+		if (msg->Event == NetEvent::REQUEST_DEVICE_STATE){
+			((Lift*)(_devices.begin()->first))->SetState(msg->State);
+		}
+		if (msg->Event == NetEvent::DEVICE_STATE_REPORT){
+			auto state = ((Lift*)(_devices.begin()->first))->GetState();
+			SendState(state);
+		}
+	}
+}
+
+void Node::OnNetworkConnected() {
+	LogService::Println("Node::OnNetworkConnected()");
+
+	OnLiftStateChanged(((Lift*)(_devices.begin()->first))->GetState());
 }
 
 void Node::Process() {

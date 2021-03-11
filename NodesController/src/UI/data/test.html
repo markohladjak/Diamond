@@ -1,3 +1,4 @@
+R"~~~(
 <!DOCTYPE html>
 <html>
 
@@ -7,8 +8,29 @@
 		margin: 0;
 		padding: 0;
 		min-width:430px;
-	}
+		
+		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+		font-style: normal;
+		font-weight: 400;
+		font-size: 16px;
 
+	    -webkit-touch-callout: none;
+	    -webkit-user-select: none;
+	    -khtml-user-select: none;
+	    -moz-user-select: none;
+	    -ms-user-select: none;
+	    user-select: none;
+	}
+/*
+	* {
+	cursor: inherit;
+	}
+	
+	body {
+	cursor: default;
+	}
+*/
+		
 	.title {
 		height: 80px;
 		padding-left: 100px;
@@ -21,7 +43,7 @@
 		font-family: "Helvetica Neue";
 		font-style: normal;
 		//font-weight: bold;
-		font-size: 22px;
+		font-size: 25px;
 		line-height: 80px;
 		/* identical to box height */
 		display: flex;
@@ -79,9 +101,7 @@
 		border-top: none;
 	}
 	
-	.mainContainer {
-		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-
+	#mainContainer {
 		margin-top: 50px;
 		margin-left: 100px;
 		margin-right: 100px;
@@ -121,10 +141,6 @@
 		margin-bottom: 20px;
 		padding: 0px 30px;
 		
-		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-		font-style: normal;
-		font-weight: 500;
-		font-size: 16px;
 		line-height: 20px;
 		display: flex;
 		align-items: center;
@@ -137,9 +153,9 @@
 	}
 	
 	.deviceView {
-		border-style: solid;
-		border-color: red;
-		border-width: 2px;
+//		border-style: solid;
+//		border-color: red;
+//		border-width: 2px;
 		
 		height: 55px;
 		padding: 0px 30px;
@@ -161,18 +177,62 @@
 	.deviceStatus {
 		width: 200px;
 		font-size: 16px;
+	}
+	
+	.dvsFREE {
 		color: #7AE13B;
 	}
 	
+	.dvsBUSY {
+		color: #C276FF;
+	}
+	
+	.dvsREADY {
+		color: #60E2FF;
+	}
+	
+	.dvsSOS {
+		color: #F05656;
+	}
+	
+	.dvsexHOLDED div {
+		border-color: rgb(255, 189, 0);
+		border-color: #FDCB6A;
+		border-style: solid;
+		border-width: 1px;
+		box-shadow: inset 0 0 5px rgb(255, 189, 0);
+	}
+	
+	.dvsFREE .dot {
+		background-color: #7AE13B;
+	}
+
+	.dvsBUSY .dot {
+		background-color: #C276FF;
+	}
+	
+	.dvsREADY .dot {
+		background-color: #60E2FF;
+	}
+	
+	.dvsSOS .dot {
+		background-color: #F05656;
+	}
+	
+	.dvsexHOLDED .dot {
+		background-color: #FDCB6A;
+	}
+
 	.statusContainer {
 		height: 33px;
 		background: rgba(255, 255, 255, 0.06);
 		border-radius: 8px;
-		/*display: flex;*/
-		display: flex;
-		align-items: center;
+
 		padding: 0px 20px;
-		vertical-align: middle;
+
+		display: inline-flex;
+		align-items: center;
+		justify-content: left;
 	}
 	
 	.dot {
@@ -181,7 +241,7 @@
 		background-color: #7AE13B;
 		border-radius: 50%;
 		display: inline-block;
-		margin-right: 4px;
+		margin-right: 8px;
 	}
 	
 	.deviceAction {
@@ -212,8 +272,94 @@
 	.schemeContainer {
 		height: 200px;
 	} 
+		
+	.mainMenuButton {
+		width: 30px; height: 34px; 
+		padding: 6px 5px;
+		margin-left: -70px;
+		margin-top: 25px;
+		position: absolute;
+	}
+
+	.mainMenuButton div {
+		background-color: white; margin-bottom: 5px; height: 4px;
+		border-radius: 7px;
+	}
 	
 	
+	.sidenav {
+		height: 100%;
+		width: 0;
+		position: absolute;
+		z-index: 1;
+		top: 80px;
+		left: 0;
+		background-color: #292931;
+		overflow-x: hidden;
+		transition: 0.15s;
+		padding-top: 60px;
+	}
+
+	.sidenav a {
+		padding: 8px 8px 8px 32px;
+		text-decoration: none;
+		font-size: 17px;
+		color: #BBBBC5;
+		display: block;
+		transition: 0.3s;
+	}
+
+	.sidenav a:hover {
+		color: white;
+	}
+
+	.sidenav .closebtn {
+		position: absolute;
+		top: 0;
+		right: 25px;
+		font-size: 36px;
+		margin-left: 50px;
+	}
+
+	#actionMenu {
+		position: absolute;
+		width: 245px;
+		height: 335px;
+		left: 567px;
+		top: 250px;
+		
+		background: #303037;
+		box-shadow: 0px 24px 32px rgba(0, 0, 0, 0.04), 0px 16px 24px rgba(0, 0, 0, 0.04), 0px 4px 8px rgba(0, 0, 0, 0.04), 0px 0px 1px rgba(0, 0, 0, 0.04);
+		border-radius: 10px;
+	}
+
+	#actionMenu div {
+		height: 40px;
+
+		font-style: normal;
+		font-weight: normal;
+		font-size: 18px;
+		line-height: 21px;
+		/* identical to box height */
+		display: flex;
+		align-items: center;
+		
+		color: #E2E2E7;
+	}
+
+	#actionMenu div span {
+		//margin-left: 55px;	
+	}
+
+	#actionMenu div:hover {
+		background-color: #393941;
+		transition: 0.3s;
+	}
+
+	.actionMenuTitle{
+	}
+
+
 </style>
 
 <head>
@@ -222,10 +368,30 @@
 
 <body>
 	<div class="title">
+		<div class="mainMenuButton" onclick="openNav()"><div></div>	<div></div>	<div></div>
+		</div>
 		<span>TOYOTA</span>
+		<span style="font-size: 10px; color: lightgray; font-style: italic; margin-top: -60px;">Nodes Controller</span>
+		<div style="background-color: #E8EEF7; width: 40px; height: 40px;display: flex; float: right;
+  					justify-content: center; align-items: center; border-radius: 50%;
+					margin-top: -80px; margin-right: 177px;">
+			<img src="/src/img/user.svg" style="display: block; margin: auto;"></div>
+		</div>
+	</div>
+	
+	<div style="margin: 20px 0 0 100px;">
+		<span style="color:red;">
+			Product is under construction. Some features may work incorrectly...
+		</span>
 	</div>
 
-	<div class="mainContainer">
+	<div id="mySidenav" class="sidenav">
+	  <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+	  <a href="#">Settings</a>
+	  <a href="#">About</a>
+	</div>
+
+	<div id="mainContainer">
 
 		<div class="tab">
 			<button class="tablinks lefttablink active" onclick="openTab(event, 'List')"><span>List</span></button>
@@ -240,40 +406,44 @@
 					<span>Action</span>
 				</div>
 				
-				<div class="deviceView darkBackground">
-					<span class="deviceName">Post 1</span>
-					<div class="deviceStatus">
-						<div class="statusContainer">
-							<span class="dot"></span>
-							<span>Free</span>
+				<div>
+					<div id="devicesList"></div>
+					<template id="deviceViewTemplate">
+						<div class="deviceView">
+							<span class="deviceName"></span>
+							<div class="deviceStatus dvsexHOLDED">
+								<div class="statusContainer">
+									<span class="dot"></span>
+									<span class="deviceStatusText"></span>
+								</div>
+							</div>
+							<div class="deviceAction">
+								<span class="dotAction"></span>
+								<span class="dotAction"></span>
+								<span class="dotAction"></span>
+							</div>
 						</div>
-					</div>
-					<div class="deviceAction">
-						<span class="dotAction"></span>
-						<span class="dotAction"></span>
-						<span class="dotAction"></span>
-					</div>
+					</template>
 				</div>
-
-				<div class="deviceView lightBackground">
-					<span class="deviceName">Post 2</span>
-					<div class="deviceStatus">
-						<span class="dot"></span>
-						<span>
-							Free
-						</span>
-					</div>
-					<div class="deviceAction">
-						<span class="dotAction"></span>
-						<span class="dotAction"></span>
-						<span class="dotAction"></span>
-					</div>
-				</div>
-
-				
+			</div>
+			
+			<div class="schemeContainer tabContent" id="Scheme">
 			</div>
 
-			<div class="schemeContainer tabContent" id="Scheme">
+			<div id="actionMenu">
+				<div class="actionMenuTitle" style="height:53px"><span>Action for Post 1</div>
+				<div>
+					<div style="height: 35px; width: 35px;">
+						<svg style="display: block; margin: auto;" width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+							<path fill-rule="evenodd" clip-rule="evenodd" d="M8.71233 1.2125C8.88727 1.03909 9.12343 0.941494 9.36975 0.940815C9.61607 0.940135 9.85276 1.03643 10.0286 1.20887C10.2045 1.38131 10.3055 1.61605 10.3097 1.86233C10.3139 2.10862 10.221 2.34666 10.0511 2.525L5.06108 8.7625C4.97532 8.85487 4.87181 8.929 4.75675 8.98046C4.64168 9.03191 4.51742 9.05964 4.3914 9.06197C4.26537 9.0643 4.14017 9.0412 4.02328 8.99404C3.90639 8.94688 3.8002 8.87663 3.71108 8.7875L0.404831 5.48C0.312722 5.39417 0.238845 5.29067 0.187605 5.17567C0.136365 5.06067 0.108812 4.93653 0.106591 4.81065C0.10437 4.68477 0.127526 4.55974 0.174678 4.443C0.221829 4.32627 0.29201 4.22023 0.381033 4.1312C0.470057 4.04218 0.576099 3.972 0.692834 3.92485C0.809569 3.87769 0.934606 3.85454 1.06048 3.85676C1.18636 3.85898 1.3105 3.88653 1.4255 3.93777C1.5405 3.98901 1.644 4.06289 1.72983 4.155L4.34733 6.77125L8.68858 1.24C8.69633 1.23032 8.70468 1.22113 8.71358 1.2125H8.71233Z" fill="white"/>
+						</svg>
+					</div> 
+					<span class="dot"></span><span>Free</span></div>
+				<div><span>Busy</span></div>
+				<div><span>Ready</span></div>
+				<div><span>SOS</span></div>
+				<div style="height: 1px; background-color: rgb(35, 35, 35);"></div>
+				<div><span>Hold</span></div>
 			</div>
 			
 		</div>
@@ -288,9 +458,100 @@
 			<p>Paris is the capital of France.</p>
 		</div>
 		-->
+		<div>
+			<input id="wifi_ssid"></input>
+			<input id="wifi_password"></input>
+			<button onclick="changeWIFIMode()"></button>
+			
+		</div>
 	</div>
 	
 	<script>
+		function serverSendInit() {
+      		if (!!window.EventSource) {
+        		var source = new EventSource('/events');
+
+		        source.addEventListener('open', function (e) {
+		          console.log("Events Connected");
+		        }, false);
+
+		        source.addEventListener('error', function (e) {
+		          if (e.target.readyState != EventSource.OPEN) {
+		            console.log("Events Disconnected");
+		          }
+		        }, false);
+
+		        source.addEventListener('message', function (e) {
+		          console.log("message", e.data);
+		        }, false);
+
+		        source.addEventListener('msg', function (e) {
+		          console.log("msg", e.data);
+		          processMessage(e.data);
+		        }, false);
+
+		        source.addEventListener('state', function (e) {
+		          console.log("state", e.data);
+		
+		          refreshAll(e.data);
+		        }, false);
+			}
+    	}
+
+	    function processMessage(msg) {
+	      	var m = JSON.parse(msg) 
+			console.log(m);
+	
+	        switch (m.command) {
+	          case "add": addDevice(m.id, m.state);
+	            break;
+	          case "rem": removeDevice(m.id);
+	            break;
+	          case "set": setDeviceState(m.id, m.state);
+	            break;
+	        }
+	    }
+	
+	    function addDevice(id, state, name) {
+			var devicesList = document.querySelector('#devicesList');
+			
+			var sequence = devicesList.childNodes.length;
+			
+			devicesList.appendChild(createDeviceView(id, name, sequence, state));
+	
+	      	console.log("addDevice", id, name, state);
+	    }
+	
+	    function removeDevice(id) {
+	      	document.getElementById(id).remove();
+	    }
+	
+	    function setDeviceState(id, state){
+	      	var dv = document.getElementById(id);
+
+			var dvStatus = dv.getElementsByClassName("deviceStatus")[0];
+			var statusText = dv.getElementsByClassName("deviceStatusText")[0];
+
+			dvStatus.className = dvStatus.className.replace(/dvs[A-Z]+/g, "dvs" + state.toUpperCase());
+
+			statusText.textContent = state;			
+	    }
+	
+		function refreshAll(data) {
+			console.log("refreshAll", data);
+			
+			var devicesList = document.querySelector('#devicesList');
+
+			devicesList.innerHTML = '';
+			
+	      	var m = JSON.parse(data); 
+			
+			var ids = Object.keys(m);
+			
+			for (var i=0; i < ids.length; i++) 
+				addDevice(ids[i], m[ids[i]].state, m[ids[i]].name);
+		}
+
 		function openTab(evt, tabName) {
 			var i, tabcontent, tablinks;
 			tabcontent = document.getElementsByClassName("tabContent");
@@ -304,8 +565,82 @@
 			document.getElementById(tabName).style.display = "block";
 			evt.currentTarget.className += " active";
 		}
+		
+		function createDeviceView(id, name, sequence, state) {
+			var template = document.querySelector('#deviceViewTemplate');
+						
+			var dv = template.content.querySelector("div");
+			var deviceView = document.importNode(dv, true);
+			
+			var nameText = deviceView.getElementsByClassName("deviceName")[0];
+			var status = deviceView.getElementsByClassName("deviceStatus")[0];
+			var statusText = deviceView.getElementsByClassName("deviceStatusText")[0];
+			
+//			let eee = new Map([
+//  				['Free', 'Free'],
+//  				[1, 'one'],
+//  				[1, 'one'],
+//			]);
+			
+			deviceView.id = id;
+			deviceView.classList.add(sequence % 2 ? "darkBackground" : "lightBackground");
+			nameText.textContent = name ? name : id;
+			status.classList.add("dvs" + state.toUpperCase());
+			statusText.textContent = state;
+			
+			return deviceView; 
+		}
+		 
+	    function deviceStateSelected(el) {
+			var id = el.parentElement.parentElement.id;
+			var state = el.value;
+			
+			var url = window.location.href + `request?type=state&id=${id}&state=${state}`;
+	
+			httpGet(url);
+			
+			console.log("deviceStateSelected", url);
+	        console.log(id, ": ",state);
+	    }
+
+		function httpGet(theUrl) {
+			var xmlHttp = new XMLHttpRequest();
+			xmlHttp.open("GET", theUrl, false); // false for synchronous request
+			xmlHttp.send(null);
+			return xmlHttp.responseText;
+		}
+
+		function changeWIFIMode() {
+			var ssid = document.getElementById("wifi_ssid").value;
+			var pass = document.getElementById("wifi_password").value;
+			
+			var url = window.location.href + `request?type=wifi&ssid=${ssid}&password=${pass}`;
+			
+			httpGet(url);
+			
+			console.log("changeWIFIMode:", url);
+		}
+		
+		function openNav() {
+  			w = document.getElementById("mySidenav").style.width;
+			document.getElementById("mySidenav").style.width = w == "0px" ? "250px" : "0px";
+		}
+
+		function closeNav() {
+  			document.getElementById("mySidenav").style.width = "0";
+		}
+		
+		serverSendInit();
+		
+		addDevice("0", "Free", "Post 1");
+		addDevice("1", "Free", "");
+		addDevice("2", "Busy", "");
+		addDevice("3", "SOS", "");
+		setDeviceState("0", "Ready");
+//		removeDevice("1");
 	</script>
 
 </body>
 
 </html>
+)~~~"

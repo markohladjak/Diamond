@@ -15,6 +15,16 @@
 
 namespace diamon {
 
+class PainlessMesh : public painlessMesh {
+public:
+
+	void reconnectToAP() {
+		WiFi.disconnect(false, false);
+
+//		stationScan.connectToAP();
+	}
+};
+
 class NetService: public INetService {
 public:
 	NetAddress Address;
@@ -32,17 +42,22 @@ public:
 
 	static void update();
 
+	void setWIFIMode(WIFIMODE mode, String ssid, String pw) override;
+
 private:
-	static painlessMesh *mesh;
+	static PainlessMesh *mesh;
 
 	static std::map<NetAddress, NetService*> localNodes;
 
 	static void initMesh();
 
 	static void receivedCallback(uint32_t from, TSTRING &msg);
+	static void newConnectionCallback(uint32_t nodeId);
+	static void changedConnectionCallback();
 
-	static void gotIPCallback(WiFiEvent_t event, WiFiEventInfo_t info);
+	static void wifiEventCallback(WiFiEvent_t event, WiFiEventInfo_t info);
 
+	static void _setWIFIMode(WIFIMODE mode, String ssid, String pw);
 };
 
 } /* namespace diamon */

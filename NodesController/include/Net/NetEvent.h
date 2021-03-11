@@ -15,7 +15,9 @@ class NetEvent {
 public:
 	enum NetEvents {
 		UNKNOW_EVENT,
-		DEVICE_STATUS_CHANGED
+		DEVICE_STATUS_CHANGED,
+		REQUEST_DEVICE_STATE,
+		DEVICE_STATE_REPORT
 	};
 
 	NetEvent() {}

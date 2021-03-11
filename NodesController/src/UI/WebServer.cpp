@@ -8,20 +8,25 @@
 #include <UI/WebServer.h>
 #include <LogService.h>
 #include <Events.h>
-
+#include <config.hpp>
 
 #include <SPIFFS.h>
 
 
 namespace diamon {
 
+//String html =
+//#include "data/index.html"
+//;
+
 String html =
-#include "data/index.html"
+#include "data/test.html"
 ;
 
 
-WebServer::WebServer(int port, NodesServer *nodesServer) :
-		_nodesServer(nodesServer)
+WebServer::WebServer(int port, NodesServer *nodesServer, INetService *netService) :
+		_nodesServer(nodesServer),
+		_netService(netService)
 {
 	_server = new AsyncWebServer(port);
 	_events = new AsyncEventSource("/events");
@@ -29,23 +34,43 @@ WebServer::WebServer(int port, NodesServer *nodesServer) :
 	SPIFFS.begin();
 
 	_server->on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
+		LogService::Log("_server->on: /", request->url());
+
 		request->send(200, "text/html", html);
 	});
 
-	_server->on("/src/bootstrap.bundle.min.js", HTTP_GET, [](AsyncWebServerRequest *request){
-	    request->send(SPIFFS, "/src/bootstrap.bundle.min.js", "text/javascript");
-		Serial.println("/src/bootstrap.bundle.min.js");
+	_server->on("/src/img/user.svg", HTTP_GET, [](AsyncWebServerRequest *request) {
+		LogService::Log("src/img/user.svg", request->url());
+		LogService::Log("_server->on 2: /src/img/user.svg", Config::HTML_PREFIX + request->url());
+
+
+		request->send(SPIFFS, Config::HTML_PREFIX + request->url());
 	});
 
-	_server->on("/src/jquery-3.3.1.min.js", HTTP_GET, [](AsyncWebServerRequest *request){
-	    request->send(SPIFFS, "/src/jquery-3.3.1.min.js", "text/javascript");
-		Serial.println("/src/jquery-3.3.1.min.js");
+	_server->on("^.*$", HTTP_GET, [](AsyncWebServerRequest *request) {
+		LogService::Log("_server->on ^.*$: /", request->url());
 	});
 
-	_server->on("/src/bootstrap.min.css", HTTP_GET, [](AsyncWebServerRequest *request){
-	    request->send(SPIFFS, "/src/bootstrap.min.css", "text/css");
-		Serial.println("/src/bootstrap.min.css");
+	_server->on("^\\/src\\/(.+)$", HTTP_GET, [](AsyncWebServerRequest *request) {
+		LogService::Log("_server->on: src", request->url());
+
+		request->send(SPIFFS, Config::HTML_PREFIX + request->url());
 	});
+
+//	_server->on("/src/bootstrap.bundle.min.js", HTTP_GET, [](AsyncWebServerRequest *request){
+//	    request->send(SPIFFS, "/src/bootstrap.bundle.min.js", "text/javascript");
+//		Serial.println("/src/bootstrap.bundle.min.js");
+//	});
+//
+//	_server->on("/src/jquery-3.3.1.min.js", HTTP_GET, [](AsyncWebServerRequest *request){
+//	    request->send(SPIFFS, "/src/jquery-3.3.1.min.js", "text/javascript");
+//		Serial.println("/src/jquery-3.3.1.min.js");
+//	});
+//
+//	_server->on("/src/bootstrap.min.css", HTTP_GET, [](AsyncWebServerRequest *request){
+//	    request->send(SPIFFS, "/src/bootstrap.min.css", "text/css");
+//		Serial.println("/src/bootstrap.min.css");
+//	});
 
 
 	_server->on("/request", HTTP_GET, [this](AsyncWebServerRequest *request) {
@@ -84,6 +109,7 @@ WebServer::WebServer(int port, NodesServer *nodesServer) :
 	_server->begin();
 
 	_nodesServer->StateChangedEvent += METHOD_HANDLER(WebServer::OnDeviceStateChanged);
+	_nodesServer->DeviceAddedEvent += METHOD_HANDLER(WebServer::OnDeviceAdded);
 }
 
 void WebServer::RefreshAllItems() {
@@ -96,14 +122,17 @@ void WebServer::RefreshAllItems() {
 
 	for (auto item: list) {
 		json += "\"" + item.first.ToString() + "\":{";
-//		json += "\"name\":\"";
+		json += "\"name\":\"" + String() + "\",";
 		json += "\"state\":\"" + item.second._state.ToString() + "\"";
 		json += "},";
 	}
 
-	json.remove(json.length()-1);
+	if (list.size())
+		json.remove(json.length()-1);
 
 	json += "}";
+
+	LogService::Log("RefreshAllItems:", json.c_str());
 
 	_events->send(json.c_str(), "state");
 }
@@ -143,12 +172,18 @@ void WebServer::PrecessRequest(const StaticJsonDocument<100> *request) {
 
 	LogService::Log("PrecessRequest", reqMsg);
 
-	if (m["type"] == "state")
-	{
+	if (m["type"] == "state") {
 		String devID = m["id"];
 		String state = m["state"];
 
 		_nodesServer->RequestState(NetAddress::FromString(devID), LiftState::FromString(state));
+	}
+
+	if (m["type"] == "wifi") {
+		String ssid = m["ssid"];
+		String pw = m["password"];
+
+		_netService->setWIFIMode(WIFIMODE::AP, ssid, pw);
 	}
 }
 
@@ -156,6 +191,19 @@ void WebServer::OnDeviceStateChanged(NetAddress addr, LiftState state) {
 	StaticJsonDocument<100> m;
 
 	m["command"] = "set";
+	m["id"] = addr.ToString();
+	m["state"] = state.ToString();
+
+	String msg;
+	serializeJson(m,  msg);
+
+	_events->send(msg.c_str(), "msg");
+}
+
+void WebServer::OnDeviceAdded(NetAddress addr, LiftState state) {
+	StaticJsonDocument<100> m;
+
+	m["command"] = "add";
 	m["id"] = addr.ToString();
 	m["state"] = state.ToString();
 

@@ -30,6 +30,7 @@ class NodesServer {
 	INetService *_netService;
 
 	void set_status(NetAddress addr, LiftState state);
+	void request_report_all();
 
 public:
 	NodesServer(INetService *netService = NULL);
@@ -45,6 +46,7 @@ public:
 
 
 	void OnReceiveMessage(NetAddress addr, NetMessage *msg);
+	void OnNetworkChanged();
 };
 
 } /* namespace diamon */

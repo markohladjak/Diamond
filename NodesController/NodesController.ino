@@ -25,7 +25,8 @@ WebServer *webServer = 0;
 
 bool runServer = ESP.getEfuseMac() == 0x9cd738bd9e7c;
 
-
+void InitServerState();
+void runNode();
 void runIndication();
 
 void setup()
@@ -33,10 +34,30 @@ void setup()
 	LogService::Println("");
 	LogService::Log("setup()", "Initializing started...");
 
+	InitServerState();
+
 	NetService::IsRoot = runServer;
 
-	liftNet = new NetService(NetAddress::Generate(1));
+	runNode();
 
+	runIndication();
+
+	LogService::Log("setup()", "Initializing finished...");
+}
+
+void InitServerState(){
+	pinMode(D0, INPUT_PULLUP);
+
+	auto serverPinhigh = digitalRead(D0);
+
+	LogService::Log("#Server Pin State:", String(serverPinhigh));
+
+	serverPinhigh = serverPinhigh == LOW;
+
+	runServer = runServer || serverPinhigh;
+}
+
+void runNode(){
 	node = new Node;
 
 	lift = new Lift(D5, D6, D7);
@@ -44,18 +65,15 @@ void setup()
 	pinsDef = new LiftControlBox::PinsDef { D1, D2, D3, D4 };
 	liftControlBox = new LiftControlBox(lift, *pinsDef);
 
+	liftNet = new NetService(NetAddress::Generate(1));
+	node->AddDevice(lift, liftNet);
+
 	if (runServer) {
 		netService = new NetService(NetAddress::SERVER);
 		NodesServer *nodesServer = new NodesServer(netService);
 
-		webServer = new WebServer(80, nodesServer);
+		webServer = new WebServer(80, nodesServer, netService);
 	}
-
-	node->AddDevice(lift, liftNet);
-
-	runIndication();
-
-	LogService::Log("setup()", "Initializing finished...");
 }
 
 Scheduler scheduler;
@@ -63,15 +81,30 @@ Scheduler scheduler;
 void runIndication(){
 	pinMode(LED_BUILTIN, OUTPUT);
 
-	static bool lastState;
+	static bool lastState = false;
 
 	scheduler.init();
 
-	new Task(runServer ? 320 : 1000, TASK_FOREVER, [](){
-		digitalWrite(LED_BUILTIN, lastState = !lastState);
+	if (!runServer)
+		new Task(1000, TASK_FOREVER, [](){
+			digitalWrite(LED_BUILTIN, lastState = !lastState);
 
-	}, &scheduler, true);
+		}, &scheduler, true);
+	else {
+		static Task *Ts = new Task(1000, TASK_FOREVER, [=](){
+			static int c = 0;
+			digitalWrite(LED_BUILTIN, lastState = !lastState);
 
+			if (c == 7) {
+				Ts->setInterval(3000);
+				c=0;
+			}
+			else {
+				Ts->setInterval(lastState ? 10 : 100);
+				c++;
+			}
+		}, &scheduler, true);
+	}
 //	if (!runServer)
 //		new Task(5000, TASK_FOREVER, [](){
 //			lift->SetState(LiftState::FREE);
@@ -92,13 +125,6 @@ void loop()
 	NetService::update();
 
 	scheduler.execute();
-
-//	long cur_ms;
-//	if ((cur_ms = millis()) - last_ms > 3000) {
-//		INetMsg msg;
-//		netService.Send(NetAddress(255), msg);
-//		last_ms = cur_ms;
-//	}
 }
 
 

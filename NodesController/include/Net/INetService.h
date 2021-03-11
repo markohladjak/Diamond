@@ -14,6 +14,11 @@
 
 namespace diamon {
 
+enum class WIFIMODE {
+	AP,
+	STATION
+};
+
 class INetService {
 public:
 	virtual ~INetService() { };
@@ -24,7 +29,12 @@ public:
 
 	virtual void OnReceive(NetAddress from, void (*onReceive)(NetMessage &msg)) = 0;
 
+	virtual void setWIFIMode(WIFIMODE mode, String ssid, String pw) = 0;
+
 	TEvent<NetAddress, NetMessage*> OnReceiveEvent;
+	TEvent<> OnConnectedEvent;
+	TEvent<> OnLayoutChangedEvent;
+
 };
 
 } /* namespace diamon */

@@ -23,12 +23,13 @@ namespace diamon {
 
 class WebServer : public IInLoop {
 	NodesServer *_nodesServer = NULL;
+	INetService *_netService = NULL;
 
 public:
 	AsyncWebServer *_server;
 	AsyncEventSource *_events;
 
-	WebServer(int port, NodesServer *nodesServer);
+	WebServer(int port, NodesServer *nodesServer, INetService *netService);
 	virtual ~WebServer();
 
 	void update() override;
@@ -37,6 +38,7 @@ public:
 	void PrecessRequest(const StaticJsonDocument<100> *request);
 
 	void OnDeviceStateChanged(NetAddress addr, LiftState state);
+	void OnDeviceAdded(NetAddress addr, LiftState state);
 
 };
 
