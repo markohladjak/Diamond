@@ -83,8 +83,10 @@ void Node::OnNetworkConnected() {
 }
 
 void Node::OnRootObtained() {
-		auto state = ((Lift*)(_devices.begin()->first))->GetState();
-		SendState(state);
+	LogService::Println("Node::OnRootObtained");
+
+	auto state = ((Lift*)(_devices.begin()->first))->GetState();
+	SendState(state);
 }
 
 void Node::Process() {
