@@ -14,8 +14,6 @@
 
 namespace diamon {
 
-#define SERVER_ADDRESS NetAddress::SERVER
-
 Node::Node() {
 }
 
@@ -29,7 +27,7 @@ void Node::AddDevice(IDevice *device, INetService *netService) {
 	{
 	case DeviceType::LIFT:
 		((Lift*)device)->StateChangedEvent += METHOD_HANDLER(Node::OnLiftStateChanged);
-		netService->OnReceiveEvent += METHOD_HANDLER(Node::OnMessageReceived);
+		netService->OnReceiveEvent += METHOD_HANDLER(Node::OnNetMessage);
 //		netService->OnConnectedEvent += METHOD_HANDLER(Node::OnNetworkConnected);
 		break;
 	case DeviceType::DOOR:
@@ -45,7 +43,7 @@ void Node::SendState(LiftState state){
 	msg.Event = NetEvent::DEVICE_STATUS_CHANGED;
 	msg.State = state;
 
-	_devices.begin()->second->Send(msg, SERVER_ADDRESS);
+	_devices.begin()->second->Send(msg, NetAddress::SERVER);
 }
 
 void Node::OnLiftStateChanged(LiftState state) {
@@ -57,14 +55,18 @@ void Subscribe(IDevice* device)
 //			lift->StateChangedEvent += METHOD_HANDLER(Node::OnLiftStateChanged);
 }
 
-void Node::OnMessageReceived(NetAddress form, NetMessage *message) {
+void Node::OnNetMessage(NetAddress form, NetMessage *message) {
+	LogService::Log("Node::OnNetMessage", *message);
+
 	if (message->Type == DeviceType::LIFT) {
 		auto msg = (LiftNetMessage*)message;
 
-		if (msg->Event == NetEvent::REQUEST_DEVICE_STATE){
+		auto event = msg->Event;
+
+		if (event == NetEvent::REQUEST_DEVICE_STATE){
 			((Lift*)(_devices.begin()->first))->SetState(msg->State);
 		}
-		if (msg->Event == NetEvent::DEVICE_STATE_REPORT){
+		if (event == NetEvent::DEVICE_STATE_REPORT){
 			auto state = ((Lift*)(_devices.begin()->first))->GetState();
 			SendState(state);
 		}

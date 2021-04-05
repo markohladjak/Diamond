@@ -11,6 +11,7 @@
 #include <IInLoop.h>
 #include <Events.h>
 #include <Net/NetMessage.h>
+#include <WiFi.h>
 
 namespace diamon {
 
@@ -19,11 +20,13 @@ enum class WIFIMODE {
 	STATION
 };
 
+typedef std::list<NetAddress> device_list_t;
+
 class INetService {
 public:
 	virtual ~INetService() { };
 
-	virtual std::list<NetAddress> GetConnectedDevices() = 0;
+	virtual device_list_t GetConnectedDevices() = 0;
 
 	virtual void Send(NetMessage& msg, NetAddress to = NetAddress::BROADCAST) = 0;
 
@@ -31,9 +34,12 @@ public:
 
 	virtual void setWIFIMode(WIFIMODE mode, String ssid, String pw) = 0;
 
+	TEvent<NetAddress> OnDeviceConnected;
+	TEvent<NetAddress> OnDeviceDisconnected;
 	TEvent<NetAddress, NetMessage*> OnReceiveEvent;
 	TEvent<> OnConnectedEvent;
 	TEvent<> OnLayoutChangedEvent;
+	TEvent<WiFiEvent_t, WiFiEventInfo_t> OnWiFiEvent;
 
 };
 

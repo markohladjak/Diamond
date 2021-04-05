@@ -12,12 +12,10 @@
 #include <IInLoop.h>
 #include <NodesServer.h>
 
-#ifdef ESP32
 #include <AsyncTCP.h>
-#elif defined(ESP8266)
-#include <ESPAsyncTCP.h>
-#endif
 #include <ESPAsyncWebServer.h>
+
+#include <Helpers/JsonHelper.h>
 
 namespace diamon {
 
@@ -35,7 +33,7 @@ public:
 	void update() override;
 
 	void RefreshAllItems();
-	void PrecessRequest(const StaticJsonDocument<100> *request);
+	void PrecessRequest(const JsonHelper *request);
 
 	void OnDeviceStateChanged(NetAddress addr, LiftState state);
 	void OnDeviceAdded(NetAddress addr, LiftState state);

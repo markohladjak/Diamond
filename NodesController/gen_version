@@ -1,0 +1,4 @@
+#/bin/bash
+revision=`git rev-list --count --first-parent HEAD`
+echo "#define VERSION \"$VERSION.${revision}\"" > ../include/version.h
+

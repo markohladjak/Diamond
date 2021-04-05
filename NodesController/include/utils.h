@@ -23,7 +23,7 @@ public:
 	static uint64_t GenerateDeviceID(byte id);
 	static String UINT64ToString(uint64_t val);
 	static uint64_t StringToUINT64(String str);
-
+	static String GetVersion();
 };
 
 template <typename T, typename B>

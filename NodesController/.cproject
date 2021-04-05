@@ -12,57 +12,54 @@
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactName="${ProjName}" buildProperties="" description="" id="io.sloeber.core.toolChain.release.2079085351" name="Release" optionalBuildProperties="org.eclipse.cdt.docker.launcher.containerbuild.property.selectedvolumes=,org.eclipse.cdt.docker.launcher.containerbuild.property.volumes=" parent="org.eclipse.cdt.build.core.emptycfg">
+				<configuration artifactName="${ProjName}" buildProperties="" description="" id="io.sloeber.core.toolChain.release.2079085351" name="Release" optionalBuildProperties="org.eclipse.cdt.docker.launcher.containerbuild.property.selectedvolumes=,org.eclipse.cdt.docker.launcher.containerbuild.property.volumes=" parent="org.eclipse.cdt.build.core.emptycfg" postbuildStep="" prebuildStep="../gen_version">
 					<folderInfo id="io.sloeber.core.toolChain.release.2079085351.242513784" name="/" resourcePath="">
 						<toolChain id="io.sloeber.core.toolChain.release.221734869" name="Arduino Toolchain (Sloeber edition)" superClass="io.sloeber.core.toolChain.release">
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="io.sloeber.targetplatform.773249955" name="Arduino Target" osList="all" superClass="io.sloeber.targetplatform"/>
 							<builder buildPath="${workspace_loc:/NodesController}/Release" id="io.sloeber.sketch.builder.1377984019" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Arduino sketch builder" superClass="io.sloeber.sketch.builder"/>
-							<tool id="io.sloeber.tool.sketch.compiler.cpp.695312679" name="Arduino C++ Compiler" superClass="io.sloeber.tool.sketch.compiler.cpp">
+							<tool commandLinePattern="${A.RECIPE.CPP.O.PATTERN.1} ${FLAGS} -D__IN_ECLIPSE__=1 -x c++ ${INPUTS} ${A.RECIPE.CPP.O.PATTERN.2} -o ${OUTPUT} ${A.RECIPE.CPP.O.PATTERN.3} ${JANTJE.EXTRA.COMPILE} ${JANTJE.EXTRA.CPP.COMPILE} ${JANTJE.EXTRA.ALL} " id="io.sloeber.tool.sketch.compiler.cpp.695312679" name="Arduino C++ Compiler" superClass="io.sloeber.tool.sketch.compiler.cpp">
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="io.sloeber.compiler.cpp.sketch.option.incpath.318704960" name="Include Paths (-I)" superClass="io.sloeber.compiler.cpp.sketch.option.incpath" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/core/core}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/core/variant}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/Painless_Mesh/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/ArduinoJson/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/AsyncTCP-master/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/SPIFFS/src}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/TaskScheduler/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/Update/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/WiFi/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/FS/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/ESPAsyncWebServer/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/ESPmDNS/src}&quot;"/>
 								</option>
 								<inputType id="io.sloeber.compiler.cpp.sketch.input.148211775" name="CPP source files" superClass="io.sloeber.compiler.cpp.sketch.input"/>
 							</tool>
 							<tool id="io.sloeber.tool.compiler.c.291874254" name="Arduino C Compiler" superClass="io.sloeber.tool.compiler.c">
-								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="io.sloeber.compiler.c.sketch.option.incpath.22990543" name="Include Paths (-I)" superClass="io.sloeber.compiler.c.sketch.option.incpath" valueType="includePath">
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="io.sloeber.compiler.c.sketch.option.incpath.22990543" name="Include Paths (-I)" superClass="io.sloeber.compiler.c.sketch.option.incpath" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/core/core}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/core/variant}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/Painless_Mesh/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/ArduinoJson/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/AsyncTCP-master/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/SPIFFS/src}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/TaskScheduler/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/Update/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/WiFi/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/FS/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/ESPAsyncWebServer/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/ESPmDNS/src}&quot;"/>
 								</option>
 								<inputType id="io.sloeber.compiler.c.sketch.input.1873873713" name="C Source Files" superClass="io.sloeber.compiler.c.sketch.input"/>
 							</tool>
 							<tool id="io.sloeber.tool.sketch.compiler.s.1181605507" name="Arduino Assembler" superClass="io.sloeber.tool.sketch.compiler.s">
-								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="io.sloeber.compiler.asm.sketch.option.incpath.315981340" name="Include Paths (-I)" superClass="io.sloeber.compiler.asm.sketch.option.incpath" valueType="includePath">
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="io.sloeber.compiler.asm.sketch.option.incpath.315981340" name="Include Paths (-I)" superClass="io.sloeber.compiler.asm.sketch.option.incpath" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/core/core}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/core/variant}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/Painless_Mesh/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/ArduinoJson/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/AsyncTCP-master/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/SPIFFS/src}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/TaskScheduler/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/Update/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/WiFi/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/FS/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/ESPAsyncWebServer/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/ESPmDNS/src}&quot;"/>
 								</option>
 								<inputType id="io.sloeber.compiler.S.sketch.input.1379821700" name="Assembly source files" superClass="io.sloeber.compiler.S.sketch.input"/>
 							</tool>
@@ -72,9 +69,10 @@
 							<tool id="io.sloeber.tool.size.1736196704" name="Arduino tool Print Size" superClass="io.sloeber.tool.size"/>
 						</toolChain>
 					</folderInfo>
+					<fileInfo id="io.sloeber.core.toolChain.release.2079085351.1641922771" name="NetService.h" rcbsApplicability="disable" resourcePath="include/Net/NetService.h" toolsToInvoke=""/>
 					<sourceEntries>
-						<entry excluding="libraries/?*/**/test*/**|libraries/ESPAsyncTCP-master/.github|libraries/?*/**/?xamples/**|libraries/AsyncTCP-master/.github|libraries/?*/**/?xtras/**|src|libraries/ESPAsyncWebServer-master/.github|libraries/ESPAsyncTCP-master/ssl|libraries/?*/**/third-party/**|libraries/Painless_Mesh/doxygen|libraries/?*/utility/*/*|libraries/ESPAsyncWebServer/.git|libraries/**/._*|libraries/ESPAsyncWebServer/.github" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
-						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="include/Net/NetService.h|libraries/?*/**/test*/**|libraries/ESPAsyncTCP-master/.github|libraries/?*/**/?xamples/**|libraries/AsyncTCP-master/.github|libraries/?*/**/?xtras/**|src|libraries/ESPAsyncWebServer-master/.github|libraries/ESPAsyncTCP-master/ssl|libraries/?*/**/third-party/**|libraries/Painless_Mesh/doxygen|libraries/?*/utility/*/*|libraries/ESPAsyncWebServer/.git|libraries/**/._*|libraries/ESPAsyncWebServer/.github" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="Net/NetService.cpp" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -82,6 +80,9 @@
 		</cconfiguration>
 		<cconfiguration id="io.sloeber.core.toolChain.release.2079085351.1199354510">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="io.sloeber.core.toolChain.release.2079085351.1199354510" moduleId="org.eclipse.cdt.core.settings" name="TEST">
+				<macros>
+					<stringMacro name="PROGRAM_VERSION" type="VALUE_TEXT" value="PV123"/>
+				</macros>
 				<externalSettings/>
 				<extensions>
 					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
@@ -101,11 +102,9 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/core/core}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/core/variant}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/Painless_Mesh/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/ArduinoJson/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/AsyncTCP-master/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/SPIFFS/src}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/TaskScheduler/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/Update/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/WiFi/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/FS/src}&quot;"/>
@@ -117,11 +116,9 @@
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="io.sloeber.compiler.c.sketch.option.incpath.1043999628" name="Include Paths (-I)" superClass="io.sloeber.compiler.c.sketch.option.incpath" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/core/core}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/core/variant}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/Painless_Mesh/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/ArduinoJson/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/AsyncTCP-master/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/SPIFFS/src}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/TaskScheduler/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/Update/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/WiFi/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/FS/src}&quot;"/>
@@ -133,11 +130,9 @@
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="io.sloeber.compiler.asm.sketch.option.incpath.2145256186" name="Include Paths (-I)" superClass="io.sloeber.compiler.asm.sketch.option.incpath" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/core/core}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/core/variant}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/Painless_Mesh/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/ArduinoJson/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/AsyncTCP-master/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/SPIFFS/src}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/TaskScheduler/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/Update/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/WiFi/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/FS/src}&quot;"/>
@@ -168,9 +163,11 @@
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 	<storageModule moduleId="refreshScope" versionNumber="2">
+		<configuration configurationName="TEST"/>
 		<configuration configurationName="Release">
 			<resource resourceType="PROJECT" workspacePath="/NodesController"/>
 		</configuration>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
+	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 </cproject>

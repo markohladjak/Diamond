@@ -37,12 +37,21 @@ public:
 
 	operator States () { return State; }
 	States operator = (States s) { return State = s; }
+	operator String () { return ToString(State); }
 
 	static String ToString(States state) { return StatesDescription[state]; }
 	static LiftState FromString(String str) {
-		for (auto it = StatesDescription.begin(); it != StatesDescription.end(); ++it)
-		    if (it->second == str)
+		String stateStr;
+
+		str.toLowerCase();
+
+		for (auto it = StatesDescription.begin(); it != StatesDescription.end(); ++it) {
+			stateStr = it->second;
+			stateStr.toLowerCase();
+
+			if (stateStr == str)
 		        return it->first;
+		}
 
 		return LiftState::NONE;
 	}

@@ -1,4 +1,3 @@
-R"~~~(
 <!DOCTYPE html>
 <html>
 
@@ -169,6 +168,10 @@ R"~~~(
 		align-items: center;
 		color: #E2E2E7;
 	}
+
+	.deviceDisconnected {
+		filter: grayscale(100%);
+	}	
 	
 	.deviceName {
 		width: 200px;
@@ -195,7 +198,7 @@ R"~~~(
 		color: #F05656;
 	}
 	
-	.dvsexHOLDED div {
+	.dvsexHOLDED .statusContainer {
 		border-color: rgb(255, 189, 0);
 		border-color: #FDCB6A;
 		border-style: solid;
@@ -223,6 +226,14 @@ R"~~~(
 		background-color: #FDCB6A;
 	}
 
+	.dvsexTEST .dot {
+		background-color: lightgray;
+	}
+
+	.dvsexDISABLED .dot {
+		background-color: grey;
+	}
+	
 	.statusContainer {
 		height: 33px;
 		background: rgba(255, 255, 255, 0.06);
@@ -245,12 +256,14 @@ R"~~~(
 	}
 	
 	.deviceAction {
-		width: 200px;
+		width: 32px;
+		height: 100%;
 		margin-left: 7px;
 		display: flex;
 		align-items: center;
 	}
-	
+
+		
 	.dotAction {
 		height: 6px;
 		width: 6px;
@@ -321,10 +334,10 @@ R"~~~(
 		margin-left: 50px;
 	}
 
-	#actionMenu {
+	#actionPanel {
 		position: absolute;
-		width: 245px;
-		height: 335px;
+		width: 255px;
+		height: 362px;
 		left: 567px;
 		top: 250px;
 		
@@ -333,7 +346,7 @@ R"~~~(
 		border-radius: 10px;
 	}
 
-	#actionMenu div {
+	#actionPanel div {
 		height: 40px;
 
 		font-style: normal;
@@ -343,23 +356,37 @@ R"~~~(
 		/* identical to box height */
 		display: flex;
 		align-items: center;
-		
+	}
+	
+	.actionText {
 		color: #E2E2E7;
 	}
 
-	#actionMenu div span {
-		//margin-left: 55px;	
-	}
-
-	#actionMenu div:hover {
+	#actionPanel div:hover {
 		background-color: #393941;
 		transition: 0.3s;
 	}
 
-	.actionMenuTitle{
+	.actionPanelTitle {
+		color: #FFFFFF;
+		font-style: normal;
+		font-weight: 500;
+		font-size: 18px;
+		line-height: 21px;
+		height:53px; 
+		padding-left: 20px;
 	}
 
-
+	.actionChecked{
+		height: 35px;
+		width: 35px;
+	}
+	
+	.checkedIcon {
+		display: block; 
+		margin: auto;
+	}
+	
 </style>
 
 <head>
@@ -375,20 +402,26 @@ R"~~~(
 		<div style="background-color: #E8EEF7; width: 40px; height: 40px;display: flex; float: right;
   					justify-content: center; align-items: center; border-radius: 50%;
 					margin-top: -80px; margin-right: 177px;">
-			<img src="/src/img/user.svg" style="display: block; margin: auto;"></div>
+			<img src="/src/img/user.svg" style="display: block; margin: auto;">
 		</div>
 	</div>
 	
 	<div style="margin: 20px 0 0 100px;">
-		<span style="color:red;">
+		<span style="color:red; font-weight: 100; font-size: 14px;">
 			Product is under construction. Some features may work incorrectly...
 		</span>
 	</div>
 
-	<div id="mySidenav" class="sidenav">
+<!--	<div id="mySidenav" class="sidenav">
 	  <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
 	  <a href="#">Settings</a>
 	  <a href="#">About</a>
+	</div>-->
+
+	<div id="mySidenav" class="sidenav">
+	  <a class="closebtn" onclick="closeNav()">&times;</a>
+	  <a >Settings</a>
+	  <a >About</a>
 	</div>
 
 	<div id="mainContainer">
@@ -411,13 +444,13 @@ R"~~~(
 					<template id="deviceViewTemplate">
 						<div class="deviceView">
 							<span class="deviceName"></span>
-							<div class="deviceStatus dvsexHOLDED">
+							<div class="deviceStatus">
 								<div class="statusContainer">
 									<span class="dot"></span>
 									<span class="deviceStatusText"></span>
 								</div>
 							</div>
-							<div class="deviceAction">
+							<div class="deviceAction" onclick="showActionPanel(this)">
 								<span class="dotAction"></span>
 								<span class="dotAction"></span>
 								<span class="dotAction"></span>
@@ -430,20 +463,59 @@ R"~~~(
 			<div class="schemeContainer tabContent" id="Scheme">
 			</div>
 
-			<div id="actionMenu">
-				<div class="actionMenuTitle" style="height:53px"><span>Action for Post 1</div>
-				<div>
-					<div style="height: 35px; width: 35px;">
-						<svg style="display: block; margin: auto;" width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-							<path fill-rule="evenodd" clip-rule="evenodd" d="M8.71233 1.2125C8.88727 1.03909 9.12343 0.941494 9.36975 0.940815C9.61607 0.940135 9.85276 1.03643 10.0286 1.20887C10.2045 1.38131 10.3055 1.61605 10.3097 1.86233C10.3139 2.10862 10.221 2.34666 10.0511 2.525L5.06108 8.7625C4.97532 8.85487 4.87181 8.929 4.75675 8.98046C4.64168 9.03191 4.51742 9.05964 4.3914 9.06197C4.26537 9.0643 4.14017 9.0412 4.02328 8.99404C3.90639 8.94688 3.8002 8.87663 3.71108 8.7875L0.404831 5.48C0.312722 5.39417 0.238845 5.29067 0.187605 5.17567C0.136365 5.06067 0.108812 4.93653 0.106591 4.81065C0.10437 4.68477 0.127526 4.55974 0.174678 4.443C0.221829 4.32627 0.29201 4.22023 0.381033 4.1312C0.470057 4.04218 0.576099 3.972 0.692834 3.92485C0.809569 3.87769 0.934606 3.85454 1.06048 3.85676C1.18636 3.85898 1.3105 3.88653 1.4255 3.93777C1.5405 3.98901 1.644 4.06289 1.72983 4.155L4.34733 6.77125L8.68858 1.24C8.69633 1.23032 8.70468 1.22113 8.71358 1.2125H8.71233Z" fill="white"/>
-						</svg>
-					</div> 
-					<span class="dot"></span><span>Free</span></div>
-				<div><span>Busy</span></div>
-				<div><span>Ready</span></div>
-				<div><span>SOS</span></div>
-				<div style="height: 1px; background-color: rgb(35, 35, 35);"></div>
-				<div><span>Hold</span></div>
+			<div id="actionPanel" hidden>
+				<div class="actionPanelTitle" style="color: #FFFFFF; height:53px;">Node: </div>
+				<div class="dvsFREE" onclick="onActionSelect(this)">
+					<div class="actionChecked">
+						<img src="/src/img/check.svg" class="checkedIcon">
+					</div>
+					<span class="dot dvsFREE"></span>
+					<span class="actionText">Free</span>
+				</div> 
+				<div class="dvsBUSY" onclick="onActionSelect(this)">
+					<div class="actionChecked">
+						<img src="/src/img/check.svg" class="checkedIcon">
+					</div>
+					<span class="dot"></span>
+					<span class="actionText">Busy</span>
+				</div> 
+				<div class="dvsREADY" onclick="onActionSelect(this)">
+					<div class="actionChecked">
+						<img src="/src/img/check.svg" class="checkedIcon">
+					</div>
+					<span class="dot"></span>
+					<span class="actionText">Ready</span>
+				</div> 
+				<div class="dvsSOS" onclick="onActionSelect(this)">
+					<div class="actionChecked">
+						<img src="/src/img/check.svg" class="checkedIcon">
+					</div>
+					<span class="dot"></span>
+					<span class="actionText">SOS</span>
+				</div> 
+				<div style="height: 1px; margin: 5px; background-color: rgb(85, 85, 85);"></div>
+				<div class="dvsexHOLDED" onclick="onActionSelect(this)">
+					<div class="actionChecked">
+						<img src="/src/img/check.svg" class="checkedIcon">
+					</div>
+					<span class="dot"></span>
+					<span class="actionText">Hold</span>
+				</div> 
+				<div class="dvsexTEST" onclick="onActionSelect(this)">
+					<div class="actionChecked">
+						<img src="/src/img/check.svg" class="checkedIcon">
+					</div>
+					<span class="dot"></span>
+					<span class="actionText">Test</span>
+				</div> 
+				<div style="height: 1px; margin: 5px; background-color: rgb(85, 85, 85);"></div>
+				<div class="dvsexDISABLED" onclick="onActionSelect(this)">
+					<div class="actionChecked">
+						<img src="/src/img/check.svg" class="checkedIcon">
+					</div>
+					<span class="dot"></span>
+					<span class="actionText">Disable</span>
+				</div> 
 			</div>
 			
 		</div>
@@ -458,11 +530,17 @@ R"~~~(
 			<p>Paris is the capital of France.</p>
 		</div>
 		-->
-		<div>
+		<div hidden>
 			<input id="wifi_ssid"></input>
 			<input id="wifi_password"></input>
 			<button onclick="changeWIFIMode()"></button>
 			
+		</div>
+		<div>
+			<button onclick="reportAll()">Report All</button>
+		</div>
+		<div>
+			<button onclick="resetAll()">Reset All</button>
 		</div>
 	</div>
 	
@@ -512,12 +590,12 @@ R"~~~(
 	        }
 	    }
 	
-	    function addDevice(id, state, name) {
+	    function addDevice(id, state, name, is_connected = true) {
 			var devicesList = document.querySelector('#devicesList');
 			
 			var sequence = devicesList.childNodes.length;
 			
-			devicesList.appendChild(createDeviceView(id, name, sequence, state));
+			devicesList.appendChild(createDeviceView(id, name, sequence, state, is_connected));
 	
 	      	console.log("addDevice", id, name, state);
 	    }
@@ -533,7 +611,7 @@ R"~~~(
 			var statusText = dv.getElementsByClassName("deviceStatusText")[0];
 
 			dvStatus.className = dvStatus.className.replace(/dvs[A-Z]+/g, "dvs" + state.toUpperCase());
-
+						
 			statusText.textContent = state;			
 	    }
 	
@@ -566,7 +644,7 @@ R"~~~(
 			evt.currentTarget.className += " active";
 		}
 		
-		function createDeviceView(id, name, sequence, state) {
+		function createDeviceView(id, name, sequence, state, is_connected = true) {
 			var template = document.querySelector('#deviceViewTemplate');
 						
 			var dv = template.content.querySelector("div");
@@ -576,6 +654,11 @@ R"~~~(
 			var status = deviceView.getElementsByClassName("deviceStatus")[0];
 			var statusText = deviceView.getElementsByClassName("deviceStatusText")[0];
 			
+			if (is_connected == true)
+				deviceView.classList.remove("deviceDisconnected");
+			else
+				deviceView.classList.add("deviceDisconnected");
+
 //			let eee = new Map([
 //  				['Free', 'Free'],
 //  				[1, 'one'],
@@ -591,10 +674,7 @@ R"~~~(
 			return deviceView; 
 		}
 		 
-	    function deviceStateSelected(el) {
-			var id = el.parentElement.parentElement.id;
-			var state = el.value;
-			
+	    function requestDeviceState(id, state) {
 			var url = window.location.href + `request?type=state&id=${id}&state=${state}`;
 	
 			httpGet(url);
@@ -603,6 +683,24 @@ R"~~~(
 	        console.log(id, ": ",state);
 	    }
 
+		function reportAll()
+		{
+			var url = window.location.href + `report_all`;
+	
+			httpGet(url);
+			
+			console.log("reportAll", url);
+		}
+
+		function resetAll(state = "NONE")
+		{
+			var url = window.location.href + `reset_all?`;
+	
+			httpGet(url);
+			
+			console.log("reset_all", url);
+		}
+		
 		function httpGet(theUrl) {
 			var xmlHttp = new XMLHttpRequest();
 			xmlHttp.open("GET", theUrl, false); // false for synchronous request
@@ -630,17 +728,90 @@ R"~~~(
   			document.getElementById("mySidenav").style.width = "0";
 		}
 		
+		function offset(el) {
+		    var rect = el.getBoundingClientRect(),
+		    scrollLeft = window.pageXOffset || document.documentElement.scrollLeft,
+		    scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+		    return { top: rect.top + scrollTop, left: rect.left + scrollLeft }
+		}
+		
+		function showActionPanel(el) {
+			var dv = el.parentElement;
+			var menu = document.getElementById("actionPanel");
+			var menuTitle = menu.getElementsByClassName("actionPanelTitle")[0];
+			var checked = menu.getElementsByClassName("actionChecked");
+			var dvStatus = dv.getElementsByClassName("deviceStatus")[0];
+			
+			SelectedDeviceID = dv.id;
+			
+			menuTitle.textContent = 'Node:      ' + SelectedDeviceID;
+			
+			var pos = offset(el);
+						
+			menu.style.top = (pos.top - 60) + "px"; 
+			menu.style.left = pos.left + "px"; 
+			
+			
+			for(var c = menu.firstElementChild; c != null; c = c.nextElementSibling){
+				console.log("c", c);
+				
+				var icon = c.getElementsByClassName("checkedIcon")[0];
+				
+				console.log("list", dvStatus.classList);
+				console.log("name", c.className);
+				
+				if (icon)
+					if (dvStatus.classList.contains(c.className))
+						icon.style.display = "block";
+					else
+						icon.style.display = "none";
+				
+				console.log("display", icon);
+			}
+
+			
+			actionPanelVisible(true);
+		}
+		
+		function onActionSelect(el) {
+			var action = el.getElementsByClassName("actionText")[0].textContent;
+			
+			actionPanelVisible(false);			
+
+			requestDeviceState(SelectedDeviceID, action);
+		}
+
+		function actionPanelVisible(visible) {
+			var menu = document.getElementById("actionPanel");
+			
+			if (visible) {
+				if (menu.hasAttribute("hidden"))
+					menu.removeAttribute("hidden");
+			}
+			else 
+				if (!menu.hasAttribute("hidden"))
+					menu.setAttribute("hidden", "");
+		}
+		
+		window.addEventListener("click", function(event) {
+				//console.log("window.addEventListener");
+				//actionPanelVisible(false);
+		});
+				
+		var SelectedDeviceID;
+		
 		serverSendInit();
 		
-		addDevice("0", "Free", "Post 1");
-		addDevice("1", "Free", "");
-		addDevice("2", "Busy", "");
-		addDevice("3", "SOS", "");
-		setDeviceState("0", "Ready");
+//		window.onclick = 
+		
+//		addDevice("24c438bd9e7c0001", "Free", "Post 1");
+//		addDevice("1", "Free", "", false);
+//		addDevice("2", "Busy", "");
+//		addDevice("3", "SOS", "");
+//		setDeviceState("0", "Ready");
 //		removeDevice("1");
 	</script>
 
 </body>
 
 </html>
-)~~~"

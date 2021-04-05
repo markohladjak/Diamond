@@ -9,9 +9,8 @@
 #include <LogService.h>
 #include <Events.h>
 #include <config.hpp>
-
 #include <SPIFFS.h>
-
+#include <Helpers/JsonHelper.h>
 
 namespace diamon {
 
@@ -19,9 +18,9 @@ namespace diamon {
 //#include "data/index.html"
 //;
 
-String html =
-#include "data/test.html"
-;
+//String html =
+//#include "data/html/test.html"
+//;
 
 
 WebServer::WebServer(int port, NodesServer *nodesServer, INetService *netService) :
@@ -36,7 +35,8 @@ WebServer::WebServer(int port, NodesServer *nodesServer, INetService *netService
 	_server->on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
 		LogService::Log("_server->on: /", request->url());
 
-		request->send(200, "text/html", html);
+//		request->send(200, "text/html", html);
+		request->send(SPIFFS, Config::HTML_PREFIX + "/test.html");
 	});
 
 	_server->on("/src/img/user.svg", HTTP_GET, [](AsyncWebServerRequest *request) {
@@ -44,6 +44,10 @@ WebServer::WebServer(int port, NodesServer *nodesServer, INetService *netService
 		LogService::Log("_server->on 2: /src/img/user.svg", Config::HTML_PREFIX + request->url());
 
 
+		request->send(SPIFFS, Config::HTML_PREFIX + request->url());
+	});
+
+	_server->on("/src/img/check.svg", HTTP_GET, [](AsyncWebServerRequest *request) {
 		request->send(SPIFFS, Config::HTML_PREFIX + request->url());
 	});
 
@@ -74,7 +78,7 @@ WebServer::WebServer(int port, NodesServer *nodesServer, INetService *netService
 
 
 	_server->on("/request", HTTP_GET, [this](AsyncWebServerRequest *request) {
-        StaticJsonDocument<100> doc;
+		JsonHelper doc;
 
         for(int i = 0; i < request->params(); i++){
 
@@ -86,6 +90,18 @@ WebServer::WebServer(int port, NodesServer *nodesServer, INetService *netService
         PrecessRequest(&doc);
 
 	    request->send(200, "text/html", "");
+	});
+
+	_server->on("/report_all", HTTP_GET, [this](AsyncWebServerRequest *request) {
+		_nodesServer->ReportAll();
+
+		request->send(200, "text/html", "");
+	});
+
+	_server->on("/reset_all", HTTP_GET, [this](AsyncWebServerRequest *request) {
+		_nodesServer->ResetAll();
+
+		request->send(200, "text/html", "");
 	});
 
 	_events->onConnect([this](AsyncEventSourceClient *client) {
@@ -107,6 +123,10 @@ WebServer::WebServer(int port, NodesServer *nodesServer, INetService *netService
 	_server->addHandler(_events);
 
 	_server->begin();
+
+//	if (!MDNS.begin("diamond")) {
+//		LogService::Log("MDNS", "Error setting up MDNS responder!");
+//	}
 
 	_nodesServer->StateChangedEvent += METHOD_HANDLER(WebServer::OnDeviceStateChanged);
 	_nodesServer->DeviceAddedEvent += METHOD_HANDLER(WebServer::OnDeviceAdded);
@@ -164,13 +184,10 @@ void WebServer::update() {
 
 }
 
-void WebServer::PrecessRequest(const StaticJsonDocument<100> *request) {
-	auto &m = *request;
+void WebServer::PrecessRequest(const JsonHelper *request) {
+	const auto &m = *request;
 
-	String reqMsg;
-	serializeJson(m, reqMsg);
-
-	LogService::Log("PrecessRequest", reqMsg);
+	LogService::Log("WebServer::PrecessRequest", m);
 
 	if (m["type"] == "state") {
 		String devID = m["id"];
@@ -188,29 +205,23 @@ void WebServer::PrecessRequest(const StaticJsonDocument<100> *request) {
 }
 
 void WebServer::OnDeviceStateChanged(NetAddress addr, LiftState state) {
-	StaticJsonDocument<100> m;
+	JsonHelper m;
 
 	m["command"] = "set";
 	m["id"] = addr.ToString();
 	m["state"] = state.ToString();
 
-	String msg;
-	serializeJson(m,  msg);
-
-	_events->send(msg.c_str(), "msg");
+	_events->send(((String)m).c_str(), "msg");
 }
 
 void WebServer::OnDeviceAdded(NetAddress addr, LiftState state) {
-	StaticJsonDocument<100> m;
+	JsonHelper m;
 
 	m["command"] = "add";
 	m["id"] = addr.ToString();
 	m["state"] = state.ToString();
 
-	String msg;
-	serializeJson(m,  msg);
-
-	_events->send(msg.c_str(), "msg");
+	_events->send(((String)m).c_str(), "msg");
 }
 
 } /* namespace diamon */

@@ -17,6 +17,8 @@ class JsonHelper: public StaticJsonDocument<0x100>
 public:
 	JsonHelper() {}
 	JsonHelper(const String& jsonString);
+
+	operator String () const;
 };
 
 

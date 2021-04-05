@@ -29,7 +29,7 @@ public:
 	{ return true; }
 
 	const LiftState& GetState() { return _state; }
-	void SetState(const LiftState& state) { set_state(state); }
+	void SetState(const LiftState& state);
 
 	TEvent<LiftState> StateChangedEvent;
 
@@ -39,6 +39,8 @@ private:
 	LiftState _state;
 
 	RGBRele *RGBMonitor;
+
+	QueueHandle_t _state_mutex  = xSemaphoreCreateMutex();
 
 	DeviceType Type() override { return DeviceType::LIFT; }
 

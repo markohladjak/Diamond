@@ -22,7 +22,7 @@ class Node: public INode {
 	LogService *_logService;
 
 	void OnLiftStateChanged(LiftState state);
-	void OnMessageReceived(NetAddress form, NetMessage* message);
+	void OnNetMessage(NetAddress form, NetMessage* message);
 	void OnNetworkConnected();
 	void Subscribe(IDevice* device);
 

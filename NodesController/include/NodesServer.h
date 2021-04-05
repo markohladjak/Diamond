@@ -40,12 +40,14 @@ public:
 	DeviceList& DevicesList();
 
 	void RequestState(NetAddress id, LiftState state);
+	void ReportAll();
+	void ResetAll(LiftState state = LiftState::NONE);
 
 	TEvent<NetAddress, LiftState> DeviceAddedEvent;
 	TEvent<NetAddress, LiftState> StateChangedEvent;
 
 
-	void OnReceiveMessage(NetAddress addr, NetMessage *msg);
+	void OnNetMessage(NetAddress addr, NetMessage *msg);
 	void OnNetworkChanged();
 };
 

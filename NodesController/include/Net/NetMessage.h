@@ -17,7 +17,7 @@ namespace diamon {
 
 class NetMessage
 {
-	friend class NetService;
+	friend class ESP32MeshNetService;
 
 protected:
 	NetAddress _from;
@@ -32,6 +32,8 @@ public:
 
 	virtual ~NetMessage() {}
 
+	DeviceType GetDeviceType() { return Type; }
+
 	virtual operator String ();
 
 	virtual NetMessage& operator=(const String& json)
@@ -41,6 +43,8 @@ public:
 	}
 
 	virtual void Deserialize(const String& json);
+
+	static NetMessage* Resolve(const String &jsonString);
 };
 
 class LiftNetMessage: public NetMessage
@@ -48,18 +52,16 @@ class LiftNetMessage: public NetMessage
 	void Deserialize(const String& json) override;
 
 public:
+	LiftState State;
+
 	LiftNetMessage() {
 		Type = DeviceType::LIFT;
 	}
 
 	LiftNetMessage(const String& json) { Deserialize(json); }
 
-	LiftState State;
 
 	operator String () override;
-
-
-
 };
 
 }

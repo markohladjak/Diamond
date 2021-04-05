@@ -62,6 +62,11 @@
 			<location>/Users/rem/Documents/Arduino/libraries/ESPAsyncWebServer</location>
 		</link>
 		<link>
+			<name>libraries/ESPmDNS</name>
+			<type>2</type>
+			<locationURI>ECLIPSE_HOME/arduinoPlugin/packages/esp32/hardware/esp32/1.0.4/libraries/ESPmDNS</locationURI>
+		</link>
+		<link>
 			<name>libraries/FS</name>
 			<type>2</type>
 			<locationURI>ECLIPSE_HOME/arduinoPlugin/packages/esp32/hardware/esp32/1.0.4/libraries/FS</locationURI>
@@ -72,19 +77,9 @@
 			<locationURI>ECLIPSE_HOME/arduinoPlugin/packages/esp8266/hardware/esp8266/2.5.0/libraries/Hash</locationURI>
 		</link>
 		<link>
-			<name>libraries/Painless_Mesh</name>
-			<type>2</type>
-			<location>/Users/rem/Documents/Arduino/libraries/Painless_Mesh</location>
-		</link>
-		<link>
 			<name>libraries/SPIFFS</name>
 			<type>2</type>
 			<locationURI>ECLIPSE_HOME/arduinoPlugin/packages/esp32/hardware/esp32/1.0.4/libraries/SPIFFS</locationURI>
-		</link>
-		<link>
-			<name>libraries/TaskScheduler</name>
-			<type>2</type>
-			<location>/Users/rem/Documents/Arduino/libraries/TaskScheduler</location>
 		</link>
 		<link>
 			<name>libraries/Update</name>

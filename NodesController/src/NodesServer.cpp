@@ -18,7 +18,7 @@ NodesServer::NodesServer(INetService *netService) :
 //	_devices.push_back(R"({"id" : "1", "name" : "Post 1", "state" : "Free"})");
 
 
-	_netService->OnReceiveEvent += METHOD_HANDLER(NodesServer::OnReceiveMessage);
+	_netService->OnReceiveEvent += METHOD_HANDLER(NodesServer::OnNetMessage);
 	_netService->OnLayoutChangedEvent += METHOD_HANDLER(NodesServer::OnNetworkChanged);
 
 	request_report_all();
@@ -46,6 +46,22 @@ void NodesServer::RequestState(NetAddress addr, LiftState state) {
 	_netService->Send(msg, addr);
 }
 
+void NodesServer::ReportAll() {
+	request_report_all();
+}
+
+void NodesServer::ResetAll(LiftState state) {
+	LogService::Log("NodesServer::ResetAll", state);
+
+	NetAddress addr = NetAddress::BROADCAST;
+	LiftNetMessage msg;
+
+	msg.Event = NetEvent::REQUEST_DEVICE_STATE;
+	msg.State = state;
+
+	_netService->Send(msg, addr);
+}
+
 void NodesServer::set_status(NetAddress addr, LiftState state) {
 	auto old_items_count = _devices.size();
 	_devices[addr]._state = state;
@@ -56,9 +72,9 @@ void NodesServer::set_status(NetAddress addr, LiftState state) {
 		StateChangedEvent(addr, state);
 }
 
-void NodesServer::OnReceiveMessage(NetAddress addr, NetMessage *msg){
+void NodesServer::OnNetMessage(NetAddress addr, NetMessage *msg){
 
-	LogService::Log("OnMessage", *msg);
+	LogService::Log("NodesServer::OnNetMessage", *msg);
 
 	if (msg->Event == NetEvent::DEVICE_STATUS_CHANGED)
 	{
@@ -72,13 +88,12 @@ void NodesServer::OnNetworkChanged() {
 }
 
 void NodesServer::request_report_all() {
-	LogService::Log("request_report_all:","");
+	LogService::Log("NodesServer::request_report_all","");
 
 	NetAddress addr = NetAddress::BROADCAST;
-	NetMessage msg;
+	LiftNetMessage msg;
 
 	msg.Event = NetEvent::DEVICE_STATE_REPORT;
-	msg.Type = DeviceType::LIFT;
 
 	_netService->Send(msg, addr);
 }

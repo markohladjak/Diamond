@@ -59,5 +59,19 @@ void LiftNetMessage::Deserialize(const String& jsonString)
 	State = json["state"].as<int>();
 }
 
+NetMessage* NetMessage::Resolve(const String &jsonString) {
+	NetMessage msg(jsonString);
+
+	switch (msg.Type) {
+	case DeviceType::LIFT:
+		return new LiftNetMessage(jsonString);
+	case DeviceType::DOOR:
+	case DeviceType::UNKNOW:
+		;
+	}
+
+	return NULL;
+}
+
 }
 

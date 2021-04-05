@@ -4,7 +4,6 @@
  *  Created on: Feb 27, 2021
  *      Author: rem
  */
-
 #include <Helpers/JsonHelper.h>
 
 namespace diamon {
@@ -12,6 +11,13 @@ namespace diamon {
 JsonHelper::JsonHelper(const String& jsonString)
 {
 	deserializeJson(*this, jsonString);
+}
+
+JsonHelper::operator String() const {
+	String json_str;
+	serializeJson(*this, json_str);
+
+	return json_str;
 }
 
 } /* namespace diamon */

@@ -36,6 +36,14 @@ void Lift::set_state(LiftState state) {
 	LogService::Log("Lift state changed", LiftState::ToString(state));
 }
 
+void Lift::SetState(const LiftState &state) {
+	xSemaphoreTake(_state_mutex, portMAX_DELAY);
+
+	set_state(state);
+
+	xSemaphoreGive(_state_mutex);
+}
+
 void Lift::show_state() {
 	RGBMonitor->Stop();
 

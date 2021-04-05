@@ -10,6 +10,7 @@
 #include <Net/NetMessage.h>
 #include <ESPmDNS.h>
 
+
 using namespace std::placeholders;
 
 namespace diamon {
@@ -46,17 +47,21 @@ NetService::~NetService() {
 void NetService::initMesh() {
 	mesh = new PainlessMesh;
 
-	mesh->init("Mesh", MESH_PASSWORD, 5555, wifi_mode_t::WIFI_MODE_APSTA, 3);
 //		mesh->setDebugMsgTypes( ERROR | STARTUP );
 	mesh->setDebugMsgTypes( ERROR | MESH_STATUS | CONNECTION | SYNC | COMMUNICATION | GENERAL | MSG_TYPES | REMOTE ); // all types on
 
+//	WiFi_AP_Record_t
+//	mesh->init(ssid, password, baseScheduler, port, connectMode, channel, hidden, maxconn)
+//
+//	WiFi.setPhyMode(WIFI_PHY_MODE_11B);
+//	WiFi.set
 
 	if (IsRoot) {
-		mesh->setRoot();
-		mesh->setHostname("diamond");
+//		mesh->setRoot();
+//		mesh->setHostname("diamond");
 
 //		mesh->stationManual("Marko", "mmmmmmmm");
-		mesh->stationManual("Tenda_0AD898", "12345678");
+//		mesh->stationManual("Tenda_0AD898", "12345678");
 //		mesh->stationManual("BV6000", "1234567890");
 //		mesh->stationManual("", "");
 
@@ -68,14 +73,24 @@ void NetService::initMesh() {
 		WiFi.onEvent(wifiEventCallback, SYSTEM_EVENT_STA_GOT_IP);
 		WiFi.onEvent(wifiEventCallback, SYSTEM_EVENT_STA_LOST_IP);
 
+		mesh->init("Mesh", MESH_PASSWORD, 5555, wifi_mode_t::WIFI_MODE_APSTA, 1);
+
+//		  mesh->initOTAReceive(role)  initOTA("performance");
+//		  painlessmesh::plugin::performance::begin(mesh, 2);
+
+//		mesh->stationManual("Tenda_0AD898", "12345678");
+//		mesh->stationManual("TP-Link_982C", "33188805");
+//		mesh->stationManual("Audi84084", "12345678");
+
 
 		if (!MDNS.begin("diamond")) { //http://esp32.local
 			Serial.println("Error setting up MDNS responder!");
 		}
 	}
-	else
-		mesh->setContainsRoot();
-
+	else {
+//		mesh->setContainsRoot();
+		mesh->init("Mesh", MESH_PASSWORD, 5555, wifi_mode_t::WIFI_MODE_APSTA, 1);
+	}
 
 //	mesh->onReceive(std::bind(&NetService::receivedCallback, this, std::placeholders::_1, std::placeholders::_2));
 	mesh->onReceive(receivedCallback);
@@ -106,7 +121,7 @@ void NetService::receivedCallback(uint32_t from, TSTRING &msg)
 		return;
 	}
 
-	for(auto node: localNodes)
+	for (auto node: localNodes)
 		node.second->OnReceiveEvent(m->_from, m);
 }
 
@@ -121,6 +136,9 @@ void NetService::newConnectionCallback(uint32_t nodeId)
 void NetService::changedConnectionCallback()
 {
 	LogService::Log("NetService::changedConnectionCallback:", "");
+
+	LogService::Println("---------------------------------------------");
+	LogService::Println(mesh->subConnectionJson(true));
 
 	for (auto node: localNodes)
 		node.second->OnLayoutChangedEvent();
@@ -173,6 +191,9 @@ void NetService::wifiEventCallback(WiFiEvent_t event, WiFiEventInfo_t info)
 	}
 
 	LogService::Log("wifiEventCallback:", "EVENT");
+
+	for (auto node: localNodes)
+		node.second->OnWiFiEvent(event, info);
 
 //	LogService::Log("mesh->getStationIP(): ", NetService::mesh->getStationIP());
 }

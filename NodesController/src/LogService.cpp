@@ -9,7 +9,7 @@
 
 namespace diamon {
 
-void LogService::Log(String source, String msg) {
+void LogService::Log(String source, String msg = "") {
 	Serial.print(source);
 	if (source.length())
 		Serial.print(": ");
