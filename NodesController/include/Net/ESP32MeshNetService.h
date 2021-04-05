@@ -30,6 +30,7 @@ class ESP32MeshNetService: public INetService {
 	static bool _is_mesh_initialized;
 	static bool _is_mesh_connected;
 	static int _max_device_count;
+	static int _max_connection;
 
 	static int _mesh_layer;
 	static mesh_addr_t _mesh_parent_addr;

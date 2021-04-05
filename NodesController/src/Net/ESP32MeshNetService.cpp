@@ -45,6 +45,7 @@ bool ESP32MeshNetService::_is_mesh_connected = false;
 bool ESP32MeshNetService::_is_mesh_initialized = false;
 
 int ESP32MeshNetService::_max_device_count = 100;
+int ESP32MeshNetService::_max_connection = 10;  // 10 MAX
 
 int ESP32MeshNetService::_mesh_layer = -1;
 mesh_addr_t ESP32MeshNetService::_mesh_parent_addr;
@@ -237,7 +238,7 @@ void ESP32MeshNetService::init() {
 
 	    /* mesh softAP */
 	    ESP_ERROR_CHECK(esp_mesh_set_ap_authmode(wifi_auth_mode_t::WIFI_AUTH_WPA_WPA2_PSK));
-	    cfg.mesh_ap.max_connection = 1;
+	    cfg.mesh_ap.max_connection = _max_connection;
 	    memcpy((uint8_t *) &cfg.mesh_ap.password, _mesh_pw.c_str(), _mesh_pw.length());
 
 	    ESP_ERROR_CHECK(esp_mesh_set_config(&cfg));
