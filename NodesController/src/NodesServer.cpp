@@ -62,9 +62,10 @@ void NodesServer::ResetAll(LiftState state) {
 	_netService->Send(msg, addr);
 }
 
-void NodesServer::set_status(NetAddress addr, LiftState state) {
+void NodesServer::set_status(NetAddress addr, LiftState state, NCVersion ver) {
 	auto old_items_count = _devices.size();
 	_devices[addr]._state = state;
+	_devices[addr]._version = ver;
 
 	if (old_items_count != _devices.size())
 		DeviceAddedEvent(addr, state);
@@ -79,7 +80,7 @@ void NodesServer::OnNetMessage(NetAddress addr, NetMessage *msg){
 	if (msg->Event == NetEvent::DEVICE_STATUS_CHANGED)
 	{
 		if (msg->Type == DeviceType::LIFT)
-			set_status(addr, ((LiftNetMessage*)msg)->State);
+			set_status(addr, ((LiftNetMessage*)msg)->State, msg->Version);
 	}
 }
 

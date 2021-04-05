@@ -42,6 +42,7 @@ void Node::SendState(LiftState state){
 
 	msg.Event = NetEvent::DEVICE_STATUS_CHANGED;
 	msg.State = state;
+	msg.Version = NCVersion::FromString(utils::GetVersion());
 
 	_devices.begin()->second->Send(msg, NetAddress::SERVER);
 }

@@ -18,6 +18,7 @@ void NetMessage::Deserialize(const String& jsonString)
 	_to = NetAddress::FromString(json["to"]);
 	Event = json["event"].as<int>();
 	Type = json["type"].as<int>();
+	Version = NCVersion::FromString(json["version"]);
 }
 
 NetMessage::operator String() {
@@ -27,15 +28,12 @@ NetMessage::operator String() {
 	json["to"] = _to.ToString();
 	json["event"] = (String)Event;
 	json["type"] = Type.ToString();
+	json["version"] = Version.ToString();
 
-	String str;
-	serializeJson(json, str);
-
-	return str;
+	return json;
 }
 
 LiftNetMessage::operator String() {
-//	auto str = NetMessage::operator String();
 	JsonHelper json;
 
 	json["from"] = _from.ToString();
@@ -43,11 +41,9 @@ LiftNetMessage::operator String() {
 	json["event"] = (String)Event;
 	json["type"] = Type.ToString();
 	json["state"] = String(State.State);
+	json["version"] = Version.ToString();
 
-	String str;
-	serializeJson(json, str);
-
-	return str;
+	return json;
 }
 
 void LiftNetMessage::Deserialize(const String& jsonString)

@@ -59,7 +59,11 @@ uint64_t utils::StringToUINT64(String val) {
 //#define tskKERNEL_VERSION_BUILD 0
 
 String utils::GetVersion() {
+#ifdef VERSION
 	return VERSION;
+#else
+	return "0.0.0.0";
+#endif
 }
 
 } /* namespace diamon */

@@ -263,6 +263,16 @@
 		align-items: center;
 	}
 
+	.deviceVersion {
+		width: 200px;
+		height: 100%;
+		margin-left: 90px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-family: Arial;
+		font-size: 16px;
+	}
 		
 	.dotAction {
 		height: 6px;
@@ -427,7 +437,7 @@
 	<div id="mainContainer">
 
 		<div class="tab">
-			<button class="tablinks lefttablink active" onclick="openTab(event, 'List')"><span>List</span></button>
+			<button class="tablinks lefttablink active" onclick="openTab(event, 'List')"><span>Devices</span></button>
 			<button class="tablinks righttablink" onclick="openTab(event, 'Scheme')"><span>Scheme</span></button>
 		</div>
 
@@ -437,6 +447,7 @@
 					<span>Name</span>
 					<span>Status</span>
 					<span>Action</span>
+					<span>Version</span>
 				</div>
 				
 				<div>
@@ -454,6 +465,9 @@
 								<span class="dotAction"></span>
 								<span class="dotAction"></span>
 								<span class="dotAction"></span>
+							</div>
+							<div class="deviceVersion">
+								<span class="deviceVersionText"></span>
 							</div>
 						</div>
 					</template>
@@ -581,38 +595,38 @@
 			console.log(m);
 	
 	        switch (m.command) {
-	          case "add": addDevice(m.id, m.state);
+	          case "add": addDevice({ 'id': m.id, 'state': m.state, 'version': m.version });
 	            break;
 	          case "rem": removeDevice(m.id);
 	            break;
-	          case "set": setDeviceState(m.id, m.state);
+	          case "set": setDeviceInfo({ 'id': m.id, 'state': m.state });
 	            break;
 	        }
 	    }
 	
-	    function addDevice(id, state, name, is_connected = true) {
+	    function addDevice(dvInfo) {
 			var devicesList = document.querySelector('#devicesList');
 			
 			var sequence = devicesList.childNodes.length;
 			
-			devicesList.appendChild(createDeviceView(id, name, sequence, state, is_connected));
+			devicesList.appendChild(createDeviceView(dvInfo, sequence));
 	
-	      	console.log("addDevice", id, name, state);
+	      	console.log("addDevice", dvInfo.id, dvInfo.name, dvInfo.state, dvInfo.version);
 	    }
 	
 	    function removeDevice(id) {
 	      	document.getElementById(id).remove();
 	    }
 	
-	    function setDeviceState(id, state){
-	      	var dv = document.getElementById(id);
+	    function setDeviceInfo(info){
+	      	var dv = document.getElementById(info.id);
 
 			var dvStatus = dv.getElementsByClassName("deviceStatus")[0];
 			var statusText = dv.getElementsByClassName("deviceStatusText")[0];
 
-			dvStatus.className = dvStatus.className.replace(/dvs[A-Z]+/g, "dvs" + state.toUpperCase());
+			dvStatus.className = dvStatus.className.replace(/dvs[A-Z]+/g, "dvs" + info.state.toUpperCase());
 						
-			statusText.textContent = state;			
+			statusText.textContent = info.state;
 	    }
 	
 		function refreshAll(data) {
@@ -627,7 +641,7 @@
 			var ids = Object.keys(m);
 			
 			for (var i=0; i < ids.length; i++) 
-				addDevice(ids[i], m[ids[i]].state, m[ids[i]].name);
+				addDevice( { 'id': ids[i], 'state': m[ids[i]].state, 'name': m[ids[i]].name, 'version': m[ids[i]].version } );
 		}
 
 		function openTab(evt, tabName) {
@@ -643,8 +657,14 @@
 			document.getElementById(tabName).style.display = "block";
 			evt.currentTarget.className += " active";
 		}
-		
-		function createDeviceView(id, name, sequence, state, is_connected = true) {
+				
+		function createDeviceView(info, sequence) {
+			var id = info.id;
+			var name = info.name;
+			var state = info.state;
+			var is_connected = info.is_connected;
+			var version = info.version;
+			
 			var template = document.querySelector('#deviceViewTemplate');
 						
 			var dv = template.content.querySelector("div");
@@ -653,11 +673,12 @@
 			var nameText = deviceView.getElementsByClassName("deviceName")[0];
 			var status = deviceView.getElementsByClassName("deviceStatus")[0];
 			var statusText = deviceView.getElementsByClassName("deviceStatusText")[0];
+			var deviceVersionText = deviceView.getElementsByClassName("deviceVersionText")[0];
 			
-			if (is_connected == true)
-				deviceView.classList.remove("deviceDisconnected");
-			else
+			if (is_connected == false)
 				deviceView.classList.add("deviceDisconnected");
+			else
+				deviceView.classList.remove("deviceDisconnected");
 
 //			let eee = new Map([
 //  				['Free', 'Free'],
@@ -670,6 +691,9 @@
 			nameText.textContent = name ? name : id;
 			status.classList.add("dvs" + state.toUpperCase());
 			statusText.textContent = state;
+			
+			if (version)
+				deviceVersionText.textContent = version;
 			
 			return deviceView; 
 		}
@@ -803,8 +827,9 @@
 		serverSendInit();
 		
 //		window.onclick = 
+		var dv_info = { 'id' : "24c438bd9e7c0001", 'name' : "Post 1", 'state': "Free", 'is_connected' : true };
 		
-//		addDevice("24c438bd9e7c0001", "Free", "Post 1");
+		addDevice(dv_info);
 //		addDevice("1", "Free", "", false);
 //		addDevice("2", "Busy", "");
 //		addDevice("3", "SOS", "");

@@ -20,6 +20,7 @@ class Device {
 public:
 	NetAddress _address;
 	LiftState _state;
+	NCVersion _version;
 };
 
 typedef std::map<NetAddress, Device> DeviceList;
@@ -29,7 +30,7 @@ class NodesServer {
 
 	INetService *_netService;
 
-	void set_status(NetAddress addr, LiftState state);
+	void set_status(NetAddress addr, LiftState state, NCVersion ver);
 	void request_report_all();
 
 public:

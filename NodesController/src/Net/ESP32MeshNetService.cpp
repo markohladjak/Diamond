@@ -142,6 +142,7 @@ void ESP32MeshNetService::Send(NetMessage &msg, NetAddress to) {
     String json = msg;
 
 	memcpy(tx_buf, json.c_str(), json.length());
+	data.size = json.length();
 
 	for (int i = 0; i < route_table_size; ++i) {
 		printf(">%3d    " MACSTR "\n", i, MAC2STR(route_table[i].addr));

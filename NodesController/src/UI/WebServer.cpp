@@ -143,7 +143,8 @@ void WebServer::RefreshAllItems() {
 	for (auto item: list) {
 		json += "\"" + item.first.ToString() + "\":{";
 		json += "\"name\":\"" + String() + "\",";
-		json += "\"state\":\"" + item.second._state.ToString() + "\"";
+		json += "\"state\":\"" + item.second._state.ToString() + "\",";
+		json += "\"version\":\"" + item.second._version.ToString() + "\"";
 		json += "},";
 	}
 
