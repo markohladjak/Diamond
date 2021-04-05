@@ -24,6 +24,7 @@ class Node: public INode {
 	void OnLiftStateChanged(LiftState state);
 	void OnNetMessage(NetAddress form, NetMessage* message);
 	void OnNetworkConnected();
+	void OnRootObtained();
 	void Subscribe(IDevice* device);
 
 public:

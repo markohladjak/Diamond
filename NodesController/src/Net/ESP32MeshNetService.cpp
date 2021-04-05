@@ -359,6 +359,8 @@ void ESP32MeshNetService::mesh_event_handler(mesh_event_t event)
 
         if (esp_mesh_is_root())
         	on_this_became_root();
+
+        on_root_address();
         break;
     case MESH_EVENT_ROOT_GOT_IP:
         /* root starts to connect to server */
@@ -672,6 +674,11 @@ void ESP32MeshNetService::on_routing_table_changed(){
 
 	for (auto netdvs: _local)
 		netdvs.second->OnLayoutChangedEvent();
+}
+
+void ESP32MeshNetService::on_root_address() {
+	for (auto netdvs: _local)
+		netdvs.second->OnRootAddressObtainedEvent();
 }
 
 uint64_t ESP32MeshNetService::self_address(uint16_t device_num) {

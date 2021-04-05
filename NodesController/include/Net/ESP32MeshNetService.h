@@ -57,6 +57,7 @@ class ESP32MeshNetService: public INetService {
 	static void on_this_became_root();
 	static void on_layer_changed(int layer);
 	static void on_routing_table_changed();
+	static void on_root_address();
 
 	static uint64_t self_address(uint16_t device_num);
 

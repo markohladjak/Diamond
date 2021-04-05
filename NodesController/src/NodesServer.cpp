@@ -85,7 +85,7 @@ void NodesServer::OnNetMessage(NetAddress addr, NetMessage *msg){
 }
 
 void NodesServer::OnNetworkChanged() {
-	request_report_all();
+//	request_report_all();
 }
 
 void NodesServer::request_report_all() {

@@ -11,6 +11,7 @@
 #include <Events.h>
 #include <Helpers/JsonHelper.h>
 #include <Net/NetAddress.h>
+#include <utils.h>
 
 namespace diamon {
 
@@ -28,6 +29,7 @@ void Node::AddDevice(IDevice *device, INetService *netService) {
 	case DeviceType::LIFT:
 		((Lift*)device)->StateChangedEvent += METHOD_HANDLER(Node::OnLiftStateChanged);
 		netService->OnReceiveEvent += METHOD_HANDLER(Node::OnNetMessage);
+		netService->OnRootAddressObtainedEvent += METHOD_HANDLER(Node::OnRootObtained);
 //		netService->OnConnectedEvent += METHOD_HANDLER(Node::OnNetworkConnected);
 		break;
 	case DeviceType::DOOR:
@@ -78,6 +80,11 @@ void Node::OnNetworkConnected() {
 	LogService::Println("Node::OnNetworkConnected()");
 
 	OnLiftStateChanged(((Lift*)(_devices.begin()->first))->GetState());
+}
+
+void Node::OnRootObtained() {
+		auto state = ((Lift*)(_devices.begin()->first))->GetState();
+		SendState(state);
 }
 
 void Node::Process() {

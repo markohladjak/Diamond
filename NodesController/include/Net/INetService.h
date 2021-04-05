@@ -39,6 +39,7 @@ public:
 	TEvent<NetAddress, NetMessage*> OnReceiveEvent;
 	TEvent<> OnConnectedEvent;
 	TEvent<> OnLayoutChangedEvent;
+	TEvent<> OnRootAddressObtainedEvent;
 	TEvent<WiFiEvent_t, WiFiEventInfo_t> OnWiFiEvent;
 
 };
