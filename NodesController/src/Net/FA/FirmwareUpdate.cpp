@@ -60,15 +60,29 @@ void FirmwareUpdate::setup(void) {
 		request->send(200, "text/plain", (Update.hasError()) ? "FAIL" : "OK");
 		ESP.restart();
 	}
-	, uploadHandler);
+	, [](AsyncWebServerRequest *request,
+			const String &filename, size_t index, uint8_t *data, size_t len,
+			bool Final) {
+		uploadHandler(request, filename, index, data, len, Final, U_FLASH);
+	});
+
+	_server->on("/updatefs", HTTP_POST, [](AsyncWebServerRequest *request) {
+		request->send(200, "text/plain", (Update.hasError()) ? "FAIL" : "OK");
+		ESP.restart();
+	}
+	, [](AsyncWebServerRequest *request,
+			const String &filename, size_t index, uint8_t *data, size_t len,
+			bool Final) {
+		uploadHandler(request, filename, index, data, len, Final, U_SPIFFS);
+	});
 }
 
 void FirmwareUpdate::uploadHandler(AsyncWebServerRequest *request,
 		const String &filename, size_t index, uint8_t *data, size_t len,
-		bool final) {
+		bool Final, int command) {
 	if(!index){
 		Serial.printf("Upload Start: %s\n", filename.c_str());
-		if (!Update.begin(UPDATE_SIZE_UNKNOWN, U_FLASH, LED_BUILTIN, HIGH)) {
+		if (!Update.begin(UPDATE_SIZE_UNKNOWN, command, LED_BUILTIN, HIGH)) {
 			Update.printError(Serial);
 		}
 	}
@@ -79,7 +93,7 @@ void FirmwareUpdate::uploadHandler(AsyncWebServerRequest *request,
 		Update.printError(Serial);
 	}
 
-	if (final) {
+	if (Final) {
 		Serial.println();
 
 		if (Update.end(true)) { //true to set the size to the current progress
@@ -163,9 +177,13 @@ const char* FirmwareUpdate::serverIndex =
    "<input type='file' name='update'>"
         "<input type='submit' value='Update'>"
     "</form>"
+"<form method='POST' action='#' enctype='multipart/form-data' id='uploadfs_form'>"
+   "<input type='file' name='update_fs'>"
+		"<input type='submit' value='Update FS'>"
+	"</form>"
  "<div id='prg'>progress: 0%</div>"
  "<script>"
-  "$('form').submit(function(e){"
+  "$('#upload_form').submit(function(e){"
   "e.preventDefault();"
   "var form = $('#upload_form')[0];"
   "var data = new FormData(form);"
@@ -192,6 +210,33 @@ const char* FirmwareUpdate::serverIndex =
  "}"
  "});"
  "});"
+"$('#uploadfs_form').submit(function(e){"
+"e.preventDefault();"
+"var form = $('#uploadfs_form')[0];"
+"var data = new FormData(form);"
+" $.ajax({"
+"url: '/updatefs',"
+"type: 'POST',"
+"data: data,"
+"contentType: false,"
+"processData:false,"
+"xhr: function() {"
+"var xhr = new window.XMLHttpRequest();"
+"xhr.upload.addEventListener('progress', function(evt) {"
+"if (evt.lengthComputable) {"
+"var per = evt.loaded / evt.total;"
+"$('#prg').html('progress: ' + Math.round(per*100) + '%');"
+"}"
+"}, false);"
+"return xhr;"
+"},"
+"success:function(d, s) {"
+"console.log('success!')"
+"},"
+"error: function (a, b, c) {"
+"}"
+"});"
+"});"
  "</script>";
 
 } /* namespace diamon */

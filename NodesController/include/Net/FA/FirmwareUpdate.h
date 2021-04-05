@@ -34,7 +34,8 @@ class FirmwareUpdate {
 	static String ssidName();
 	static void wifiEventCallback(WiFiEvent_t event, WiFiEventInfo_t info);
 
-	static void uploadHandler(AsyncWebServerRequest *request, const String& filename, size_t index, uint8_t *data, size_t len, bool final);
+	static void uploadHandler(AsyncWebServerRequest *request, const String& filename, size_t index
+								, uint8_t *data, size_t len, bool Final, int command);
 
 public:
 	FirmwareUpdate();
