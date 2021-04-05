@@ -21,7 +21,7 @@ NodesServer::NodesServer(INetService *netService) :
 	_netService->OnReceiveEvent += METHOD_HANDLER(NodesServer::OnNetMessage);
 	_netService->OnLayoutChangedEvent += METHOD_HANDLER(NodesServer::OnNetworkChanged);
 
-	request_report_all();
+//	request_report_all();
 }
 
 NodesServer::~NodesServer() {
