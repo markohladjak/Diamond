@@ -36,7 +36,7 @@ WebServer::WebServer(int port, NodesServer *nodesServer, INetService *netService
 		LogService::Log("_server->on: /", request->url());
 
 //		request->send(200, "text/html", html);
-		request->send(SPIFFS, Config::HTML_PREFIX + "/test.html");
+		request->send(SPIFFS, Config::HTML_PREFIX + "/index.html");
 	});
 
 	_server->on("/src/img/user.svg", HTTP_GET, [](AsyncWebServerRequest *request) {
