@@ -35,7 +35,7 @@ function serverSendInit() {
 }
 
 function processMessage(msg) {
-  	var m = JSON.parse(msg) 
+  	let m = JSON.parse(msg) 
 	console.log(m);
 
     switch (m.command) {
@@ -49,9 +49,9 @@ function processMessage(msg) {
 }
 
 function addDevice(dvInfo) {
-	var devicesList = document.querySelector('#devicesList');
+	let devicesList = document.querySelector('#devicesList');
 	
-	var sequence = devicesList.childNodes.length;
+	let sequence = devicesList.childNodes.length;
 	
 	devicesList.appendChild(createDeviceView(dvInfo, sequence));
 
@@ -63,10 +63,10 @@ function removeDevice(id) {
 }
 
 function setDeviceInfo(info){
-  	var dv = document.getElementById(info.id);
+  	let dv = document.getElementById(info.id);
 
-	var dvStatus = dv.getElementsByClassName("deviceStatus")[0];
-	var statusText = dv.getElementsByClassName("deviceStatusText")[0];
+	let dvStatus = dv.getElementsByClassName("deviceStatus")[0];
+	let statusText = dv.getElementsByClassName("deviceStatusText")[0];
 
 	dvStatus.className = dvStatus.className.replace(/dvs[A-Z]+/g, "dvs" + info.state.toUpperCase());
 				
@@ -76,20 +76,20 @@ function setDeviceInfo(info){
 function refreshAll(data) {
 	console.log("refreshAll", data);
 	
-	var devicesList = document.querySelector('#devicesList');
+	let devicesList = document.querySelector('#devicesList');
 
 	devicesList.innerHTML = '';
 	
-  	var m = JSON.parse(data); 
+  	let m = JSON.parse(data); 
 	
-	var ids = Object.keys(m);
+	let ids = Object.keys(m);
 	
-	for (var i=0; i < ids.length; i++) 
+	for (let i=0; i < ids.length; i++) 
 		addDevice( { 'id': ids[i], 'state': m[ids[i]].state, 'name': m[ids[i]].name, 'version': m[ids[i]].version } );
 }
 
 function openTab(evt, tabName) {
-	var i, tabcontent, tablinks;
+	let i, tabcontent, tablinks;
 	tabcontent = document.getElementsByClassName("tabContent");
 	for (i = 0; i < tabcontent.length; i++) {
 		tabcontent[i].style.display = "none";
@@ -103,21 +103,21 @@ function openTab(evt, tabName) {
 }
 		
 function createDeviceView(info, sequence) {
-	var id = info.id;
-	var name = info.name;
-	var state = info.state;
-	var is_connected = info.is_connected;
-	var version = info.version;
+	let id = info.id;
+	let name = info.name;
+	let state = info.state;
+	let is_connected = info.is_connected;
+	let version = info.version;
 	
-	var template = document.querySelector('#deviceViewTemplate');
+	let template = document.querySelector('#deviceViewTemplate');
 				
-	var dv = template.content.querySelector("div");
-	var deviceView = document.importNode(dv, true);
+	let dv = template.content.querySelector("div");
+	let deviceView = document.importNode(dv, true);
 	
-	var deviceName = deviceView.getElementsByClassName("deviceName")[0];
-	var status = deviceView.getElementsByClassName("deviceStatus")[0];
-	var statusText = deviceView.getElementsByClassName("deviceStatusText")[0];
-	var deviceVersionText = deviceView.getElementsByClassName("deviceVersionText")[0];
+	let deviceName = deviceView.getElementsByClassName("deviceName")[0];
+	let status = deviceView.getElementsByClassName("deviceStatus")[0];
+	let statusText = deviceView.getElementsByClassName("deviceStatusText")[0];
+	let deviceVersionText = deviceView.getElementsByClassName("deviceVersionText")[0];
 
 
 	//if(firstEL++ == 0)			deviceName.classList.add("editName");
@@ -151,27 +151,27 @@ function createDeviceView(info, sequence) {
 }
 		 
 function requestDeviceState(id, state) {
-	var url = window.location.href + `request?type=state&id=${id}&state=${state}`;
+	let url = window.location.href + `request?type=state&id=${id}&state=${state}`;
 		
 	httpGet(url);
 }
 
 function reportAll()
 {
-	var url = window.location.href + `report_all`;
+	let url = window.location.href + `report_all`;
 
 	httpGet(url);
 }
 
 function resetAll(state = "NONE")
 {
-	var url = window.location.href + `reset_all?`;
+	let url = window.location.href + `reset_all?`;
 
 	httpGet(url);
 }
 
 function httpGet(theUrl) {
-	var xmlHttp = new XMLHttpRequest();
+	let xmlHttp = new XMLHttpRequest();
 	xmlHttp.open("GET", theUrl, true); // false for synchronous request
 	xmlHttp.send(null);
 	
@@ -181,10 +181,10 @@ function httpGet(theUrl) {
 }
 
 function changeWIFIMode() {
-	var ssid = document.getElementById("wifi_ssid").value;
-	var pass = document.getElementById("wifi_password").value;
+	let ssid = document.getElementById("wifi_ssid").value;
+	let pass = document.getElementById("wifi_password").value;
 	
-	var url = window.location.href + `request?type=wifi&ssid=${ssid}&password=${pass}`;
+	let url = window.location.href + `request?type=wifi&ssid=${ssid}&password=${pass}`;
 	
 	httpGet(url);
 	
@@ -201,33 +201,33 @@ function closeNav() {
 }
 
 function offset(el) {
-    var rect = el.getBoundingClientRect(),
+    let rect = el.getBoundingClientRect(),
     scrollLeft = window.pageXOffset || document.documentElement.scrollLeft,
     scrollTop = window.pageYOffset || document.documentElement.scrollTop;
     return { top: rect.top + scrollTop, left: rect.left + scrollLeft }
 }
 		
 function showActionPanel(el) {
-	var dv = el.parentElement;
-	var menu = document.getElementById("actionPanel");
-	var menuTitle = menu.getElementsByClassName("actionPanelTitle")[0];
-	var checked = menu.getElementsByClassName("actionChecked");
-	var dvStatus = dv.getElementsByClassName("deviceStatus")[0];
+	let dv = el.parentElement;
+	let menu = document.getElementById("actionPanel");
+	let menuTitle = menu.getElementsByClassName("actionPanelTitle")[0];
+	let checked = menu.getElementsByClassName("actionChecked");
+	let dvStatus = dv.getElementsByClassName("deviceStatus")[0];
 	
 	SelectedDeviceID = dv.id;
 	
 	menuTitle.textContent = 'Node:      ' + SelectedDeviceID;
 	
-	var pos = offset(el);
+	let pos = offset(el);
 				
 	menu.style.top = (pos.top - 60) + "px"; 
 	menu.style.left = pos.left + "px"; 
 	
 	
-	for(var c = menu.firstElementChild; c != null; c = c.nextElementSibling){
+	for(let c = menu.firstElementChild; c != null; c = c.nextElementSibling){
 		console.log("c", c);
 		
-		var icon = c.getElementsByClassName("checkedIcon")[0];
+		let icon = c.getElementsByClassName("checkedIcon")[0];
 		
 		console.log("list", dvStatus.classList);
 		console.log("name", c.className);
@@ -246,7 +246,7 @@ function showActionPanel(el) {
 }
 
 function onActionSelect(el) {
-	var action = el.getElementsByClassName("actionText")[0].textContent;
+	let action = el.getElementsByClassName("actionText")[0].textContent;
 	
 	actionPanelVisible(false);			
 
@@ -254,7 +254,7 @@ function onActionSelect(el) {
 }
 
 function actionPanelVisible(visible) {
-	var menu = document.getElementById("actionPanel");
+	let menu = document.getElementById("actionPanel");
 	
 	if (visible) {
 		if (menu.hasAttribute("hidden"))
@@ -269,33 +269,17 @@ window.addEventListener("click", function(event) {
 		//console.log("window.addEventListener");
 		//actionPanelVisible(false);
 });
-				
-		
-serverSendInit();
-		
-//		window.onclick = 
-var dv_info = { 'id' : "24c438bd9e7c0001", 'name' : "", 'state': "Free", 'is_connected' : true };
 
-addDevice(dv_info);
 
-dv_info = { 'id' : "24c438bd9e7c0001", 'name' : "", 'state': "Free", 'is_connected' : false };
-addDevice(dv_info);
+//$('.deviceName').dblclick(function(){
+//	console.log('dbclick');
+//    alert("The paragraph was double-clicked.");
 
-//		addDevice("1", "Free", "", false);
-//		addDevice("2", "Busy", "");
-//		addDevice("3", "SOS", "");
-//		setDeviceState("0", "Ready");
-//		removeDevice("1");
-
-$('.deviceName').dblclick(function(){
-	console.log('dbclick');
-    alert("The paragraph was double-clicked.");
-
-	this.setAttribute('disabled', 'true');
-});
+//	this.setAttribute('disabled', 'true');
+//});
 		
 function OnDeviceNameKeyPress(event) {
-	var target = event.target;
+	let target = event.target;
 	
 	if (event.keyCode == 13 || event.keyCode == 27)
     //alert(event.keyCode);
@@ -315,3 +299,21 @@ function OnDeviceNameEditFinished(event) {
 function RequestNewDeviceName(name) {
 	
 }
+
+function localTest() {
+	let dv_info = { 'id' : "24c438bd9e7c0001", 'name' : "", 'state': "Free", 'is_connected' : true };
+	
+	addDevice(dv_info);
+	
+	dv_info = { 'id' : "24c438bd9e7c0001", 'name' : "", 'state': "Free", 'is_connected' : false };
+	addDevice(dv_info);
+	
+	//		addDevice("1", "Free", "", false);
+	//		addDevice("2", "Busy", "");
+	//		addDevice("3", "SOS", "");
+	//		setDeviceState("0", "Ready");
+	//		removeDevice("1");
+}		
+
+serverSendInit();
+localTest();
