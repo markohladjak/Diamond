@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html>
 
+<head>
+	<title>Diamond</title>
+	
+	<!--<link rel="stylesheet" href="src/css/general.css">-->
+</head>
+
 <style>
 	body {
 		background: #303037;
@@ -172,11 +178,7 @@
 	.deviceDisconnected {
 		filter: grayscale(100%);
 	}	
-	
-	.deviceName {
-		width: 200px;
-	}
-	
+		
 	.deviceStatus {
 		width: 200px;
 		font-size: 16px;
@@ -397,11 +399,43 @@
 		margin: auto;
 	}
 	
-</style>
+	input
+	{
+		font-family: inherit;
+		font-style: inherit;
+		font-weight: inherit;
+		font-size: inherit;
+		color: inherit;
+	}
+	
+	.deviceNameContainer {
+		width: 200px;
+		display: inline-flex;
+		align-items: center;
+	}
 
-<head>
-	<title>Diamond</title>
-</head>
+	
+	.deviceName {
+		width: 170px;
+		height: 31px;
+
+		border: none;
+		background: none;
+		outline: none;
+
+		padding: 0;
+
+		margin-right: 10px;
+		margin-left: -10px;
+		padding-left: 10px;
+		padding-right: 10px;
+	}
+	
+	.deviceName:read-write {
+		box-shadow: 0 0 2pt 1pt #53B1F4 inset;
+		border-radius: 8px;
+	}
+</style>	
 
 <body>
 	<div class="title">
@@ -454,7 +488,12 @@
 					<div id="devicesList"></div>
 					<template id="deviceViewTemplate">
 						<div class="deviceView">
-							<span class="deviceName"></span>
+							<div class=deviceNameContainer>
+								<input class="deviceName" type="text" spellcheck="false" readonly=true
+										ondblclick="this.readOnly=''; this.focus(); this.select();" 
+										onfocusout="this.readOnly='true'; OnDeviceNameEditFinished(event);"
+										onkeypress="OnDeviceNameKeyPress(event)">
+							</div>
 							<div class="deviceStatus">
 								<div class="statusContainer">
 									<span class="dot"></span>
@@ -559,30 +598,35 @@
 	</div>
 	
 	<script>
+		var sse;
+		var SelectedDeviceID;
+
+		const MAX_DEVICE_NAME_LENGHT = 16;
+
 		function serverSendInit() {
       		if (!!window.EventSource) {
-        		var source = new EventSource('/events');
+        		sse = new EventSource('/events');
 
-		        source.addEventListener('open', function (e) {
+		        sse.addEventListener('open', function (e) {
 		          console.log("Events Connected");
 		        }, false);
 
-		        source.addEventListener('error', function (e) {
+		        sse.addEventListener('error', function (e) {
 		          if (e.target.readyState != EventSource.OPEN) {
 		            console.log("Events Disconnected");
 		          }
 		        }, false);
 
-		        source.addEventListener('message', function (e) {
+		        sse.addEventListener('message', function (e) {
 		          console.log("message", e.data);
 		        }, false);
 
-		        source.addEventListener('msg', function (e) {
+		        sse.addEventListener('msg', function (e) {
 		          console.log("msg", e.data);
 		          processMessage(e.data);
 		        }, false);
 
-		        source.addEventListener('state', function (e) {
+		        sse.addEventListener('state', function (e) {
 		          console.log("state", e.data);
 		
 		          refreshAll(e.data);
@@ -670,10 +714,13 @@
 			var dv = template.content.querySelector("div");
 			var deviceView = document.importNode(dv, true);
 			
-			var nameText = deviceView.getElementsByClassName("deviceName")[0];
+			var deviceName = deviceView.getElementsByClassName("deviceName")[0];
 			var status = deviceView.getElementsByClassName("deviceStatus")[0];
 			var statusText = deviceView.getElementsByClassName("deviceStatusText")[0];
 			var deviceVersionText = deviceView.getElementsByClassName("deviceVersionText")[0];
+
+
+			//if(firstEL++ == 0)			deviceName.classList.add("editName");
 			
 			if (is_connected == false)
 				deviceView.classList.add("deviceDisconnected");
@@ -688,7 +735,12 @@
 			
 			deviceView.id = id;
 			deviceView.classList.add(sequence % 2 ? "darkBackground" : "lightBackground");
-			nameText.textContent = name ? name : id;
+			
+			deviceName.value = name;
+			deviceName.name = name;
+			deviceName.placeholder=id;
+			deviceName.maxLength = MAX_DEVICE_NAME_LENGHT;
+			
 			status.classList.add("dvs" + state.toUpperCase());
 			statusText.textContent = state;
 			
@@ -700,11 +752,8 @@
 		 
 	    function requestDeviceState(id, state) {
 			var url = window.location.href + `request?type=state&id=${id}&state=${state}`;
-	
+				
 			httpGet(url);
-			
-			console.log("deviceStateSelected", url);
-	        console.log(id, ": ",state);
 	    }
 
 		function reportAll()
@@ -712,8 +761,6 @@
 			var url = window.location.href + `report_all`;
 	
 			httpGet(url);
-			
-			console.log("reportAll", url);
 		}
 
 		function resetAll(state = "NONE")
@@ -721,14 +768,15 @@
 			var url = window.location.href + `reset_all?`;
 	
 			httpGet(url);
-			
-			console.log("reset_all", url);
 		}
 		
 		function httpGet(theUrl) {
 			var xmlHttp = new XMLHttpRequest();
-			xmlHttp.open("GET", theUrl, false); // false for synchronous request
+			xmlHttp.open("GET", theUrl, true); // false for synchronous request
 			xmlHttp.send(null);
+			
+			console.log("Request: ", url);
+
 			return xmlHttp.responseText;
 		}
 
@@ -822,19 +870,52 @@
 				//actionPanelVisible(false);
 		});
 				
-		var SelectedDeviceID;
 		
 		serverSendInit();
 		
 //		window.onclick = 
-		var dv_info = { 'id' : "24c438bd9e7c0001", 'name' : "Post 1", 'state': "Free", 'is_connected' : true };
+		var dv_info = { 'id' : "24c438bd9e7c0001", 'name' : "", 'state': "Free", 'is_connected' : true };
 		
 		addDevice(dv_info);
+
+		dv_info = { 'id' : "24c438bd9e7c0001", 'name' : "", 'state': "Free", 'is_connected' : false };
+		addDevice(dv_info);
+
 //		addDevice("1", "Free", "", false);
 //		addDevice("2", "Busy", "");
 //		addDevice("3", "SOS", "");
 //		setDeviceState("0", "Ready");
 //		removeDevice("1");
+
+		$('.deviceName').dblclick(function(){
+			console.log('dbclick');
+		    alert("The paragraph was double-clicked.");
+
+			this.setAttribute('disabled', 'true');
+		});
+		
+		function OnDeviceNameKeyPress(event) {
+			var target = event.target;
+			
+			if (event.keyCode == 13 || event.keyCode == 27)
+		    //alert(event.keyCode);
+				//this.blur();
+				target.blur();
+
+			if (event.keyCode == 13 && target.value != target.name) ;
+				RequestNewDeviceName(target.value);
+
+		    //alert(event.keyCode);
+		}
+		
+		function OnDeviceNameEditFinished(event) {
+			event.target.value = event.target.name;	
+		}
+
+		function RequestNewDeviceName(name) {
+			
+		}
+		
 	</script>
 
 </body>
