@@ -165,14 +165,14 @@ function reportAll()
 
 function resetAll(state = "NONE")
 {
-	let url = window.location.href + `reset_all?`;
+	let url = window.location.href + `reset_all`;
 
 	httpGet(url);
 }
 
-function httpGet(theUrl) {
+function httpGet(url) {
 	let xmlHttp = new XMLHttpRequest();
-	xmlHttp.open("GET", theUrl, true); // false for synchronous request
+	xmlHttp.open("GET", url, true); // false for synchronous request
 	xmlHttp.send(null);
 	
 	console.log("Request: ", url);
@@ -207,7 +207,7 @@ function offset(el) {
     return { top: rect.top + scrollTop, left: rect.left + scrollLeft }
 }
 		
-function showActionPanel(el) {
+function showActionPanel(el, event) {
 	let dv = el.parentElement;
 	let menu = document.getElementById("actionPanel");
 	let menuTitle = menu.getElementsByClassName("actionPanelTitle")[0];
@@ -242,6 +242,8 @@ function showActionPanel(el) {
 	}
 
 	
+	event.stopPropagation();
+
 	actionPanelVisible(true);
 }
 
@@ -253,16 +255,29 @@ function onActionSelect(el) {
 	requestDeviceState(SelectedDeviceID, action);
 }
 
+function hideMenuOnOutsideClick(event) {   
+	let menu = document.getElementById("actionPanel");
+
+	if (!menu.contains(event.target))
+		actionPanelVisible(false);
+}
+			
 function actionPanelVisible(visible) {
 	let menu = document.getElementById("actionPanel");
 	
 	if (visible) {
-		if (menu.hasAttribute("hidden"))
+		if (menu.hasAttribute("hidden")) {
+			window.addEventListener('click', hideMenuOnOutsideClick);
+
 			menu.removeAttribute("hidden");
+		}
 	}
 	else 
-		if (!menu.hasAttribute("hidden"))
+		if (!menu.hasAttribute("hidden")) {
 			menu.setAttribute("hidden", "");
+		
+			window.removeEventListener('click', hideMenuOnOutsideClick)
+		}
 }
 
 window.addEventListener("click", function(event) {
@@ -281,13 +296,11 @@ window.addEventListener("click", function(event) {
 function OnDeviceNameKeyPress(event) {
 	let target = event.target;
 	
-	if (event.keyCode == 13 || event.keyCode == 27)
-    //alert(event.keyCode);
-		//this.blur();
-		target.blur();
+	if (event.keyCode == 13 && target.value != target.name)
+		RequestNewDeviceName(target.placeholder, target.value);
 
-	if (event.keyCode == 13 && target.value != target.name) ;
-		RequestNewDeviceName(target.value);
+	if (event.keyCode == 13 || event.keyCode == 27)
+		target.blur();
 
     //alert(event.keyCode);
 }
@@ -296,8 +309,10 @@ function OnDeviceNameEditFinished(event) {
 	event.target.value = event.target.name;	
 }
 
-function RequestNewDeviceName(name) {
-	
+function RequestNewDeviceName(id, name) {
+	let url = window.location.href + `request_name?id=${id}&name=${name}`;
+
+	httpGet(url);
 }
 
 function localTest() {
@@ -305,7 +320,7 @@ function localTest() {
 	
 	addDevice(dv_info);
 	
-	dv_info = { 'id' : "24c438bd9e7c0001", 'name' : "", 'state': "Free", 'is_connected' : false };
+	dv_info = { 'id' : "3451234145256345`", 'name' : "", 'state': "Busy", 'is_connected' : false };
 	addDevice(dv_info);
 	
 	//		addDevice("1", "Free", "", false);
