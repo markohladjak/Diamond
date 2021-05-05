@@ -12,6 +12,8 @@
 
 namespace diamon {
 
+#define Log__(x) LogService::Log(x, "")
+
 class LogService {
 	LogService *_instance;
 

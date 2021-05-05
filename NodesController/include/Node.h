@@ -13,6 +13,7 @@
 #include <map>
 #include <LogService.h>
 #include <Net/INetService.h>
+#include <LiftState.h>
 
 namespace diamon {
 
@@ -21,6 +22,7 @@ class Node: public INode {
 
 	LogService *_logService;
 
+	void OnDeviceNameChanged(const String &name);
 	void OnLiftStateChanged(LiftState state);
 	void OnNetMessage(NetAddress form, NetMessage* message);
 	void OnNetworkConnected();
@@ -36,6 +38,9 @@ public:
 	void Process();
 
 	void SendState(LiftState state);
+	void SendLiftInfo(LiftState state);
+	void SendName(const String &name);
+
 };
 
 } /* namespace diamon */

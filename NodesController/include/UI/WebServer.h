@@ -36,6 +36,7 @@ public:
 	void PrecessRequest(const JsonHelper *request);
 
 	void OnDeviceStateChanged(NetAddress addr, LiftState state);
+	void OnDeviceNameChanged(NetAddress addr, String name);
 	void OnDeviceAdded(NetAddress addr, LiftState state);
 
 };

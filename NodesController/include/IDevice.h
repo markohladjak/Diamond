@@ -11,6 +11,7 @@
 #include <ICommand.h>
 #include "IInLoop.h"
 #include <WString.h>
+#include <Events.h>
 
 namespace diamon {
 
@@ -20,8 +21,10 @@ class DeviceType {
 public:
 	enum DevTypes {
 		UNKNOW,
+		NODES_SERVER,
 		LIFT,
-		DOOR
+		DOOR,
+		NODE
 	};
 
 	DeviceType() { }
@@ -35,12 +38,29 @@ private:
 };
 
 class IDevice: public IInLoop {
+protected:
+	String _name;
+
+	QueueHandle_t _state_mutex  = xSemaphoreCreateMutex();
+
 public:
-		virtual bool ExecuteCommand(ICommand* command) = 0;
+	virtual bool ExecuteCommand(ICommand* command) = 0;
 
-		virtual ~IDevice() {};
+	virtual ~IDevice() {};
 
-		virtual DeviceType Type() = 0;
+	virtual DeviceType Type() = 0;
+
+	TEvent<const String&> NameChangedEvent;
+
+	const String& GetName() { return _name; }
+	void SetName(const String& name) {
+		xSemaphoreTake(_state_mutex, portMAX_DELAY);
+
+		_name = name;
+		NameChangedEvent(name);
+
+		xSemaphoreGive(_state_mutex);
+	}
 };
 
 } /* namespace diamon */

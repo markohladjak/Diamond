@@ -27,6 +27,8 @@ void Lift::update() {
 }
 
 void Lift::set_state(LiftState state) {
+	xSemaphoreTake(_state_mutex, portMAX_DELAY);
+
 	_state = state;
 
 	show_state();
@@ -34,14 +36,12 @@ void Lift::set_state(LiftState state) {
 	StateChangedEvent(state);
 
 	LogService::Log("Lift state changed", LiftState::ToString(state));
+
+	xSemaphoreGive(_state_mutex);
 }
 
 void Lift::SetState(const LiftState &state) {
-	xSemaphoreTake(_state_mutex, portMAX_DELAY);
-
 	set_state(state);
-
-	xSemaphoreGive(_state_mutex);
 }
 
 void Lift::show_state() {

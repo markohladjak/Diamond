@@ -9,7 +9,10 @@
 namespace diamon {
 
 JsonHelper::JsonHelper(const String& jsonString)
+		: DynamicJsonDocument(JSON_STRING_MAX_LENGHT)
 {
+	assert(capacity() >= jsonString.length());
+
 	deserializeJson(*this, jsonString);
 }
 

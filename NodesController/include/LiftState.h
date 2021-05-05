@@ -39,7 +39,7 @@ public:
 	States operator = (States s) { return State = s; }
 	operator String () { return ToString(State); }
 
-	static String ToString(States state) { return StatesDescription[state]; }
+	static String ToString(const States state) { return StatesDescription[state]; }
 	static LiftState FromString(String str) {
 		String stateStr;
 

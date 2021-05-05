@@ -10,7 +10,7 @@
 
 #include <Net/INetService.h>
 #include "esp_mesh.h"
-
+#include <map>
 
 namespace diamon {
 
@@ -80,6 +80,8 @@ public:
 	static void Start();
 
 	void Send(NetMessage &msg, NetAddress to) override;
+	void Send(CommunicationData* data, NetAddress to) override;
+
 	void OnReceive(NetAddress from,	void (*onReceive)(NetMessage&)) override;
 	void setWIFIMode(WIFIMODE mode, String ssid, String pw) override;
 
@@ -87,6 +89,9 @@ public:
 
 	static void OnLayerChangedCallbackRegister(_layer_changed_callback_funct_t funct);
 	static void OnIsRootCallbackRegister(_is_root_callback_funct_t funct);
+
+private:
+	void send_msg(NetMessage &msg, NetAddress to);
 };
 
 } /* namespace diamon */

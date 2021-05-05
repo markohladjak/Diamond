@@ -9,14 +9,13 @@
 #include <LogService.h>
 #include <ArduinoJson.h>
 #include <string.h>
+#include <Net/NetMessage.h>
+#include <Net/ComData/ComTypes.h>
 
 namespace diamon {
 
 NodesServer::NodesServer(INetService *netService) :
 	_netService(netService){
-
-//	_devices.push_back(R"({"id" : "1", "name" : "Post 1", "state" : "Free"})");
-
 
 	_netService->OnReceiveEvent += METHOD_HANDLER(NodesServer::OnNetMessage);
 	_netService->OnLayoutChangedEvent += METHOD_HANDLER(NodesServer::OnNetworkChanged);
@@ -35,15 +34,22 @@ DeviceList& NodesServer::DevicesList() {
 	return _devices;
 }
 
-void NodesServer::RequestState(NetAddress addr, LiftState state) {
-	LogService::Log("SetState", "ID - " + addr.ToString() + "  STATE - " + state.ToString());
+void NodesServer::RequestState(NetAddress id, LiftState state) {
+	LogService::Log("SetState", "ID - " + id.ToString() + "  STATE - " + state.ToString());
 
-	LiftNetMessage msg;
+	auto cmd = new SetLiftStateCommand();
+	cmd->State = state;
 
-	msg.Event = NetEvent::REQUEST_DEVICE_STATE;
-	msg.State = state;
+	_netService->Send(cmd, id);
+}
 
-	_netService->Send(msg, addr);
+void NodesServer::ChangeDeviceName(NetAddress id, String name) {
+	LogService::Log("NodesServer::ChangeDeviceName", id.ToString() + "  -  " + name);
+
+	auto cmd = new SetDeviceNameCommand;
+	cmd->Name = name;
+
+	_netService->Send(cmd, id);
 }
 
 void NodesServer::ReportAll() {
@@ -54,33 +60,50 @@ void NodesServer::ResetAll(LiftState state) {
 	LogService::Log("NodesServer::ResetAll", state);
 
 	NetAddress addr = NetAddress::BROADCAST;
-	LiftNetMessage msg;
-
-	msg.Event = NetEvent::REQUEST_DEVICE_STATE;
-	msg.State = state;
-
-	_netService->Send(msg, addr);
+//	LiftNetMessage msg;
+//
+//	msg.Event = NetEvent::REQUEST_DEVICE_STATE;
+//	msg.State = state;
+//
+//	_netService->Send(msg, addr);
 }
 
-void NodesServer::set_status(NetAddress addr, LiftState state, NCVersion ver) {
+void NodesServer::set_status(NetAddress addr, LiftState state, NCVersion ver, String name) {
 	auto old_items_count = _devices.size();
-	_devices[addr]._state = state;
+	if (state != -1) _devices[addr]._state = state;
 	_devices[addr]._version = ver;
+	_devices[addr]._name = name;
 
 	if (old_items_count != _devices.size())
 		DeviceAddedEvent(addr, state);
 	else
-		StateChangedEvent(addr, state);
+		StateChangedEvent(addr, _devices[addr]._state);
+}
+
+void NodesServer::set_name(NetAddress addr, String name) {
+	_devices[addr]._name = name;
+
+	DeviceNameChangedEvent(addr, name);
 }
 
 void NodesServer::OnNetMessage(NetAddress addr, NetMessage *msg){
 
 	LogService::Log("NodesServer::OnNetMessage", *msg);
 
-	if (msg->Event == NetEvent::DEVICE_STATUS_CHANGED)
+	if (msg->Context().getType() == "LiftStateChangedEvent")
 	{
-		if (msg->Type == DeviceType::LIFT)
-			set_status(addr, ((LiftNetMessage*)msg)->State, msg->Version);
+		set_status(addr, ((LiftStateChangedEvent&)(msg->Context())).State, NCVersion::FromString("1.2.3.4"), "");
+	}
+
+	if (msg->Context().getType() == "LiftInfo")
+	{
+		set_status(addr, ((LiftInfo&)(msg->Context())).State, NCVersion::FromString("1.2.3.4"),
+				((LiftInfo&)(msg->Context())).Name);
+	}
+
+	if (msg->Context().getType() == "DeviceNameChangedEvent")
+	{
+		set_name(addr, ((DDeviceNameChangedEvent&)(msg->Context())).NewName );
 	}
 }
 
@@ -91,12 +114,7 @@ void NodesServer::OnNetworkChanged() {
 void NodesServer::request_report_all() {
 	LogService::Log("NodesServer::request_report_all","");
 
-	NetAddress addr = NetAddress::BROADCAST;
-	LiftNetMessage msg;
-
-	msg.Event = NetEvent::DEVICE_STATE_REPORT;
-
-	_netService->Send(msg, addr);
+	_netService->Send(new DeviceGetInfoCommand);
 }
 
 } /* namespace diamon */

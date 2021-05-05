@@ -51,15 +51,23 @@ WebServer::WebServer(int port, NodesServer *nodesServer, INetService *netService
 		request->send(SPIFFS, Config::HTML_PREFIX + request->url());
 	});
 
-	_server->on("^.*$", HTTP_GET, [](AsyncWebServerRequest *request) {
-		LogService::Log("_server->on ^.*$: /", request->url());
-	});
-
-	_server->on("^\\/src\\/(.+)$", HTTP_GET, [](AsyncWebServerRequest *request) {
-		LogService::Log("_server->on: src", request->url());
-
+	_server->on("/src/js/main.js", HTTP_GET, [](AsyncWebServerRequest *request) {
 		request->send(SPIFFS, Config::HTML_PREFIX + request->url());
 	});
+
+	_server->on("/src/css/general.css", HTTP_GET, [](AsyncWebServerRequest *request) {
+		request->send(SPIFFS, Config::HTML_PREFIX + request->url());
+	});
+
+//	_server->on("^.*$", HTTP_GET, [](AsyncWebServerRequest *request) {
+//		LogService::Log("_server->on ^.*$: /", request->url());
+//	});
+//
+//	_server->on("^\\/src\\/(.+)$", HTTP_GET, [](AsyncWebServerRequest *request) {
+//		LogService::Log("_server->on: src", request->url());
+//
+//		request->send(SPIFFS, Config::HTML_PREFIX + request->url());
+//	});
 
 //	_server->on("/src/bootstrap.bundle.min.js", HTTP_GET, [](AsyncWebServerRequest *request){
 //	    request->send(SPIFFS, "/src/bootstrap.bundle.min.js", "text/javascript");
@@ -104,6 +112,20 @@ WebServer::WebServer(int port, NodesServer *nodesServer, INetService *netService
 		request->send(200, "text/html", "");
 	});
 
+	_server->on("/request_name", HTTP_GET, [this](AsyncWebServerRequest *request) {
+		JsonHelper doc;
+
+        for(int i = 0; i < request->params(); i++){
+	        AsyncWebParameter* p = request->getParam(i);
+	        doc[p->name()] = p->value();
+	    }
+
+        _nodesServer->ChangeDeviceName(NetAddress::FromString(doc["id"]), doc["name"]);
+
+	    request->send(200, "text/html", "");
+	});
+
+
 	_events->onConnect([this](AsyncEventSourceClient *client) {
 		Serial.println("Client connected! ");
 
@@ -130,6 +152,7 @@ WebServer::WebServer(int port, NodesServer *nodesServer, INetService *netService
 
 	_nodesServer->StateChangedEvent += METHOD_HANDLER(WebServer::OnDeviceStateChanged);
 	_nodesServer->DeviceAddedEvent += METHOD_HANDLER(WebServer::OnDeviceAdded);
+	_nodesServer->DeviceNameChangedEvent += METHOD_HANDLER(WebServer::OnDeviceNameChanged);
 }
 
 void WebServer::RefreshAllItems() {
@@ -142,7 +165,7 @@ void WebServer::RefreshAllItems() {
 
 	for (auto item: list) {
 		json += "\"" + item.first.ToString() + "\":{";
-		json += "\"name\":\"" + String() + "\",";
+		json += "\"name\":\"" + item.second._name + "\",";
 		json += "\"state\":\"" + item.second._state.ToString() + "\",";
 		json += "\"version\":\"" + item.second._version.ToString() + "\"";
 		json += "},";
@@ -211,6 +234,16 @@ void WebServer::OnDeviceStateChanged(NetAddress addr, LiftState state) {
 	m["command"] = "set";
 	m["id"] = addr.ToString();
 	m["state"] = state.ToString();
+
+	_events->send(((String)m).c_str(), "msg");
+}
+
+void WebServer::OnDeviceNameChanged(NetAddress addr, String name) {
+	JsonHelper m;
+
+	m["command"] = "set_name";
+	m["id"] = addr.ToString();
+	m["name"] = name;
 
 	_events->send(((String)m).c_str(), "msg");
 }

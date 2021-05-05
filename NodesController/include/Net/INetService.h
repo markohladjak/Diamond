@@ -10,10 +10,13 @@
 
 #include <IInLoop.h>
 #include <Events.h>
-#include <Net/NetMessage.h>
 #include <WiFi.h>
+#include <Net/NetAddress.h>
+#include <Net/ComData/ComData.h>
 
 namespace diamon {
+
+class NetMessage;
 
 enum class WIFIMODE {
 	AP,
@@ -24,11 +27,14 @@ typedef std::list<NetAddress> device_list_t;
 
 class INetService {
 public:
+	static void SetMessageEnds(NetMessage &msg, const NetAddress *from, const NetAddress *to);
+
 	virtual ~INetService() { };
 
 	virtual device_list_t GetConnectedDevices() = 0;
 
 	virtual void Send(NetMessage& msg, NetAddress to = NetAddress::BROADCAST) = 0;
+	virtual void Send(CommunicationData* data, NetAddress to = NetAddress::BROADCAST) { };
 
 	virtual void OnReceive(NetAddress from, void (*onReceive)(NetMessage &msg)) = 0;
 

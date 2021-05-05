@@ -12,6 +12,9 @@
 #include <Helpers/JsonHelper.h>
 #include <Net/NetAddress.h>
 #include <utils.h>
+#include <Net/NetMessage.h>
+#include <Net/ComData/ComTypes.h>
+
 
 namespace diamon {
 
@@ -28,6 +31,8 @@ void Node::AddDevice(IDevice *device, INetService *netService) {
 	{
 	case DeviceType::LIFT:
 		((Lift*)device)->StateChangedEvent += METHOD_HANDLER(Node::OnLiftStateChanged);
+		device->NameChangedEvent += METHOD_HANDLER(Node::OnDeviceNameChanged);
+
 		netService->OnReceiveEvent += METHOD_HANDLER(Node::OnNetMessage);
 		netService->OnRootAddressObtainedEvent += METHOD_HANDLER(Node::OnRootObtained);
 //		netService->OnConnectedEvent += METHOD_HANDLER(Node::OnNetworkConnected);
@@ -39,18 +44,34 @@ void Node::AddDevice(IDevice *device, INetService *netService) {
 //	OnLiftStateChanged(((Lift*)device)->GetState());
 }
 
-void Node::SendState(LiftState state){
-	LiftNetMessage msg;
+void Node::SendName(const String &name) {
+	auto le = new DDeviceNameChangedEvent;
+	le->NewName = name;
 
-	msg.Event = NetEvent::DEVICE_STATUS_CHANGED;
-	msg.State = state;
-	msg.Version = NCVersion::FromString(utils::GetVersion());
+	_devices.begin()->second->Send(le, NetAddress::SERVER);
+}
 
-	_devices.begin()->second->Send(msg, NetAddress::SERVER);
+void Node::SendState(LiftState state) {
+	auto le = new LiftStateChangedEvent;
+	le->State = state;
+
+	_devices.begin()->second->Send(le, NetAddress::SERVER);
+}
+
+void Node::SendLiftInfo(LiftState state) {
+	auto le = new LiftInfo;
+	le->Name = "Lift 1";
+	le->State = state;
+
+	_devices.begin()->second->Send(le, NetAddress::SERVER);
 }
 
 void Node::OnLiftStateChanged(LiftState state) {
 	SendState(state);
+}
+
+void Node::OnDeviceNameChanged(const String &name) {
+	SendName(name);
 }
 
 void Subscribe(IDevice* device)
@@ -61,19 +82,17 @@ void Subscribe(IDevice* device)
 void Node::OnNetMessage(NetAddress form, NetMessage *message) {
 	LogService::Log("Node::OnNetMessage", *message);
 
-	if (message->Type == DeviceType::LIFT) {
-		auto msg = (LiftNetMessage*)message;
-
-		auto event = msg->Event;
-
-		if (event == NetEvent::REQUEST_DEVICE_STATE){
-			((Lift*)(_devices.begin()->first))->SetState(msg->State);
-		}
-		if (event == NetEvent::DEVICE_STATE_REPORT){
-			auto state = ((Lift*)(_devices.begin()->first))->GetState();
-			SendState(state);
-		}
+	if (message->Context().getType() == "DeviceGetInfoCommand")
+	{
+		auto state = ((Lift*)(_devices.begin()->first))->GetState();
+		SendLiftInfo(state);
 	}
+
+	if (message->Context().getType() == "SetLiftStateCommand")
+		((Lift*)(_devices.begin()->first))->SetState(   ( (SetLiftStateCommand&) (message->Context()) ).State  );
+
+	if (message->Context().getType() == "SetDeviceNameCommand")
+		((IDevice*)(_devices.begin()->first))->SetName(   ( (SetDeviceNameCommand&) (message->Context()) ).Name  );
 }
 
 void Node::OnNetworkConnected() {
@@ -86,7 +105,7 @@ void Node::OnRootObtained() {
 	LogService::Println("Node::OnRootObtained");
 
 	auto state = ((Lift*)(_devices.begin()->first))->GetState();
-	SendState(state);
+	SendLiftInfo(state);
 }
 
 void Node::Process() {

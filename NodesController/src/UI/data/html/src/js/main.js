@@ -45,6 +45,8 @@ function processMessage(msg) {
         break;
       case "set": setDeviceInfo({ 'id': m.id, 'state': m.state });
         break;
+      case "set_name": setDeviceName({ 'id': m.id, 'name': m.name });
+        break;
     }
 }
 
@@ -71,6 +73,15 @@ function setDeviceInfo(info){
 	dvStatus.className = dvStatus.className.replace(/dvs[A-Z]+/g, "dvs" + info.state.toUpperCase());
 				
 	statusText.textContent = info.state;
+}
+
+function setDeviceName(info){
+  	let dv = document.getElementById(info.id);
+
+	let dvName = dv.getElementsByClassName("deviceName")[0];
+
+	dvName.value = info.name;
+	dvName.name = info.name;
 }
 
 function refreshAll(data) {
@@ -301,6 +312,13 @@ function OnDeviceNameKeyPress(event) {
 
 	if (event.keyCode == 13 || event.keyCode == 27)
 		target.blur();
+
+//    var regex = new RegExp('^[А-Ьа-ьA-Za-z0-9_ ]+$');
+//    var key = String.fromCharCode(!event.charCode ? event.which : event.charCode);
+//    if (!regex.test(key)) {
+//		event.preventDefault();
+//		return false;
+//	}
 
     //alert(event.keyCode);
 }

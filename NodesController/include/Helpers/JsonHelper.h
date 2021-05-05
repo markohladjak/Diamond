@@ -10,12 +10,23 @@
 
 #include <ArduinoJson.h>
 
+#define JSON_STRING_MAX_LENGHT 0x100
+
 namespace diamon {
 
-class JsonHelper: public StaticJsonDocument<0x100>
+//class JsonHelper: public StaticJsonDocument<JSON_STRING_MAX_LENGHT>
+//{
+//public:
+//	JsonHelper() {}
+//	JsonHelper(const String& jsonString);
+//
+//	operator String () const;
+//};
+
+class JsonHelper: public DynamicJsonDocument
 {
 public:
-	JsonHelper() {}
+	JsonHelper() : DynamicJsonDocument(JSON_STRING_MAX_LENGHT) {}
 	JsonHelper(const String& jsonString);
 
 	operator String () const;

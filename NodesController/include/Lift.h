@@ -12,7 +12,6 @@
 #include <IDevice.h>
 #include "RGBRele.h"
 #include <map>
-#include <Events.h>
 #include <LiftState.h>
 
 namespace diamon {
@@ -39,8 +38,6 @@ private:
 	LiftState _state;
 
 	RGBRele *RGBMonitor;
-
-	QueueHandle_t _state_mutex  = xSemaphoreCreateMutex();
 
 	DeviceType Type() override { return DeviceType::LIFT; }
 

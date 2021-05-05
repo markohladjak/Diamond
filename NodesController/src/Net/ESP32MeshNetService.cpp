@@ -16,6 +16,14 @@
 #include <Net/ESP32MeshNetService.h>
 #include <LogService.h>
 #include <ESPmDNS.h>
+#include <Net/NetMessage.h>
+#include <Net/NetAddress.h>
+
+
+
+
+#include <WString.h>
+
 
 namespace diamon {
 
@@ -105,7 +113,7 @@ void ESP32MeshNetService::Start() {
     print_route_table();
 }
 
-void ESP32MeshNetService::Send(NetMessage &msg, NetAddress to) {
+void ESP32MeshNetService::send_msg(NetMessage &msg, NetAddress to) {
 	xSemaphoreTake(_send_mutex, portMAX_DELAY);
 
 	LogService::Log("ESP32MeshNetService::Send", msg);
@@ -119,9 +127,6 @@ void ESP32MeshNetService::Send(NetMessage &msg, NetAddress to) {
     data.proto = MESH_PROTO_JSON;
     data.tos = MESH_TOS_P2P;
     bool to_server = false;
-
-	msg._from = Address;
-	msg._to = to;
 
 //    if (to == NetAddress::BROADCAST)
 //    	esp_mesh_get_routing_table((mesh_addr_t *) &route_table, _max_device_count * 6, &route_table_size);
@@ -159,6 +164,18 @@ void ESP32MeshNetService::Send(NetMessage &msg, NetAddress to) {
 	}
 
 	xSemaphoreGive(_send_mutex);
+}
+
+void ESP32MeshNetService::Send(NetMessage &msg, NetAddress to) {
+    SetMessageEnds(msg, &Address, &to);
+
+    send_msg(msg, to);
+}
+
+void ESP32MeshNetService::Send(CommunicationData* data, NetAddress to) {
+	NetMessage msg(data);
+
+	Send(msg, to);
 }
 
 void ESP32MeshNetService::OnReceive(NetAddress from, void (*onReceive)(NetMessage&)) {
@@ -451,7 +468,7 @@ void ESP32MeshNetService::mesh_data_rxtx_start() {
     static bool is_rxtx_started = false;
     if (!is_rxtx_started) {
     	is_rxtx_started = true;
-        xTaskCreate(mesh_rx_task, "MPRX", 3072, NULL, 5, NULL);
+        xTaskCreate(mesh_rx_task, "MPRX", 0x1000, NULL, 5, NULL);
     }
 }
 
@@ -477,13 +494,13 @@ void ESP32MeshNetService::mesh_scan_done_handler(int num)
 		esp_mesh_scan_get_ap_record(&record, &assoc);
 		if (ie_len == sizeof(assoc)) {
 			ESP_LOGW(MESH_TAG,
-					 "<MESH>[%d]%s, layer:%d/%d, assoc:%d/%d, %d, "MACSTR", channel:%u, rssi:%d, ID<"MACSTR"><%s>",
+					 "<MESH>[%d]%s, layer:%d/%d, assoc:%d/%d, %d, " MACSTR ", channel:%u, rssi:%d, ID<" MACSTR "><%s>",
 					 i, record.ssid, assoc.layer, assoc.layer_cap, assoc.assoc,
 					 assoc.assoc_cap, assoc.layer2_cap, MAC2STR(record.bssid),
 					 record.primary, record.rssi, MAC2STR(assoc.mesh_id), assoc.encrypted ? "IE Encrypted" : "IE Unencrypted");
 
 		} else {
-			ESP_LOGI(MESH_TAG, "[%d]%s, "MACSTR", channel:%u, rssi:%d", i,
+			ESP_LOGI(MESH_TAG, "[%d]%s, " MACSTR ", channel:%u, rssi:%d", i,
 					 record.ssid, MAC2STR(record.bssid), record.primary,
 					 record.rssi);
 
@@ -511,7 +528,7 @@ void ESP32MeshNetService::mesh_scan_done_handler(int num)
 			memcpy(&parent.sta.password, _router_pw.c_str(), _router_pw.length());
 		}
 
-		ESP_LOGW(MESH_TAG, "<PARENT>%s, "MACSTR", channel:%u, rssi:%d",
+		ESP_LOGW(MESH_TAG, "<PARENT>%s, " MACSTR ", channel:%u, rssi:%d",
 				 parent_record.ssid, MAC2STR(parent_record.bssid),
 				 parent_record.primary, parent_record.rssi);
 
@@ -613,27 +630,27 @@ void ESP32MeshNetService::mesh_rx_task(void *args) {
         data.data[data.size] = 0;
 
         LogService::Log("ESP32MeshNetService::mesh_rx_task", (char*)data.data);
+        LogService::Log("Heep Size", String(ESP.getHeapSize()));
 
-        auto msg = NetMessage::Resolve((char*)data.data);
+        NetMessage msg((char*)data.data);
 
-        if (msg->_to == NetAddress::BROADCAST) {
+        if (msg.To() == NetAddress::BROADCAST) {
         	for (auto dvs: _local)
-        		if (dvs.first != msg->_from)
-        			dvs.second->OnReceiveEvent(msg->_from, msg);
+        		if (dvs.first != msg.From())
+        			dvs.second->OnReceiveEvent(msg.From(), &msg);
 
-        	delete msg;
         	continue;
         }
 
-        if (msg->_to == NetAddress::SERVER)
-        	msg->_to = _node_addr_mask + msg->_to;
-
-        auto dest = _local.find(msg->_to);
-        if (dest != _local.end()){
-        	dest->second->OnReceiveEvent(msg->_from, msg);
+        if (msg.To() == NetAddress::SERVER) {
+        	auto addr = NetAddress(_node_addr_mask + msg.To());
+        	SetMessageEnds(msg, NULL, &addr);
         }
 
-    	delete msg;
+        auto dest = _local.find(msg.To());
+        if (dest != _local.end()){
+        	dest->second->OnReceiveEvent(msg.From(), &msg);
+        }
     }
 
     is_rx_running = false;
@@ -689,7 +706,7 @@ uint64_t ESP32MeshNetService::self_address(uint16_t device_num) {
     if (!_node_addr_mask) {
 		esp_mesh_get_routing_table((mesh_addr_t *) &route_table, 6, &route_table_size);
 
-		_node_addr_mask = *((uint64_t*)(route_table[0].addr)) << 16;
+		memcpy(((uint8_t*)&_node_addr_mask) + 2, (void*)(route_table[0].addr), 6);;
 
 		_node_addr_mask &= 0xFFFFFFFFFFFF0000;
     }
