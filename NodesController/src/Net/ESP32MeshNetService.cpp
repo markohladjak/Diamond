@@ -27,6 +27,8 @@
 
 namespace diamon {
 
+#undef ESP_LOGI
+#undef ESP_LOGW
 #define ESP_LOGI(tag, ...) Serial.printf(__VA_ARGS__)
 #define ESP_LOGW(tag, ...) Serial.printf(__VA_ARGS__)
 
@@ -484,7 +486,7 @@ void ESP32MeshNetService::mesh_scan_done_handler(int num)
 	mesh_type_t my_type = MESH_ROOT;
 	int my_layer = MESH_ROOT_LAYER;
 	wifi_config_t parent = { 0, };
-	wifi_scan_config_t scan_config = { 0 };
+//	wifi_scan_config_t scan_config = { 0 };
 
 	parent_assoc.layer = 25;
 	parent_assoc.rssi = -120;
@@ -609,10 +611,10 @@ void ESP32MeshNetService::mesh_rx_task(void *args) {
 		return;
 	}
 
-    int recv_count = 0;
+//    int recv_count = 0;
     esp_err_t err;
     mesh_addr_t from;
-    int send_count = 0;
+//    int send_count = 0;
     mesh_data_t data;
     int flag = 0;
     data.data = rx_buf;

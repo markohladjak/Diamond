@@ -14,6 +14,8 @@ namespace diamon {
 
 class IStorage {
 public:
+	virtual ~IStorage() { }
+
 	virtual bool SaveKey(const String &key, const String &value) = 0;
 	virtual bool LoadKey(const String &key, String &value) = 0;
 };

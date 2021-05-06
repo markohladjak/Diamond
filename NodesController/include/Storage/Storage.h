@@ -21,7 +21,7 @@ class Storage : public IStorage {
 
 public:
 	Storage(const char* Namespace);
-	virtual ~Storage();
+	~Storage() override;
 
 	virtual bool LoadKey(const String &key, String &value);
 	virtual bool SaveKey(const String &key, const String &value);
