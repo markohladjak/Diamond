@@ -37,7 +37,7 @@ public:
 
 	void OnDeviceStateChanged(NetAddress addr, LiftState state);
 	void OnDeviceNameChanged(NetAddress addr, String name);
-	void OnDeviceAdded(NetAddress addr, LiftState state);
+	void OnDeviceAdded(NetAddress addr, LiftState state, String name);
 
 };
 

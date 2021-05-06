@@ -7,6 +7,7 @@
 
 #include <Lift.h>
 #include <LogService.h>
+#include <Net/ComData/LiftEvent.h>
 
 namespace diamon {
 
@@ -14,7 +15,7 @@ LiftState::TStatesDescription LiftState::StatesDescription = {
 	{NONE, "None"}, {FREE, "Free"}, {BUSY, "Busy"}, {READY, "Ready"}, {SOS, "Sos"}};
 
 
-Lift::Lift(int Rpin, int Gpin, int Bpin) {
+Lift::Lift(int Rpin, int Gpin, int Bpin, IStorage *storage) : IDevice(storage) {
 	RGBMonitor = new RGBRele(Rpin, Gpin, Bpin);
 }
 
@@ -30,6 +31,9 @@ void Lift::set_state(LiftState state) {
 	xSemaphoreTake(_state_mutex, portMAX_DELAY);
 
 	_state = state;
+
+	if (_storage)
+		_storage->SaveKey(LIFT_MSG_TAG_STATE, _state);
 
 	show_state();
 
@@ -64,6 +68,17 @@ void Lift::show_state() {
 		RGBMonitor->BlinkStart();
 		break;
 	}
+}
+
+void Lift::load_data() {
+	if (!_storage) return;
+
+	IDevice::load_data();
+
+	String state;
+	if (_storage->LoadKey(LIFT_MSG_TAG_STATE, state))
+		_state = LiftState::FromString(state);
+
 }
 
 } /* namespace diamon */

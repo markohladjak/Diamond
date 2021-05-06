@@ -12,6 +12,7 @@
 #include "IInLoop.h"
 #include <WString.h>
 #include <Events.h>
+#include <Storage/IStorage.h>
 
 namespace diamon {
 
@@ -39,11 +40,18 @@ private:
 
 class IDevice: public IInLoop {
 protected:
+	IStorage *_storage;
+
 	String _name;
 
 	QueueHandle_t _state_mutex  = xSemaphoreCreateMutex();
 
+
+	virtual void load_data();
+
 public:
+	IDevice(IStorage *storage = NULL);
+
 	virtual bool ExecuteCommand(ICommand* command) = 0;
 
 	virtual ~IDevice() {};
@@ -53,14 +61,7 @@ public:
 	TEvent<const String&> NameChangedEvent;
 
 	const String& GetName() { return _name; }
-	void SetName(const String& name) {
-		xSemaphoreTake(_state_mutex, portMAX_DELAY);
-
-		_name = name;
-		NameChangedEvent(name);
-
-		xSemaphoreGive(_state_mutex);
-	}
+	void SetName(const String& name);
 };
 
 } /* namespace diamon */

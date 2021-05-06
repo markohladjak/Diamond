@@ -15,7 +15,6 @@
 #include <Net/NetMessage.h>
 #include <Net/ComData/ComTypes.h>
 
-
 namespace diamon {
 
 Node::Node() {
@@ -58,9 +57,9 @@ void Node::SendState(LiftState state) {
 	_devices.begin()->second->Send(le, NetAddress::SERVER);
 }
 
-void Node::SendLiftInfo(LiftState state) {
+void Node::SendLiftInfo(LiftState state, String name) {
 	auto le = new LiftInfo;
-	le->Name = "Lift 1";
+	le->Name = name;
 	le->State = state;
 
 	_devices.begin()->second->Send(le, NetAddress::SERVER);
@@ -85,7 +84,9 @@ void Node::OnNetMessage(NetAddress form, NetMessage *message) {
 	if (message->Context().getType() == "DeviceGetInfoCommand")
 	{
 		auto state = ((Lift*)(_devices.begin()->first))->GetState();
-		SendLiftInfo(state);
+		auto name = ((Lift*)(_devices.begin()->first))->GetName();
+
+		SendLiftInfo(state, name);
 	}
 
 	if (message->Context().getType() == "SetLiftStateCommand")
@@ -98,14 +99,16 @@ void Node::OnNetMessage(NetAddress form, NetMessage *message) {
 void Node::OnNetworkConnected() {
 	LogService::Println("Node::OnNetworkConnected()");
 
-	OnLiftStateChanged(((Lift*)(_devices.begin()->first))->GetState());
+	OnRootObtained();
 }
 
 void Node::OnRootObtained() {
 	LogService::Println("Node::OnRootObtained");
 
 	auto state = ((Lift*)(_devices.begin()->first))->GetState();
-	SendLiftInfo(state);
+	auto name = ((Lift*)(_devices.begin()->first))->GetName();
+
+	SendLiftInfo(state, name);
 }
 
 void Node::Process() {

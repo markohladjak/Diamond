@@ -59,7 +59,7 @@ void NodesServer::ReportAll() {
 void NodesServer::ResetAll(LiftState state) {
 	LogService::Log("NodesServer::ResetAll", state);
 
-	NetAddress addr = NetAddress::BROADCAST;
+//	NetAddress addr = NetAddress::BROADCAST;
 //	LiftNetMessage msg;
 //
 //	msg.Event = NetEvent::REQUEST_DEVICE_STATE;
@@ -68,16 +68,25 @@ void NodesServer::ResetAll(LiftState state) {
 //	_netService->Send(msg, addr);
 }
 
-void NodesServer::set_status(NetAddress addr, LiftState state, NCVersion ver, String name) {
+void NodesServer::set_info(NetAddress addr, LiftState state, String name) {
 	auto old_items_count = _devices.size();
-	if (state != -1) _devices[addr]._state = state;
-	_devices[addr]._version = ver;
+
+	_devices[addr]._state = state;
+	_devices[addr]._version = NCVersion();
 	_devices[addr]._name = name;
 
 	if (old_items_count != _devices.size())
-		DeviceAddedEvent(addr, state);
-	else
-		StateChangedEvent(addr, _devices[addr]._state);
+		DeviceAddedEvent(addr, state, name);
+	else {
+		StateChangedEvent(addr, state);
+		DeviceNameChangedEvent(addr, name);
+	}
+}
+
+void NodesServer::set_status(NetAddress addr, LiftState state) {
+	_devices[addr]._state = state;
+
+	StateChangedEvent(addr, _devices[addr]._state);
 }
 
 void NodesServer::set_name(NetAddress addr, String name) {
@@ -92,13 +101,12 @@ void NodesServer::OnNetMessage(NetAddress addr, NetMessage *msg){
 
 	if (msg->Context().getType() == "LiftStateChangedEvent")
 	{
-		set_status(addr, ((LiftStateChangedEvent&)(msg->Context())).State, NCVersion::FromString("1.2.3.4"), "");
+		set_status(addr, ((LiftStateChangedEvent&)(msg->Context())).State);
 	}
 
 	if (msg->Context().getType() == "LiftInfo")
 	{
-		set_status(addr, ((LiftInfo&)(msg->Context())).State, NCVersion::FromString("1.2.3.4"),
-				((LiftInfo&)(msg->Context())).Name);
+		set_info(addr, ((LiftInfo&)(msg->Context())).State, ((LiftInfo&)(msg->Context())).Name);
 	}
 
 	if (msg->Context().getType() == "DeviceNameChangedEvent")

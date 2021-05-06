@@ -38,7 +38,7 @@ public:
 	void Process();
 
 	void SendState(LiftState state);
-	void SendLiftInfo(LiftState state);
+	void SendLiftInfo(LiftState state, String name);
 	void SendName(const String &name);
 
 };

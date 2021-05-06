@@ -32,7 +32,8 @@ class NodesServer {
 
 	INetService *_netService;
 
-	void set_status(NetAddress addr, LiftState state, NCVersion ver, String name);
+	void set_info(NetAddress addr, LiftState state, String name);
+	void set_status(NetAddress addr, LiftState state);
 	void set_name(NetAddress addr, String name);
 	void request_report_all();
 
@@ -49,7 +50,7 @@ public:
 	void ReportAll();
 	void ResetAll(LiftState state = LiftState::NONE);
 
-	TEvent<NetAddress, LiftState> DeviceAddedEvent;
+	TEvent<NetAddress, LiftState, String> DeviceAddedEvent;
 	TEvent<NetAddress, LiftState> StateChangedEvent;
 	TEvent<NetAddress, String> DeviceNameChangedEvent;
 

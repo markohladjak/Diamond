@@ -8,6 +8,7 @@
 //#include "Net/NetService.h"
 #include <Net/ESP32MeshNetService.h>
 #include <Net/FA/FirmwareUpdate.h>
+#include <Storage/Storage.h>
 
 using namespace diamon;
 
@@ -96,7 +97,8 @@ void runNode(){
 	ESP32MeshNetService::Start();
 //	printf("mesh started:\n");
 
-	lift = new Lift(D5, D6, D7);
+	lift = new Lift(D5, D6, D7, new Storage("Lift1"));
+	lift->load_data();
 
 	pinsDef = new LiftControlBox::PinsDef { D1, D2, D3, D4 };
 	liftControlBox = new LiftControlBox(lift, *pinsDef);

@@ -21,7 +21,7 @@ typedef void (*StateChangedHandler)(LiftState state, void *obj);
 
 class Lift: public IDevice {
 public:
-	Lift(int Rpin, int Gpin, int Bpin);
+	Lift(int Rpin, int Gpin, int Bpin, IStorage *storage = NULL);
 	~Lift();
 
 	bool ExecuteCommand(ICommand* command) override
@@ -33,6 +33,8 @@ public:
 	TEvent<LiftState> StateChangedEvent;
 
 	void update() override;
+
+	virtual void load_data();
 
 private:
 	LiftState _state;

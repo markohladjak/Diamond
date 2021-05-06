@@ -248,7 +248,7 @@ void WebServer::OnDeviceNameChanged(NetAddress addr, String name) {
 	_events->send(((String)m).c_str(), "msg");
 }
 
-void WebServer::OnDeviceAdded(NetAddress addr, LiftState state) {
+void WebServer::OnDeviceAdded(NetAddress addr, LiftState state, String name) {
 	JsonHelper m;
 
 	m["command"] = "add";
