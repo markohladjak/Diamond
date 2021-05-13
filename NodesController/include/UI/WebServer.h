@@ -23,6 +23,25 @@ class WebServer : public IInLoop {
 	NodesServer *_nodesServer = NULL;
 	INetService *_netService = NULL;
 
+	ArRequestHandlerFunction _requestHandlerFunct;
+
+	std::map<String, String> _access_list;
+
+	void init();
+	void resource_subscription();
+	static inline void resource_response(AsyncWebServerRequest *request);
+	void proccess_request(AsyncWebServerRequest *request);
+	bool check_access(const String &id);
+	bool sign_in(AsyncWebServerRequest *request);
+
+	void rq_root(AsyncWebServerRequest *request);
+	void rq_request(AsyncWebServerRequest *request);
+	void rq_report_all(AsyncWebServerRequest *request);
+	void rq_reset_all(AsyncWebServerRequest *request);
+	void rq_request_name(AsyncWebServerRequest *request);
+
+
+	void print_request(AsyncWebServerRequest *request);
 public:
 	AsyncWebServer *_server;
 	AsyncEventSource *_events;

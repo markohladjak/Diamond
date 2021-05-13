@@ -11,6 +11,8 @@
 #include <config.hpp>
 #include <SPIFFS.h>
 #include <Helpers/JsonHelper.h>
+#include <utils.h>
+#include <WebAuthentication.h>
 
 namespace diamon {
 
@@ -22,7 +24,6 @@ namespace diamon {
 //#include "data/html/test.html"
 //;
 
-
 WebServer::WebServer(int port, NodesServer *nodesServer, INetService *netService) :
 		_nodesServer(nodesServer),
 		_netService(netService)
@@ -32,99 +33,26 @@ WebServer::WebServer(int port, NodesServer *nodesServer, INetService *netService
 
 	SPIFFS.begin();
 
-	_server->on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
-		LogService::Log("_server->on: /", request->url());
+	_requestHandlerFunct = std::bind(&WebServer::proccess_request, this, std::placeholders::_1);
 
-//		request->send(200, "text/html", html);
-		request->send(SPIFFS, Config::HTML_PREFIX + "/index.html");
-	});
+	init();
 
-	_server->on("/src/img/user.svg", HTTP_GET, [](AsyncWebServerRequest *request) {
-		LogService::Log("src/img/user.svg", request->url());
-		LogService::Log("_server->on 2: /src/img/user.svg", Config::HTML_PREFIX + request->url());
+	_server->begin();
 
+	_nodesServer->StateChangedEvent += METHOD_HANDLER(WebServer::OnDeviceStateChanged);
+	_nodesServer->DeviceAddedEvent += METHOD_HANDLER(WebServer::OnDeviceAdded);
+	_nodesServer->DeviceNameChangedEvent += METHOD_HANDLER(WebServer::OnDeviceNameChanged);
+}
 
-		request->send(SPIFFS, Config::HTML_PREFIX + request->url());
-	});
+void WebServer::init() {
+	_server->on("/", HTTP_GET | HTTP_POST, _requestHandlerFunct);
+	_server->on("/signin", HTTP_GET | HTTP_POST, _requestHandlerFunct);
+	_server->on("/request", HTTP_GET, _requestHandlerFunct);
+	_server->on("/report_all", HTTP_GET, _requestHandlerFunct);
+	_server->on("/reset_all", HTTP_GET, _requestHandlerFunct);
+	_server->on("/request_name", HTTP_GET, _requestHandlerFunct);
 
-	_server->on("/src/img/check.svg", HTTP_GET, [](AsyncWebServerRequest *request) {
-		request->send(SPIFFS, Config::HTML_PREFIX + request->url());
-	});
-
-	_server->on("/src/js/main.js", HTTP_GET, [](AsyncWebServerRequest *request) {
-		request->send(SPIFFS, Config::HTML_PREFIX + request->url());
-	});
-
-	_server->on("/src/css/general.css", HTTP_GET, [](AsyncWebServerRequest *request) {
-		request->send(SPIFFS, Config::HTML_PREFIX + request->url());
-	});
-
-//	_server->on("^.*$", HTTP_GET, [](AsyncWebServerRequest *request) {
-//		LogService::Log("_server->on ^.*$: /", request->url());
-//	});
-//
-//	_server->on("^\\/src\\/(.+)$", HTTP_GET, [](AsyncWebServerRequest *request) {
-//		LogService::Log("_server->on: src", request->url());
-//
-//		request->send(SPIFFS, Config::HTML_PREFIX + request->url());
-//	});
-
-//	_server->on("/src/bootstrap.bundle.min.js", HTTP_GET, [](AsyncWebServerRequest *request){
-//	    request->send(SPIFFS, "/src/bootstrap.bundle.min.js", "text/javascript");
-//		Serial.println("/src/bootstrap.bundle.min.js");
-//	});
-//
-//	_server->on("/src/jquery-3.3.1.min.js", HTTP_GET, [](AsyncWebServerRequest *request){
-//	    request->send(SPIFFS, "/src/jquery-3.3.1.min.js", "text/javascript");
-//		Serial.println("/src/jquery-3.3.1.min.js");
-//	});
-//
-//	_server->on("/src/bootstrap.min.css", HTTP_GET, [](AsyncWebServerRequest *request){
-//	    request->send(SPIFFS, "/src/bootstrap.min.css", "text/css");
-//		Serial.println("/src/bootstrap.min.css");
-//	});
-
-
-	_server->on("/request", HTTP_GET, [this](AsyncWebServerRequest *request) {
-		JsonHelper doc;
-
-        for(int i = 0; i < request->params(); i++){
-
-	        AsyncWebParameter* p = request->getParam(i);
-
-	        doc[p->name()] = p->value();
-	    }
-
-        PrecessRequest(&doc);
-
-	    request->send(200, "text/html", "");
-	});
-
-	_server->on("/report_all", HTTP_GET, [this](AsyncWebServerRequest *request) {
-		_nodesServer->ReportAll();
-
-		request->send(200, "text/html", "");
-	});
-
-	_server->on("/reset_all", HTTP_GET, [this](AsyncWebServerRequest *request) {
-		_nodesServer->ResetAll();
-
-		request->send(200, "text/html", "");
-	});
-
-	_server->on("/request_name", HTTP_GET, [this](AsyncWebServerRequest *request) {
-		JsonHelper doc;
-
-        for(int i = 0; i < request->params(); i++){
-	        AsyncWebParameter* p = request->getParam(i);
-	        doc[p->name()] = p->value();
-	    }
-
-        _nodesServer->ChangeDeviceName(NetAddress::FromString(doc["id"]), doc["name"]);
-
-	    request->send(200, "text/html", "");
-	});
-
+	resource_subscription();
 
 	_events->onConnect([this](AsyncEventSourceClient *client) {
 		Serial.println("Client connected! ");
@@ -134,32 +62,171 @@ WebServer::WebServer(int port, NodesServer *nodesServer, INetService *netService
 					"Client reconnected! Last message ID that it got is: %u\n",
 					client->lastId());
 		}
-		// send event with message "hello!", id current millis
-		// and set reconnect delay to 1 second
-		client->send("hello!", NULL, millis(), 10000);
 
+		client->send("hello!", NULL, millis(), 10000);
 
 		RefreshAllItems();
 	});
 
 	_server->addHandler(_events);
 
-	_server->begin();
 
-//	if (!MDNS.begin("diamond")) {
-//		LogService::Log("MDNS", "Error setting up MDNS responder!");
-//	}
+	//	_server->on("^.*$", HTTP_GET, [](AsyncWebServerRequest *request) {
+	//		LogService::Log("_server->on ^.*$: /", request->url());
+	//	});
+	//
+	//	_server->on("^\\/src\\/(.+)$", HTTP_GET, [](AsyncWebServerRequest *request) {
+	//		LogService::Log("_server->on: src", request->url());
+	//
+	//		request->send(SPIFFS, Config::HTML_PREFIX + request->url());
+	//	});
 
-	_nodesServer->StateChangedEvent += METHOD_HANDLER(WebServer::OnDeviceStateChanged);
-	_nodesServer->DeviceAddedEvent += METHOD_HANDLER(WebServer::OnDeviceAdded);
-	_nodesServer->DeviceNameChangedEvent += METHOD_HANDLER(WebServer::OnDeviceNameChanged);
+	//	_server->on("/src/bootstrap.bundle.min.js", HTTP_GET, [](AsyncWebServerRequest *request){
+	//	    request->send(SPIFFS, "/src/bootstrap.bundle.min.js", "text/javascript");
+	//		Serial.println("/src/bootstrap.bundle.min.js");
+	//	});
+	//
+	//	_server->on("/src/jquery-3.3.1.min.js", HTTP_GET, [](AsyncWebServerRequest *request){
+	//	    request->send(SPIFFS, "/src/jquery-3.3.1.min.js", "text/javascript");
+	//		Serial.println("/src/jquery-3.3.1.min.js");
+	//	});
+	//
+	//	_server->on("/src/bootstrap.min.css", HTTP_GET, [](AsyncWebServerRequest *request){
+	//	    request->send(SPIFFS, "/src/bootstrap.min.css", "text/css");
+	//		Serial.println("/src/bootstrap.min.css");
+	//	});
 }
+
+void WebServer::resource_subscription() {
+	_server->on("/src/img/user.svg", HTTP_GET, resource_response);
+	_server->on("/src/img/check.svg", HTTP_GET, resource_response);
+	_server->on("/src/js/main.js", HTTP_GET, resource_response);
+	_server->on("/src/css/general.css", HTTP_GET, resource_response);
+	_server->on("/src/img/background.jpg", HTTP_GET, resource_response);
+	_server->on("/src/img/email_dark.svg", HTTP_GET, resource_response);
+	_server->on("/src/img/lock_dark.svg", HTTP_GET, resource_response);
+	_server->on("/src/img/visible_dark.svg", HTTP_GET, resource_response);
+	_server->on("/src/img/email.svg", HTTP_GET, resource_response);
+	_server->on("/src/img/lock.svg", HTTP_GET, resource_response);
+	_server->on("/src/img/visible.svg", HTTP_GET, resource_response);
+}
+
+void WebServer::resource_response(AsyncWebServerRequest *request) {
+	request->send(SPIFFS, Config::HTML_PREFIX + request->url());
+}
+
+void WebServer::proccess_request(AsyncWebServerRequest *request) {
+	LogService::Log("proccess_request", request->url());
+
+
+    auto cookie = request->getHeader("Cookie");
+
+    String id;
+    if (cookie) {
+    	id = cookie->value();
+    	id.remove(0, 10);
+    }
+
+	if (cookie && check_access(id)){
+		if (request->url() == "/") rq_root(request);
+		if (request->url() == "/request") rq_request(request);
+		if (request->url() == "/report_all") rq_report_all(request);
+		if (request->url() == "/reset_all") rq_reset_all(request);
+		if (request->url() == "/request_name") rq_request_name(request);
+
+	} else if (sign_in(request)) {
+
+	} else
+		request->send(SPIFFS, Config::HTML_PREFIX + "/login.html");
+}
+
+bool WebServer::check_access(const String &id) {
+	LogService::Log("check_access  ID", id);
+
+    auto hwo = _access_list.find(id);
+    if (hwo != _access_list.end())
+    	return true;
+
+	return false;
+}
+
+bool WebServer::sign_in(AsyncWebServerRequest *request) {
+	print_request(request);
+
+	if (request->url() == "/" && request->args() == 2 &&
+		request->argName(0) == "user" && request->argName(1) == "pass" &&
+		request->arg("user").length())
+	{
+		String sessionID;
+
+//		auto uuid = uuid::generate_uuid_v4();
+
+		sessionID = generateDigestHash(request->arg("user").c_str(), request->arg("pass").c_str(), "realm?");
+
+		_access_list[sessionID] = request->arg("user");
+
+		auto response = request->beginResponse(SPIFFS, Config::HTML_PREFIX + "/index.html");
+		response->addHeader("Set-Cookie", "sessionID=" + sessionID);
+		request->send(response);
+
+		LogService::Log("sign_in", "true");
+
+		return true;
+	}
+
+	LogService::Log("sign_in", "false");
+
+	return false;
+}
+
+void WebServer::rq_root(AsyncWebServerRequest *request) {
+	request->send(SPIFFS, Config::HTML_PREFIX + "/index.html");
+}
+
+void WebServer::rq_request(AsyncWebServerRequest *request) {
+	JsonHelper doc;
+
+    for(int i = 0; i < request->params(); i++){
+
+        AsyncWebParameter* p = request->getParam(i);
+
+        doc[p->name()] = p->value();
+    }
+
+    PrecessRequest(&doc);
+
+    request->send(200, "text/html", "");
+}
+
+void WebServer::rq_report_all(AsyncWebServerRequest *request) {
+	_nodesServer->ReportAll();
+
+	request->send(200, "text/html", "");
+}
+
+void WebServer::rq_reset_all(AsyncWebServerRequest *request) {
+	_nodesServer->ResetAll();
+
+	request->send(200, "text/html", "");
+}
+
+void WebServer::rq_request_name(AsyncWebServerRequest *request) {
+	JsonHelper doc;
+
+    for(int i = 0; i < request->params(); i++){
+        auto p = request->getParam(i);
+        doc[p->name()] = p->value();
+    }
+
+    _nodesServer->ChangeDeviceName(NetAddress::FromString(doc["id"]), doc["name"]);
+
+    request->send(200, "text/html", "");
+}
+
+
 
 void WebServer::RefreshAllItems() {
 	auto list = _nodesServer->DevicesList();
-//	auto docSize = _nodesServer->DevicesCount() * 32;
-
-//	DynamicJsonDocument d(docSize);
 
 	String json = "{";
 
@@ -256,6 +323,16 @@ void WebServer::OnDeviceAdded(NetAddress addr, LiftState state, String name) {
 	m["state"] = state.ToString();
 
 	_events->send(((String)m).c_str(), "msg");
+}
+
+void WebServer::print_request(AsyncWebServerRequest *request) {
+	LogService::Log("HTTP Request", "URI: " + request->url() + "   "
+								  + "Type:" + request->contentType() + "   "
+								  + "Method:" + request->methodToString() + "   "
+								  + "Args:");
+
+	for (int a = 0; a < request->args(); ++a)
+		LogService::Log("       " + request->argName(a), request->arg(a));
 }
 
 } /* namespace diamon */

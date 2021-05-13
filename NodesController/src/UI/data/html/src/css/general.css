@@ -37,7 +37,7 @@
 	.title span {
 		font-family: "Helvetica Neue";
 		font-style: normal;
-		//font-weight: bold;
+		/* font-weight: bold; */
 		font-size: 25px;
 		line-height: 80px;
 		/* identical to box height */
@@ -148,9 +148,9 @@
 	}
 	
 	.deviceView {
-//		border-style: solid;
-//		border-color: red;
-//		border-width: 2px;
+		/* border-style: solid;
+		border-color: red;
+		border-width: 2px; */
 		
 		height: 55px;
 		padding: 0px 30px;

@@ -160,9 +160,13 @@ function createDeviceView(info, sequence) {
 	
 	return deviceView; 
 }
-		 
+		
+function currentURL() {
+	return location.protocol + '//' + location.host + location.pathname;
+}
+
 function requestDeviceState(id, state) {
-	let url = window.location.href + `request?type=state&id=${id}&state=${state}`;
+	let url = currentURL() + `request?type=state&id=${id}&state=${state}`;
 		
 	httpGet(url);
 }
