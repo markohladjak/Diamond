@@ -31,10 +31,10 @@ class WebServer : public IInLoop {
 	void resource_subscription();
 	static inline void resource_response(AsyncWebServerRequest *request);
 	void proccess_request(AsyncWebServerRequest *request);
-	bool check_access(const String &id);
-	bool sign_in(AsyncWebServerRequest *request);
+	bool check_access(AsyncWebServerRequest *request);
 
 	void rq_root(AsyncWebServerRequest *request);
+	void rq_signin(AsyncWebServerRequest *request);
 	void rq_request(AsyncWebServerRequest *request);
 	void rq_report_all(AsyncWebServerRequest *request);
 	void rq_reset_all(AsyncWebServerRequest *request);

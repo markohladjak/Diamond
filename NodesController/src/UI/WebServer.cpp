@@ -116,31 +116,30 @@ void WebServer::resource_response(AsyncWebServerRequest *request) {
 }
 
 void WebServer::proccess_request(AsyncWebServerRequest *request) {
-	LogService::Log("proccess_request", request->url());
+	LogService::Log("proccess_request", "");
+	print_request(request);
 
-
-    auto cookie = request->getHeader("Cookie");
-
-    String id;
-    if (cookie) {
-    	id = cookie->value();
-    	id.remove(0, 10);
-    }
-
-	if (cookie && check_access(id)){
+	if (request->url() == "/signin")
+		rq_signin(request);
+	else if (check_access(request)){
 		if (request->url() == "/") rq_root(request);
 		if (request->url() == "/request") rq_request(request);
 		if (request->url() == "/report_all") rq_report_all(request);
 		if (request->url() == "/reset_all") rq_reset_all(request);
 		if (request->url() == "/request_name") rq_request_name(request);
-
-	} else if (sign_in(request)) {
-
 	} else
-		request->send(SPIFFS, Config::HTML_PREFIX + "/login.html");
+		request->redirect("/signin");
 }
 
-bool WebServer::check_access(const String &id) {
+bool WebServer::check_access(AsyncWebServerRequest *request) {
+    auto cookie = request->getHeader("Cookie");
+
+    if (!cookie)
+    	return false;
+
+    String id = cookie->value();;
+	id.remove(0, 10);
+
 	LogService::Log("check_access  ID", id);
 
     auto hwo = _access_list.find(id);
@@ -150,11 +149,17 @@ bool WebServer::check_access(const String &id) {
 	return false;
 }
 
-bool WebServer::sign_in(AsyncWebServerRequest *request) {
-	print_request(request);
+void WebServer::rq_root(AsyncWebServerRequest *request) {
+	request->send(SPIFFS, Config::HTML_PREFIX + "/index.html");
+}
 
-	if (request->url() == "/" && request->args() == 2 &&
-		request->argName(0) == "user" && request->argName(1) == "pass" &&
+void WebServer::rq_signin(AsyncWebServerRequest *request) {
+	if (check_access(request)) {
+		request->redirect("/");
+		return;
+	}
+
+	if (request->args() == 2 &&	request->argName(0) == "user" && request->argName(1) == "pass" &&
 		request->arg("user").length())
 	{
 		String sessionID;
@@ -165,22 +170,14 @@ bool WebServer::sign_in(AsyncWebServerRequest *request) {
 
 		_access_list[sessionID] = request->arg("user");
 
-		auto response = request->beginResponse(SPIFFS, Config::HTML_PREFIX + "/index.html");
+		auto response = request->beginResponse(302, "text/html", "");
+
 		response->addHeader("Set-Cookie", "sessionID=" + sessionID);
+		response->addHeader("Location", "/");
+
 		request->send(response);
-
-		LogService::Log("sign_in", "true");
-
-		return true;
-	}
-
-	LogService::Log("sign_in", "false");
-
-	return false;
-}
-
-void WebServer::rq_root(AsyncWebServerRequest *request) {
-	request->send(SPIFFS, Config::HTML_PREFIX + "/index.html");
+	} else
+		request->send(SPIFFS, Config::HTML_PREFIX + "/login.html");
 }
 
 void WebServer::rq_request(AsyncWebServerRequest *request) {

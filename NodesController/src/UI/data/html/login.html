@@ -3,37 +3,48 @@
 
 <head>
 	<title>Diamond</title>
-	
-	<link rel="stylesheet" href="src/css/general.css">
-
 </head>
 
 <style>
-	body {
-		background: white;
-		background: #292931;
+	html, body {
+		height: 100%;
+	}
 
+	body {
+		display: flex;
+		margin: 0;
+		background-color: #202020;
+		color: #FFFFFF;
+
+		font-family: "Helvetica Neue";
+		font-style: normal;
+
+		align-content: center;
+		align-items: center;
 	}
 	
 	#mainRect {
 		background: url("src/img/background.jpg");
 		background-repeat: no-repeat;
-		
-		width: 1366px;
-		height: 768px;
-		
-	    /* width: 100%;
-	    height: 100%; */
+		background-color: #292931;
+
+		display: flex;
+		height: 100%;
+		width: 100%;
+		padding-left: 750px;
+		min-width: 400px;
+		min-height: 500px;
+		max-height: 769px;
+
+		align-items: center;
+		justify-content: center;
 	}
 	
 	#signIn {
-		position: fixed;
-		top: 54px;
-		left: 797px;
+		position: relative;
 		width: 350px;
-		height: 510px;
-		background: #292931;
-		/* background: #151515; */
+		height: 489px;
+		background: transparent;
 	}
 
 	.logo-container {
@@ -88,23 +99,13 @@
 		margin-left: 20px;
 	}
 
-	#pass-show-icon {
-		background: url(src/img/visible_dark.svg) no-repeat;
+	#passShowIcon {
 		width: 21px;
 		height: 16px;
 		right: 0px;
 		margin-right: 20px;
 	}
-	
-	.vertical-center {
-		margin: 0;
-		position: absolute;
-		top: 50%;
-		left: 66%;
-		-ms-transform: translateY(-50%);
-		transform: translateY(-50%);
-	}
-	
+
 	input:focus { 
 		background: #2F2F38;
 		border: 2px solid rgba(255, 255, 255, 0.8);
@@ -131,25 +132,12 @@
 		background: url(src/img/lock.svg) no-repeat;
 	}
 
-	#passInput:focus ~ #pass-show-icon, #passInput:valid ~ #pass-show-icon {
+	#passInput:focus ~ #passShowIcon, #passInput:valid ~ #passShowIcon {
 		background: url(src/img/visible.svg) no-repeat;
-	}
-
-	/* #passInput:focus ~ #pass-show-icon {
-		background: url(src/img/visible.svg) no-repeat;
-	}
-
-	#passInput:valid ~ #pass-show-icon {
-		background: url(src/img/visible.svg) no-repeat;
-	} */
-
-	#emailInput:valid ~ .signin-input-container {
-		background-color: blue;
 	}
 
 	.credInput {
-		/* box-sizing: border-box; */
-		width: 350px;
+		width: 100%;
 		height: 50px;
 		
 		background-color: transparent;
@@ -158,9 +146,9 @@
 		border-radius: 10px;
 
 		padding-left: 15.43%;
-		padding-right: 15%;
+		padding-right: 15.43%;
 		
-		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+		font-family: 'Helvetica Neue';
 		font-style: normal;
 		font-weight: 500;
 		font-size: 18px;
@@ -181,46 +169,25 @@
 		color: #76777D;
 	}
 	
-	/* #emailInput {
-		background: url(src/img/email.svg) no-repeat scroll;
-		background-position: left;
-	} */
-	
 	#logo {
-		font-family: "Helvetica Neue";
-		font-style: normal;
+		display: flex;
 		font-size: 42px;
 		font-weight: 600;
-		line-height: 80px;
-		display: flex;
-		color: #FFFFFF;
 	}
 
 	#signin {
-		font-family: "Helvetica Neue";
-		font-style: normal;
 		font-weight: 500;
 		font-size: 32px;
 		line-height: 37px;
-		/* identical to box height */
-
-		color: #FFFFFF;
 	}
 
 	#text-info {
-		font-family: "Helvetica Neue";
-		font-style: normal;
 		font-weight: 300;
 		font-size: 17px;
 		line-height: 22px;
-		/* identical to box height */
-
-		color: #FFFFFF;
 	}
 
 	.signin-button-style {
-		font-family: "Helvetica Neue";
-		font-style: normal;
 		font-weight: 500;
 		font-size: 18px;
 		line-height: 21px;
@@ -233,13 +200,26 @@
 
 		color: #131923;
 
-		/* border: none; */
+		border: none;
 	}
 
-	.redbg {
-		background: #FAFAFA;
-		/* border: none; */
+	.active-style {
+		background-color: #FAFAFA;
 	}
+
+	#signinButton:active {
+		filter: brightness(.9);
+		transition: 50ms;
+	}
+	
+	.pass-icon-style {
+		background: url(src/img/visible_dark.svg) no-repeat;
+	}
+
+	.pass-visible-icon {
+		background: url(src/img/pass_visible.svg) no-repeat;
+	}
+
 </style>
 
 <body>
@@ -255,57 +235,64 @@
 				<span id="text-info">Please enter your name and password</span>
 			</div>
 			<div class="name-input-container">
-				<input id="emailInput" class="credInput" name="user" placeholder="Enter your name" required onClick="this.select();">
+				<input id="emailInput" class="credInput" name="user" placeholder="Enter your name" 
+						required onClick="this.select();" oninput="OnCredsChanged()">
 				<div id="email-icon" class="icon"></div>
 			</div>
 			<div class="pass-input-container">
-				<input type="password" id="passInput" class="credInput" name="pass" placeholder="Enter your password" required onClick="this.select();">
+				<input type="password" id="passInput" class="credInput" name="pass" placeholder="Enter your password" 
+						required onClick="this.select();" oninput="OnCredsChanged()">
 				<div id="pass-icon" class="icon"></div>
-				<div id="pass-show-icon" class="icon"></div>
+				<div id="passShowIcon" class="icon pass-icon-style" onclick="OnShowPassword()"></div>
 			</div>
 			<div class="signin-input-container">
-				<button type="submit" id="signin-button" class="signin-button-style">Sign in</button>
+				<button type="submit" id="signinButton" class="signin-button-style" oninput="OnCredsChanged()">Sign in</button>
 			</div>
 		</form>
 	</div>
 </body>
 
 <script>
-	function getFullscreenElement() {
-		return document.fullscreenElement
-			|| document.webkitFullscreenElement
-			|| document.mozFullscreenElement
-			|| document.msFullscreenElement;
+	function OnCredsChanged() {
+		signinButton.classList.toggle("active-style", emailInput.value != "" && passInput.value != "");
 	}
 
-	function toggleFullscreen() {
-		// let elem = document.querySelector("video");
-		let elem = document.documentElement;
+	function OnShowPassword() {
+		return;
 
-		if (!getFullscreenElement()) {
-			elem.webkitRequestFullscreen();
+		if (passInput.type == "password") {
+			passInput.type = "text";
+			passShowIcon.classList.toggle("pass-visible-icon", true);
 		} else {
-			document.webkitExitFullscreen();
+			passInput.type = "password";
+			passShowIcon.classList.toggle("pass-visible-icon", false);
 		}
 	}
 
-	document.addEventListener("dblclick", () => {
-		toggleFullscreen();
-	});
+	// function getFullscreenElement() {
+	// 	return document.fullscreenElement
+	// 		|| document.webkitFullscreenElement
+	// 		|| document.mozFullscreenElement
+	// 		|| document.msFullscreenElement;
+	// }
 
-	document.addEventListener("dblclick", () => {
-		toggleFullscreen();
-	});
+	// function toggleFullscreen() {
+	// 	let elem = document.documentElement;
 
-	document.getElementById("signIn").addEventListener("change", (event) => {
-		let form = event.target;
-		let btn = document.getElementById("signin-button");
+	// 	if (!getFullscreenElement()) {
+	// 		elem.webkitRequestFullscreen();
+	// 	} else {
+	// 		document.webkitExitFullscreen();
+	// 	}
+	// }
 
-		console.log("valid", form.checkValidity());
+	// document.addEventListener("dblclick", () => {
+	// 	toggleFullscreen();
+	// });
 
-		btn.classList.toggle("redbg", form.checkValidity());
-	});
-
+	// document.addEventListener("dblclick", () => {
+	// 	toggleFullscreen();
+	// });
 </script>
 
 </html>
