@@ -166,7 +166,7 @@ void WebServer::rq_signin(AsyncWebServerRequest *request) {
 
 //		auto uuid = uuid::generate_uuid_v4();
 
-		sessionID = generateDigestHash(request->arg("user").c_str(), request->arg("pass").c_str(), "realm?");
+		sessionID = generateDigestHash(request->arg("user").c_str(), request->arg("pass").c_str(), "realm");
 
 		_access_list[sessionID] = request->arg("user");
 

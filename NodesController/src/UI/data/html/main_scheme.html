@@ -1,0 +1,131 @@
+<html>
+
+<style>
+    html {
+        background-color: teal;
+
+        padding: 40px;
+    }
+
+    .scheme-container {
+        position: relative;
+        width: 100%;
+        padding-top: 58.5%;
+    }
+
+    .scheme {
+        display: grid;
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        height: 100%;
+
+        grid-template-columns: 16% auto 55% auto 16%;
+
+        /* width: 1086px;
+        height: 635px; */
+        background-color: #292931;
+    }
+
+    .col-l {
+        display: grid;
+        grid-template-rows: 19% 05% 19% 08% 19% 19% auto;
+    }
+
+    .col-m {
+        display: grid;
+        grid-template-columns: repeat(6, auto);
+        grid-template-rows: 13% 19% 19% auto 19%;
+    }
+
+    .col-r {
+        display: grid;
+        grid-template-rows: 19% 19% 19% 19% auto;
+    }
+
+    .dev-place {
+        border: 1px solid black;
+        background-color: darkgray;
+
+        height: 100%;
+    }
+
+    .device {
+        background: #33333C;
+        /* border: 1px solid rgba(255, 255, 255, 0.16); */
+        border: 1px solid red;
+        box-shadow: 0px 24px 32px rgba(0, 0, 0, 0.04), 0px 16px 24px rgba(0, 0, 0, 0.04), 0px 4px 8px rgba(0, 0, 0, 0.04), 0px 0px 1px rgba(0, 0, 0, 0.04);
+        border-radius: 15px;
+
+        box-sizing: border-box;
+
+        /* width: 100vw; */
+        height: 100%;
+    }
+</style>
+
+<body>
+    <div class="scheme-container">
+        <div class="scheme">
+            <div class="col-l">
+                <div class="dev-place">
+                    <div class="device"></div>
+                </div>
+                <div></div>
+                <div class="dev-place"></div>
+                <div></div>
+                <div class="dev-place"></div>
+                <div class="dev-place"></div>
+                <div></div>
+            </div>
+            <div></div>
+            <div class="col-m">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                
+                <div class="dev-place"></div>
+                <div class="dev-place"></div>
+                <div class="dev-place"></div>
+                <div class="dev-place"></div>
+                <div class="dev-place"></div>
+                <div class="dev-place"></div>
+
+                <div class="dev-place"></div>
+                <div class="dev-place"></div>
+                <div class="dev-place"></div>
+                <div class="dev-place"></div>
+                <div class="dev-place"></div>
+                <div class="dev-place"></div>
+
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+
+                <div class="dev-place"></div>
+                <div class="dev-place"></div>
+                <div class="dev-place"></div>
+                <div class="dev-place"></div>
+                <div class="dev-place"></div>
+                <div class="dev-place"></div>
+            </div>
+            <div></div>
+            <div class="col-r">
+                <div class="dev-place"></div>
+                <div class="dev-place"></div>
+                <div class="dev-place"></div>
+                <div class="dev-place"></div>
+                <div></div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
