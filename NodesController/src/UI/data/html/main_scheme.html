@@ -2,9 +2,13 @@
 
 <style>
     html {
-        background-color: teal;
-
         padding: 40px;
+
+        font-family: 'Helvetica Neue';
+        font-style: normal;
+        font-weight: bold;
+
+        color: #FFFFFF;
     }
 
     .scheme-container {
@@ -26,43 +30,65 @@
 
         /* width: 1086px;
         height: 635px; */
-        background-color: #292931;
     }
 
     .col-l {
         display: grid;
-        grid-template-rows: 19% 05% 19% 08% 19% 19% auto;
+        grid-template-rows: 19.5% 05% 19.5% 08% 19.5% 19.5% auto;
     }
 
     .col-m {
         display: grid;
         grid-template-columns: repeat(6, auto);
-        grid-template-rows: 13% 19% 19% auto 19%;
+        grid-template-rows: 13% 19.5% 19.5% auto 19.5%;
     }
 
     .col-r {
         display: grid;
-        grid-template-rows: 19% 19% 19% 19% auto;
+        grid-template-rows: 19.5% 19.5% 19.5% 19.5% auto;
     }
 
     .dev-place {
-        border: 1px solid black;
-        background-color: darkgray;
-
         height: 100%;
     }
 
     .device {
+        display: grid;
+        box-sizing: border-box;
+        grid-template-rows: auto auto auto;
+
+        height: 100%;
+
         background: #33333C;
-        /* border: 1px solid rgba(255, 255, 255, 0.16); */
-        border: 1px solid red;
+        border: 1px solid rgba(255, 255, 255, 0.16);
         box-shadow: 0px 24px 32px rgba(0, 0, 0, 0.04), 0px 16px 24px rgba(0, 0, 0, 0.04), 0px 4px 8px rgba(0, 0, 0, 0.04), 0px 0px 1px rgba(0, 0, 0, 0.04);
         border-radius: 15px;
+    }
 
-        box-sizing: border-box;
+    .scheme span {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 
-        /* width: 100vw; */
-        height: 100%;
+    .dv-palace-name {
+        font-size: 24px;
+        /* line-height: 45px; */
+    }
+
+    .dv-place-info {
+        font-weight: 500;
+        font-size: 16px;
+        /* line-height: 19px; */
+        color: #C1C5D2;
+    }
+
+    .dv-palace-state {
+        font-weight: 500;
+        font-size: 20px;
+        /* line-height: 23px; */
+
+        color: #7AE13B;
     }
 </style>
 
@@ -71,7 +97,13 @@
         <div class="scheme">
             <div class="col-l">
                 <div class="dev-place">
-                    <div class="device"></div>
+                    <template id="sc_device_template">
+                        <div class="device">
+                            <span class="dv-palace-name">Lift 1</span>
+                            <span class="dv-place-info">Washing</span>
+                            <span class="dv-palace-state">Free</span>
+                        </div>
+                    </template>
                 </div>
                 <div></div>
                 <div class="dev-place"></div>
@@ -127,5 +159,27 @@
             </div>
         </div>
     </div>
+
+    <script>
+        function fill_scheme() {
+            let template = document.querySelector('#sc_device_template');
+    
+            let dv = template.content.querySelector(".device");
+            // let deviceView = document.importNode(dv, true);
+        
+            let devPlaces = document.getElementsByClassName('dev-place');
+            for (let i = 0; i < devPlaces.length; ++i)
+                devPlaces[i].appendChild(document.importNode(dv, true));
+            
+                // console.log("dev", devPlaces);
+
+            // [devPlaces].forEach(element => {
+            //     element.appendChild(deviceView);
+            // });
+        }
+    
+        fill_scheme();
+    </script>
+    
 </body>
 </html>

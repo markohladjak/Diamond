@@ -121,10 +121,10 @@ function createDeviceView(info, sequence) {
 	let version = info.version;
 	
 	let template = document.querySelector('#deviceViewTemplate');
-				
+
 	let dv = template.content.querySelector("div");
 	let deviceView = document.importNode(dv, true);
-	
+
 	let deviceName = deviceView.getElementsByClassName("deviceName")[0];
 	let status = deviceView.getElementsByClassName("deviceStatus")[0];
 	let statusText = deviceView.getElementsByClassName("deviceStatusText")[0];
@@ -351,6 +351,12 @@ function localTest() {
 	//		setDeviceState("0", "Ready");
 	//		removeDevice("1");
 }		
+
+function resizeIframe(obj) {
+    obj.style.height = obj.contentWindow.document.documentElement.scrollHeight + 'px';
+
+	console.log("resizeIframe", obj.style.height);
+}
 
 serverSendInit();
 localTest();
