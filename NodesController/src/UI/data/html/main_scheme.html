@@ -1,5 +1,9 @@
 <html>
+<head>
+    <!-- <link rel="stylesheet" href="src/css/general.css"> -->
+	<link rel="stylesheet" href="src/css/status.css">
 
+</head>
 <style>
     html {
         padding: 40px;
@@ -72,23 +76,35 @@
     }
 
     .dv-palace-name {
-        font-size: 24px;
+        font-size: 38px;
         /* line-height: 45px; */
     }
 
     .dv-place-info {
         font-weight: 500;
         font-size: 16px;
-        /* line-height: 19px; */
+
         color: #C1C5D2;
     }
 
     .dv-palace-state {
         font-weight: 500;
         font-size: 20px;
-        /* line-height: 23px; */
 
-        color: #7AE13B;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        
+        width: auto;
+    }
+
+    .disconnected {
+        filter: grayscale();
+        opacity: 0.5;
+    }
+
+    .dot {
+        margin: 0 8px 0 0;
     }
 </style>
 
@@ -101,7 +117,10 @@
                         <div class="device">
                             <span class="dv-palace-name">Lift 1</span>
                             <span class="dv-place-info">Washing</span>
-                            <span class="dv-palace-state">Free</span>
+                            <div class="deviceStatus dv-palace-state dvsNONE" onclick="parent.showActionPanel(this, event);">
+                                <span class="dot"></span>
+                                <span class="deviceStatusText">None</span>
+                            </div>
                         </div>
                     </template>
                 </div>
@@ -161,16 +180,29 @@
     </div>
 
     <script>
+        var placeNames = [  ["22", "Washing"], ["21", "Lift"], ["20", "Lift"], ["19", "Lift"], 
+                            ["18", "Lift"], ["17", "Lift"], ["16", "Lift"], ["15", "Lift"], ["14", "Lift"], ["13", "Lift"], 
+                            ["7", "Lift"], ["8", "Lift"], ["9", "Lift"], ["10", "Lift"], ["11", "Lift"], ["12", "Lift"], 
+                            ["6", "Lift"], ["5", "Lift"], ["4", "Lift"], ["3", "Lift"], ["2", "Lift"], ["1", "Lift"],
+                            ["28", "Washing"], ["27", "Washing"], ["26", "Washing"], ["25", "Geometry"]];
+
         function fill_scheme() {
             let template = document.querySelector('#sc_device_template');
     
             let dv = template.content.querySelector(".device");
-            // let deviceView = document.importNode(dv, true);
-        
+
             let devPlaces = document.getElementsByClassName('dev-place');
-            for (let i = 0; i < devPlaces.length; ++i)
+
+            let name = dv.getElementsByClassName("dv-palace-name")[0];
+            let descr = dv.getElementsByClassName("dv-place-info")[0]; 
+
+            for (let i = 0; i < devPlaces.length; ++i) {
+                name.textContent = placeNames[i][0];
+                descr.textContent = placeNames[i][1];
+
                 devPlaces[i].appendChild(document.importNode(dv, true));
-            
+            }
+
                 // console.log("dev", devPlaces);
 
             // [devPlaces].forEach(element => {
@@ -178,6 +210,46 @@
             // });
         }
     
+        function setDeviceInfo(info) {
+            let dv = document.getElementById(info.id);
+
+            let dvStatus = dv.getElementsByClassName("deviceStatus")[0];
+            let statusText = dv.getElementsByClassName("deviceStatusText")[0];
+
+            dvStatus.className = dvStatus.className.replace(/dvs[A-Z]+/g, "dvs" + info.state.toUpperCase());
+                        
+            statusText.textContent = info.state;
+        }
+
+        function UpdateScheme() {
+            console.log("UpdateScheme");
+
+            let dvList = parent.document.getElementsByClassName("deviceView");
+            let schemeDevices = document.getElementsByClassName('device');
+
+            [].forEach.call(schemeDevices, (place) => {
+                let placeName = place.querySelector('.dv-place-info').textContent + ' ' + 
+                                place.querySelector('.dv-palace-name').textContent;
+
+                let i;
+                for ( i = 0; i < dvList.length; i++) {
+                    let dv = dvList[i];
+                    let name = dv.getElementsByClassName("deviceName")[0].value;
+
+                    if (name == placeName) {
+                        place.id = dv.id;
+                        let status = dv.getElementsByClassName("deviceStatusText")[0].textContent;
+
+                        setDeviceInfo({ 'id': dv.id, 'state': status });
+
+                        break;
+                    }
+                }
+                
+                place.classList.toggle("disconnected", i >= dvList.length);
+            });
+        }
+
         fill_scheme();
     </script>
     

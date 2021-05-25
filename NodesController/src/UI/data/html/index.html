@@ -5,6 +5,7 @@
 	<title>Diamond</title>
 	
 	<link rel="stylesheet" href="src/css/general.css">
+	<link rel="stylesheet" href="src/css/status.css">
 </head>
 
 <body>
@@ -86,7 +87,7 @@
 			<div class="schemeContainer tabContent" id="Scheme">
 				<iframe id="mainScheme" src="main_scheme.html" frameborder="0"
 						sandbox="allow-same-origin allow-forms allow-modals allow-pointer-lock allow-popups allow-popups-to-escape-sandbox allow-scripts allow-top-navigation"
-						onload="resizeIframe(this)"></iframe>
+						onload="OnSchemeContainerLoaded(this)"></iframe>
 			</div>
 
 			<div id="actionPanel" hidden>
@@ -165,8 +166,13 @@
 		<div>
 			<button onclick="reportAll()">Report All</button>
 		</div>
-		<div>
-			<button onclick="resetAll()">Reset All</button>
+		<div style="display: flex; align-items: center; margin: 20px 0">
+			<label style="margin-right: 20px; color: lightgray;">Reset All:</label>
+			<button onclick="resetAll('None')">None</button>
+			<button onclick="resetAll('Free')">Free</button>
+			<button onclick="resetAll('Busy')">Busy</button>
+			<button onclick="resetAll('Ready')">Ready</button>
+			<button onclick="resetAll('SOS')">SOS</button>
 		</div>
 	</div>
 	

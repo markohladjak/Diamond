@@ -58,13 +58,15 @@ function addDevice(dvInfo) {
 	devicesList.appendChild(createDeviceView(dvInfo, sequence));
 
   	console.log("addDevice", dvInfo.id, dvInfo.name, dvInfo.state, dvInfo.version);
+
+	UpdateScheme();
 }
 
 function removeDevice(id) {
   	document.getElementById(id).remove();
 }
 
-function setDeviceInfo(info){
+function setDeviceInfo(info) {
   	let dv = document.getElementById(info.id);
 
 	let dvStatus = dv.getElementsByClassName("deviceStatus")[0];
@@ -73,6 +75,8 @@ function setDeviceInfo(info){
 	dvStatus.className = dvStatus.className.replace(/dvs[A-Z]+/g, "dvs" + info.state.toUpperCase());
 				
 	statusText.textContent = info.state;
+
+	document.getElementById("mainScheme").contentWindow.setDeviceInfo(info);
 }
 
 function setDeviceName(info){
@@ -97,6 +101,8 @@ function refreshAll(data) {
 	
 	for (let i=0; i < ids.length; i++) 
 		addDevice( { 'id': ids[i], 'state': m[ids[i]].state, 'name': m[ids[i]].name, 'version': m[ids[i]].version } );
+
+	UpdateScheme();
 }
 
 function openTab(evt, tabName) {
@@ -180,7 +186,7 @@ function reportAll()
 
 function resetAll(state = "NONE")
 {
-	let url = window.location.href + `reset_all`;
+	let url = window.location.href + `reset_all?state=${state}`;
 
 	httpGet(url);
 }
@@ -223,20 +229,30 @@ function offset(el) {
 }
 		
 function showActionPanel(el, event) {
+	let self_element = document.body.contains(el);
+
 	let dv = el.parentElement;
 	let menu = document.getElementById("actionPanel");
 	let menuTitle = menu.getElementsByClassName("actionPanelTitle")[0];
-	let checked = menu.getElementsByClassName("actionChecked");
 	let dvStatus = dv.getElementsByClassName("deviceStatus")[0];
 	
 	SelectedDeviceID = dv.id;
 	
-	menuTitle.textContent = 'Node:      ' + SelectedDeviceID;
+	menuTitle.textContent = "Node: " + SelectedDeviceID;
 	
 	let pos = offset(el);
+	let posX = event.pageX;
+	let posY = event.pageY;
+
+	if (!self_element) {
+		posX += mainScheme.offsetLeft;
+		posY += mainScheme.offsetTop;
+	}
 				
-	menu.style.top = (pos.top - 60) + "px"; 
-	menu.style.left = pos.left + "px"; 
+	// menu.style.top = (pos.top - 60) + "px"; 
+	// menu.style.left = pos.left + "px"; 
+	menu.style.top = (posY - 60) + "px"; 
+	menu.style.left = posX + "px"; 
 	
 	
 	for(let c = menu.firstElementChild; c != null; c = c.nextElementSibling){
@@ -337,12 +353,17 @@ function RequestNewDeviceName(id, name) {
 	httpGet(url);
 }
 
+function UpdateScheme() {
+	// document.getElementById("mainScheme").contentWindow.UpdateScheme();
+	mainScheme.contentWindow.UpdateScheme();
+}
+
 function localTest() {
-	let dv_info = { 'id' : "24c438bd9e7c0001", 'name' : "", 'state': "Free", 'is_connected' : true };
+	let dv_info = { 'id' : "24c438bd9e7c0001", 'name' : "Lift 1", 'state': "Free", 'is_connected' : true };
 	
 	addDevice(dv_info);
 	
-	dv_info = { 'id' : "3451234145256345`", 'name' : "", 'state': "Busy", 'is_connected' : false };
+	dv_info = { 'id' : "3451234145256345", 'name' : "Lift 2", 'state': "Busy", 'is_connected' : false };
 	addDevice(dv_info);
 	
 	//		addDevice("1", "Free", "", false);
@@ -352,10 +373,10 @@ function localTest() {
 	//		removeDevice("1");
 }		
 
-function resizeIframe(obj) {
-    obj.style.height = obj.contentWindow.document.documentElement.scrollHeight + 'px';
+function OnSchemeContainerLoaded(obj) {
+    // obj.style.height = obj.contentWindow.document.documentElement.scrollHeight + 'px';
 
-	console.log("resizeIframe", obj.style.height);
+	UpdateScheme();
 }
 
 serverSendInit();

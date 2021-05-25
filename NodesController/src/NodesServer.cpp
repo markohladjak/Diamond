@@ -59,13 +59,10 @@ void NodesServer::ReportAll() {
 void NodesServer::ResetAll(LiftState state) {
 	LogService::Log("NodesServer::ResetAll", state);
 
-//	NetAddress addr = NetAddress::BROADCAST;
-//	LiftNetMessage msg;
-//
-//	msg.Event = NetEvent::REQUEST_DEVICE_STATE;
-//	msg.State = state;
-//
-//	_netService->Send(msg, addr);
+	auto cmd = new SetLiftStateCommand();
+	cmd->State = state;
+
+	_netService->Send(cmd);
 }
 
 void NodesServer::set_info(NetAddress addr, LiftState state, String name) {
