@@ -109,6 +109,8 @@ void WebServer::resource_subscription() {
 	_server->on("/src/img/email.svg", HTTP_GET, resource_response);
 	_server->on("/src/img/lock.svg", HTTP_GET, resource_response);
 	_server->on("/src/img/visible.svg", HTTP_GET, resource_response);
+	_server->on("/src/css/status.css", HTTP_GET, resource_response);
+	_server->on("/main_scheme.html", HTTP_GET, resource_response);
 }
 
 void WebServer::resource_response(AsyncWebServerRequest *request) {
@@ -202,7 +204,14 @@ void WebServer::rq_report_all(AsyncWebServerRequest *request) {
 }
 
 void WebServer::rq_reset_all(AsyncWebServerRequest *request) {
-	_nodesServer->ResetAll();
+	JsonHelper doc;
+
+    for(int i = 0; i < request->params(); i++){
+        auto p = request->getParam(i);
+        doc[p->name()] = p->value();
+    }
+
+    _nodesServer->ResetAll(LiftState::FromString(doc["state"]));
 
 	request->send(200, "text/html", "");
 }

@@ -86,6 +86,8 @@ function setDeviceName(info){
 
 	dvName.value = info.name;
 	dvName.name = info.name;
+
+	UpdateScheme();
 }
 
 function refreshAll(data) {
@@ -377,6 +379,24 @@ function OnSchemeContainerLoaded(obj) {
     // obj.style.height = obj.contentWindow.document.documentElement.scrollHeight + 'px';
 
 	UpdateScheme();
+}
+
+var pressTimer;
+
+function OnDeviceNameContainerMouseDown(e) 
+{
+	console.log(e.target);
+
+	var pressed = e.target;
+	pressTimer = window.setTimeout(function() { 
+		pressed.readOnly = '';
+		pressed.select();
+	},1000);
+}
+
+function OnDeviceNameContainerMouseUp(e) 
+{
+	clearTimeout(pressTimer);
 }
 
 serverSendInit();

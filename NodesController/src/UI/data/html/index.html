@@ -59,8 +59,9 @@
 					<div id="devicesList"></div>
 					<template id="deviceViewTemplate">
 						<div class="deviceView">
-							<div class=deviceNameContainer>
-								<input class="deviceName" type="text" spellcheck="false" readonly=true
+							<div class=deviceNameContainer onmousedown="OnDeviceNameContainerMouseDown(event)"
+								onmouseup="OnDeviceNameContainerMouseUp(event)">
+								<input class="deviceName disable-select" type="text" spellcheck="false" readonly=true
 										ondblclick="this.readOnly=''; this.focus(); this.select();" 
 										onfocusout="this.readOnly='true'; OnDeviceNameEditFinished(event);"
 										onkeypress="OnDeviceNameKeyPress(event)">
