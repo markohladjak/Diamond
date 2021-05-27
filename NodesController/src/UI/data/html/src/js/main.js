@@ -157,7 +157,7 @@ function createDeviceView(info, sequence) {
 	
 	deviceName.value = name;
 	deviceName.name = name;
-	deviceName.placeholder=id;
+	deviceName.placeholder = id;
 	deviceName.maxLength = MAX_DEVICE_NAME_LENGHT;
 	
 	status.classList.add("dvs" + state.toUpperCase());
@@ -345,8 +345,27 @@ function OnDeviceNameKeyPress(event) {
     //alert(event.keyCode);
 }
 
+function OnDeviceNameEditStarted(event) {
+	console.log("OnDeviceNameEditStarted");
+	let field = event.target.querySelector(".deviceName");
+	
+	field.style="pointer-events:auto";
+	field.readOnly = false;
+	// field.select();
+	field.focus();
+}
+
 function OnDeviceNameEditFinished(event) {
-	event.target.value = event.target.name;	
+	console.log("OnDeviceNameEditFinished");
+
+	let field = event.target;
+	field.value = field.name;	
+
+	field.readOnly = true;
+	field.style="pointer-events:none";
+
+	// field.selectionStart = 0;
+	// field.selectionEnd = 0;
 }
 
 function RequestNewDeviceName(id, name) {
@@ -357,7 +376,8 @@ function RequestNewDeviceName(id, name) {
 
 function UpdateScheme() {
 	// document.getElementById("mainScheme").contentWindow.UpdateScheme();
-	mainScheme.contentWindow.UpdateScheme();
+	if (checkIframeLoaded())
+		mainScheme.contentWindow.UpdateScheme();
 }
 
 function localTest() {
@@ -383,21 +403,32 @@ function OnSchemeContainerLoaded(obj) {
 
 var pressTimer;
 
-function OnDeviceNameContainerMouseDown(e) 
+function OnDeviceNameContainerTouchStart(e) 
 {
-	console.log(e.target);
+	console.log("OnDeviceNameContainerTouchStart", e.srcElement);
 
-	var pressed = e.target;
+	e.preventDefault();
+
 	pressTimer = window.setTimeout(function() { 
-		pressed.readOnly = '';
-		pressed.select();
-	},1000);
+		OnDeviceNameEditStarted(e);
+	}, 1000);
 }
 
-function OnDeviceNameContainerMouseUp(e) 
+function OnDeviceNameContainerTouchEnd(e) 
 {
+	console.log("OnDeviceNameContainerTouchEnd", e.srcElement);
+
+	e.preventDefault();
+
 	clearTimeout(pressTimer);
 }
+
+function checkIframeLoaded() {
+	return  (typeof mainScheme.contentWindow.UpdateScheme === "function");
+    // var iframeDoc = mainScheme.contentDocument || mainScheme.contentWindow.document;
+
+    // return iframeDoc.readyState  == 'complete';
+} 
 
 serverSendInit();
 localTest();

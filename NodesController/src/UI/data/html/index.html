@@ -4,6 +4,10 @@
 <head>
 	<title>Diamond</title>
 	
+	<!-- <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+	<meta http-equiv="Pragma" content="no-cache">
+	<meta http-equiv="Expires" content="0"> -->
+
 	<link rel="stylesheet" href="src/css/general.css">
 	<link rel="stylesheet" href="src/css/status.css">
 </head>
@@ -56,14 +60,17 @@
 				</div>
 				
 				<div>
-					<div id="devicesList"></div>
+		<div id="devicesList"></div>
 					<template id="deviceViewTemplate">
 						<div class="deviceView">
-							<div class=deviceNameContainer onmousedown="OnDeviceNameContainerMouseDown(event)"
-								onmouseup="OnDeviceNameContainerMouseUp(event)">
-								<input class="deviceName disable-select" type="text" spellcheck="false" readonly=true
+							<div class=deviceNameContainer 
+								ondblclick="OnDeviceNameEditStarted(event)"
+								ontouchstart="OnDeviceNameContainerTouchStart(event)"
+								ontouchend="OnDeviceNameContainerTouchEnd(event)"
+											>
+								<input class="deviceName" type="text" spellcheck="false" readonly=true
 										ondblclick="this.readOnly=''; this.focus(); this.select();" 
-										onfocusout="this.readOnly='true'; OnDeviceNameEditFinished(event);"
+										onfocusout="OnDeviceNameEditFinished(event);"
 										onkeypress="OnDeviceNameKeyPress(event)">
 							</div>
 							<div class="deviceStatus" onclick="showActionPanel(this, event)">

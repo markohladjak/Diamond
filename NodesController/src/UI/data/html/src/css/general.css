@@ -330,9 +330,13 @@
 		margin-left: -10px;
 		padding-left: 10px;
 		padding-right: 10px;
+
+		pointer-events:none
 	}
 	
-	.deviceName:read-write {
+	.deviceName:focus {
+		-webkit-appearance: none;
+		
 		box-shadow: 0 0 2pt 1pt #53B1F4 inset;
 		border-radius: 8px;
 	}
