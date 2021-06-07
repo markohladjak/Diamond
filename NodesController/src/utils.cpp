@@ -7,6 +7,7 @@
 
 #include <utils.h>
 #include <version.h>
+#include <LogService.h>
 
 namespace diamon {
 
@@ -64,6 +65,29 @@ String utils::GetVersion() {
 #else
 	return "0.0.0.0";
 #endif
+}
+
+KeyValuePairsT utils::ParseKayValue(std::string str)
+{
+	char s[str.size()];
+	strcpy(s, str.c_str());
+
+	char *exp, *s_ptr = s;
+	char *p1, *p2;
+
+	KeyValuePairsT res;
+
+	while ((exp = strtok_r(s_ptr, " ;", &p1)))
+	{
+		auto key = strtok_r(exp, "=", &p2);
+		auto value = strtok_r(NULL, "=", &p2);
+
+		res[key] = value;
+
+		s_ptr = NULL;
+	}
+
+	return res;
 }
 
 } /* namespace diamon */

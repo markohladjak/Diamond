@@ -139,12 +139,16 @@ bool WebServer::check_access(AsyncWebServerRequest *request) {
     if (!cookie)
     	return false;
 
-    String id = cookie->value();;
-	id.remove(0, 10);
+    auto pairs = utils::ParseKayValue(cookie->value().c_str());
 
-	LogService::Log("check_access  ID", id);
+	for (auto v: pairs)
+		LogService::Log(v.first.c_str(), v.second.c_str());
 
-    auto hwo = _access_list.find(id);
+    auto id = pairs["session_id"];
+
+    LogService::Log("check_access  ID", id.c_str());
+
+    auto hwo = _access_list.find(id.c_str());
     if (hwo != _access_list.end())
     	return true;
 
@@ -174,7 +178,9 @@ void WebServer::rq_signin(AsyncWebServerRequest *request) {
 
 		auto response = request->beginResponse(302, "text/html", "");
 
-		response->addHeader("Set-Cookie", "sessionID=" + sessionID);
+		response->addHeader("Set-Cookie", "session_id=" + sessionID);
+		response->addHeader("Set-Cookie", "user_name=" + _access_list[sessionID]);
+
 		response->addHeader("Location", "/");
 
 		request->send(response);

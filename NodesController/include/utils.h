@@ -11,8 +11,11 @@
 #include <Arduino.h>
 #include <functional>
 #include <typecase.h>
+#include <map>
 
 namespace diamon {
+
+typedef std::map<std::string, std::string> KeyValuePairsT;
 
 class utils {
 public:
@@ -24,6 +27,8 @@ public:
 	static String UINT64ToString(uint64_t val);
 	static uint64_t StringToUINT64(String str);
 	static String GetVersion();
+
+	static KeyValuePairsT ParseKayValue(std::string str);
 };
 
 template <typename T, typename B>

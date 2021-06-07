@@ -107,7 +107,7 @@ function refreshAll(data) {
 	UpdateScheme();
 }
 
-function openTab(evt, tabName) {
+function openTab(obj, tabName) {
 	let i, tabcontent, tablinks;
 	tabcontent = document.getElementsByClassName("tabContent");
 	for (i = 0; i < tabcontent.length; i++) {
@@ -118,7 +118,7 @@ function openTab(evt, tabName) {
 		tablinks[i].className = tablinks[i].className.replace(" active", "");
 	}
 	document.getElementById(tabName).style.display = "block";
-	evt.currentTarget.className += " active";
+	obj.className += " active";
 }
 		
 function createDeviceView(info, sequence) {
@@ -216,7 +216,11 @@ function changeWIFIMode() {
 
 function openNav() {
 	w = document.getElementById("mySidenav").style.width;
-	document.getElementById("mySidenav").style.width = w == "0px" ? "250px" : "0px";
+	
+	if (!w || w == "0px")
+		document.getElementById("mySidenav").style.width = "250px";
+	else 
+		document.getElementById("mySidenav").style.width = "0px";
 }
 
 function closeNav() {
@@ -381,16 +385,27 @@ function UpdateScheme() {
 }
 
 function localTest() {
-	let dv_info = { 'id' : "24c438bd9e7c0001", 'name' : "Lift 1", 'state': "Free", 'is_connected' : true };
-	
+	let states = ['Free', 'Busy', 'Ready', 'SOS'];
+	let randState = function() { return states[Math.floor(Math.random() * 4)], 'Free'; }
+
+	let dv_info;
+
+	for (let i = 1; i <= 21; ++i) { 
+		dv_info = { 'id' : "24c438bd9e7c00" + i, 'name' : "Lift " + i, 'state': randState(), 'is_connected' : true };
+		addDevice(dv_info);
+	}	
+
+	dv_info = { 'id' : "24c438bd9e7c00" + '22', 'name' : "Washing " + '22', 'state': randState(), 'is_connected' : true };
 	addDevice(dv_info);
-	
-	dv_info = { 'id' : "3451234145256345", 'name' : "Lift 2", 'state': "Busy", 'is_connected' : false };
+
+	dv_info = { 'id' : "24c438bd9e7c00" + '25', 'name' : "Geometry " + '25', 'state': randState(), 'is_connected' : true };
 	addDevice(dv_info);
+
+	for (let i = 26; i <= 28; ++i) {
+		dv_info = { 'id' : "24c438bd9e7c00" + i, 'name' : "Washing " + i, 'state': randState(), 'is_connected' : true };
+		addDevice(dv_info);
+	}	
 	
-	//		addDevice("1", "Free", "", false);
-	//		addDevice("2", "Busy", "");
-	//		addDevice("3", "SOS", "");
 	//		setDeviceState("0", "Ready");
 	//		removeDevice("1");
 }		
@@ -399,6 +414,10 @@ function OnSchemeContainerLoaded(obj) {
     // obj.style.height = obj.contentWindow.document.documentElement.scrollHeight + 'px';
 
 	UpdateScheme();
+
+	obj.contentWindow.document.documentElement.ondblclick = function() {
+		toggleFullscreen();
+	};
 }
 
 var pressTimer;
@@ -430,5 +449,39 @@ function checkIframeLoaded() {
     // return iframeDoc.readyState  == 'complete';
 } 
 
+function UpdateAccountInfo() {
+	var userName;
+
+	try {
+		userName = document.cookie
+				.split('; ')
+				.find(row => row.startsWith('user_name='))
+				.split('=')[1];
+	} catch {}
+
+	document.querySelector("#user_name").textContent = userName || "NoUser";
+}
+
 serverSendInit();
 localTest();
+
+UpdateAccountInfo();
+
+openTab(document.querySelector(".lefttablink"), "List")
+
+function getFullscreenElement() {
+	return document.fullscreenElement
+		|| document.webkitFullscreenElement
+		|| document.mozFullscreenElement
+		|| document.msFullscreenElement;
+	}
+
+function toggleFullscreen() {
+	let elem = document.querySelector("#mainScheme");
+
+	if (!getFullscreenElement()) {
+		elem.webkitRequestFullscreen();
+	} else {
+		document.webkitExitFullscreen();
+	}
+}
