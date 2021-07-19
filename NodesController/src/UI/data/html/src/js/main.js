@@ -421,6 +421,7 @@ function OnSchemeContainerLoaded(obj) {
 }
 
 var pressTimer;
+var shouldEditNameStart = false;
 
 function OnDeviceNameContainerTouchStart(e) 
 {
@@ -429,7 +430,7 @@ function OnDeviceNameContainerTouchStart(e)
 	e.preventDefault();
 
 	pressTimer = window.setTimeout(function() { 
-		OnDeviceNameEditStarted(e);
+		shouldEditNameStart = true;
 	}, 1000);
 }
 
@@ -440,6 +441,22 @@ function OnDeviceNameContainerTouchEnd(e)
 	e.preventDefault();
 
 	clearTimeout(pressTimer);
+
+	if (shouldEditNameStart == true)
+		OnDeviceNameEditStarted(e);
+
+	shouldEditNameStart = false;
+}
+
+function OnDeviceNameContainerTouchCancel(e)
+{
+	clearTimeout(pressTimer);
+	shouldEditNameStart = false;
+}
+
+function OnDeviceNameContainerTouchMove(e)
+{
+	// OnDeviceNameContainerTouchCancel(e);
 }
 
 function checkIframeLoaded() {
