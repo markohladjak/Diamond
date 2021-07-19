@@ -40,11 +40,20 @@ uint64_t utils::GenerateDeviceID(byte id) {
 	return ((ESP.getEfuseMac()) << 16) + id;
 }
 
-String utils::UINT64ToString(uint64_t val) {
-	  uint32_t Vh = (unsigned long)((val & 0xFFFFFFFF00000000) >> 32 );
-	  uint32_t Vl = (unsigned long)((val & 0x00000000FFFFFFFF));
+//String utils::UINT64ToString(uint64_t val) {
+//	  uint32_t Vh = (unsigned long)((val & 0xFFFFFFFF00000000) >> 32 );
+//	  uint32_t Vl = (unsigned long)((val & 0x00000000FFFFFFFF));
+//
+//	  return String(Vh, HEX) + String(Vl, HEX);
+//}
 
-	  return String(Vh, HEX) + String(Vl, HEX);
+String utils::UINT64ToString(uint64_t val) {
+	char buf[17];
+	uint8_t *ref = (uint8_t*)&val;
+
+	sprintf(buf, "%02x%02x%02x%02x%02x%02x%02x%02x", ref[7], ref[6], ref[5], ref[4], ref[3], ref[2], ref[1], ref[0]);
+
+	return buf;
 }
 
 uint64_t utils::StringToUINT64(String val) {
