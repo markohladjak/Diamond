@@ -10,16 +10,17 @@
 #include "esp_wifi.h"
 #include "esp_system.h"
 #include "esp_event.h"
+#include "esp_event_loop.h"
 #include "esp_log.h"
 #include "esp_mesh_internal.h"
+#include "mdns.h"
 #include "nvs_flash.h"
 #include <Net/ESP32MeshNetService.h>
 #include <LogService.h>
-#include <ESPmDNS.h>
 #include <Net/NetMessage.h>
 #include <Net/NetAddress.h>
 
-
+#include <ESP32Ping.h>
 
 
 #include <WString.h>
@@ -185,11 +186,46 @@ void ESP32MeshNetService::OnReceive(NetAddress from, void (*onReceive)(NetMessag
 
     }
 
-void ESP32MeshNetService::setWIFIMode(diamon::WIFIMODE mode, String ssid, String pw) {
+void ESP32MeshNetService::setWIFIMode(String ssid, String pw) {
+//	mesh_router_t router;
+//
+//	memset(&router, 0, sizeof(router));
+//
+//	memcpy(router.ssid, ssid.c_str(), ssid.length());
+//	memcpy(router.password, pw.c_str(), pw.length());
+//	router.ssid_len = ssid.length();
+//	router.allow_router_switch = true;
+
+	wifi_config_t parent_cfg;
+
+    memset(&parent_cfg, 0, sizeof(wifi_config_t));
+
+    parent_cfg.sta.bssid_set = false;
+    parent_cfg.sta.channel = _router_chennel;
+
+    memcpy((uint8_t *) &parent_cfg.sta.ssid, ssid.c_str(), ssid.length());
+    memcpy((uint8_t *) &parent_cfg.sta.password, pw.c_str(), pw.length());
+
+//	LogService::Log("Set new router", (const char *)router.ssid);
+//	LogService::Log("     pw", (const char *)router.password);
+
+//	ESP_ERROR_CHECK(esp_mesh_set_self_organized(0, 0));
+
+//	esp_mesh_disconnect();
+
+	esp_mesh_set_parent(&parent_cfg, NULL, mesh_type_t::MESH_ROOT, MESH_ROOT_LAYER);
+
+//	esp_mesh_set_router(&router);
+
+//	ESP_ERROR_CHECK(esp_mesh_set_self_organized(1, 0));
 }
 
 std::list<NetAddress> ESP32MeshNetService::GetConnectedDevices() {
 	return std::list<NetAddress>();
+}
+
+void ESP32MeshNetService::GetAPList() {
+	wifi_scan();
 }
 
 void ESP32MeshNetService::OnLayerChangedCallbackRegister(_layer_changed_callback_funct_t funct) {
@@ -198,6 +234,58 @@ void ESP32MeshNetService::OnLayerChangedCallbackRegister(_layer_changed_callback
 
 void ESP32MeshNetService::OnIsRootCallbackRegister(_is_root_callback_funct_t funct){
 	_is_root_callback_funct = funct;
+}
+
+esp_err_t ESP32MeshNetService::system_event_handler(void *ctx, system_event_t *event)
+{
+    switch(event->event_id) {
+    	case SYSTEM_EVENT_STA_GOT_IP:
+			printf("Event: SYSTEM_EVENT_STA_GOT_IP\n");
+
+	        if (esp_mesh_is_root())
+				run_mdns();
+
+			break;
+
+		case SYSTEM_EVENT_SCAN_DONE:
+//		{
+//			wifi_ap_record_t *ap_info = NULL;
+//			uint16_t ap_count = 0;
+//
+//			ESP_ERROR_CHECK(esp_wifi_scan_get_ap_num(&ap_count));
+//
+//			LogService::Log("wifi_scan", "1");
+//
+//			ap_info = new wifi_ap_record_t[ap_count];
+//			memset(ap_info, 0, sizeof(wifi_ap_record_t) * ap_count);
+//			LogService::Log("wifi_scan", "2");
+//
+//			ESP_ERROR_CHECK(esp_wifi_scan_get_ap_records(&ap_count, ap_info));
+//
+//			LogService::Log("wifi_scan", "3");
+//
+//			for (int i = 0; i < ap_count; i++) {
+//				ESP_LOGI(TAG, "SSID \t\t%s     ", ap_info[i].ssid);
+//				ESP_LOGI(TAG, "RSSI \t\t%d     ", ap_info[i].rssi);
+//		//        print_auth_mode(ap_info[i].authmode);
+//		//        if (ap_info[i]->authmode != WIFI_AUTH_WEP) {
+//		//            print_cipher_type(ap_info[i].pairwise_cipher, ap_info[i].group_cipher);
+//		//        }
+//				ESP_LOGI(TAG, "Channel \t\t%d\n", ap_info[i].primary);
+//			}
+//
+//			delete [] ap_info;
+//
+//			esp_mesh_set_self_organized(1, 0);
+//			esp_mesh_connect();
+//
+//		}
+    	break;
+    default:
+        break;
+    }
+
+    return ESP_OK;
 }
 
 void ESP32MeshNetService::init() {
@@ -214,8 +302,7 @@ void ESP32MeshNetService::init() {
 	    ESP_ERROR_CHECK(tcpip_adapter_dhcps_stop(TCPIP_ADAPTER_IF_AP));
 	    ESP_ERROR_CHECK(tcpip_adapter_dhcpc_stop(TCPIP_ADAPTER_IF_STA));
 
-
-	    if (_is_root) {
+	    if (_is_root && 0/*if static IP*/) {
 			/* static ip settings */
 			tcpip_adapter_ip_info_t sta_ip;
 			sta_ip.ip.addr = ipaddr_addr("10.10.10.10");
@@ -224,8 +311,12 @@ void ESP32MeshNetService::init() {
 			tcpip_adapter_set_ip_info(tcpip_adapter_if_t::TCPIP_ADAPTER_IF_STA, &sta_ip);
 	    }
 
+//	    	esp_wifi_scan_get_ap_num
+//	    	esp_timer_get_time
+//	    	esp_mesh_get_tsf_time
+
 	    /*  wifi initialization */
-	    ESP_ERROR_CHECK(esp_event_loop_init(NULL, NULL));
+	    ESP_ERROR_CHECK(esp_event_loop_init(system_event_handler, NULL));
 	    wifi_init_config_t config = WIFI_INIT_CONFIG_DEFAULT();
 	    ESP_ERROR_CHECK(esp_wifi_init(&config));
 	    ESP_ERROR_CHECK(esp_wifi_set_storage(WIFI_STORAGE_RAM));
@@ -245,7 +336,7 @@ void ESP32MeshNetService::init() {
 	    memset(&cfg, 0, sizeof(mesh_cfg_t));
 
 	    cfg.crypto_funcs = &g_wifi_default_mesh_crypto_funcs;
-	    cfg.allow_channel_switch = false;
+	    cfg.allow_channel_switch = true;
 
 	    memcpy((uint8_t *) &cfg.mesh_id, MESH_ID, 6);
 	    cfg.event_cb = &mesh_event_handler;
@@ -254,6 +345,10 @@ void ESP32MeshNetService::init() {
 	    cfg.router.ssid_len = _router_ssid.length();
 	    memcpy((uint8_t *) &cfg.router.ssid, _router_ssid.c_str(), cfg.router.ssid_len);
 	    memcpy((uint8_t *) &cfg.router.password, _router_pw.c_str(), _router_pw.length());
+
+
+	    LogService::Log("ssid", (const char*)cfg.router.ssid);
+	    LogService::Log("pass", (const char*)cfg.router.password);
 
 	    /* mesh softAP */
 	    ESP_ERROR_CHECK(esp_mesh_set_ap_authmode(wifi_auth_mode_t::WIFI_AUTH_WPA_WPA2_PSK));
@@ -351,9 +446,9 @@ void ESP32MeshNetService::mesh_event_handler(mesh_event_t event)
 
         mesh_data_rxtx_start();
 
-//		if (esp_mesh_is_root()) {
-//			tcpip_adapter_dhcpc_start(TCPIP_ADAPTER_IF_STA);
-//		}
+		if (esp_mesh_is_root()) {
+			tcpip_adapter_dhcpc_start(TCPIP_ADAPTER_IF_STA);
+		}
 //        esp_mesh_comm_p2p_start();
         break;
     case MESH_EVENT_PARENT_DISCONNECTED:
@@ -390,13 +485,9 @@ void ESP32MeshNetService::mesh_event_handler(mesh_event_t event)
                  IP2STR(&event.info.got_ip.ip_info.ip),
                  IP2STR(&event.info.got_ip.ip_info.netmask),
                  IP2STR(&event.info.got_ip.ip_info.gw));
-
-        if (esp_mesh_is_root()) {
-        	run_mdns();
-        }
         break;
     case MESH_EVENT_ROOT_LOST_IP:
-        ESP_LOGI(MESH_TAG, "<MESH_EVENT_ROOT_LOST_IP>");
+        ESP_LOGI(MESH_TAG, "<MESH_EVENT_ROOT_LOST_IP>\n");
         break;
     case MESH_EVENT_VOTE_STARTED:
         ESP_LOGI(MESH_TAG,
@@ -667,10 +758,16 @@ void ESP32MeshNetService::run_mdns() {
 		return;
 	started = true;
 
-	if (!MDNS.begin("diamond")) {
+    esp_err_t err = mdns_init();
+    if (err) {
 		LogService::Log("MDNS", "Error setting up MDNS responder!");
-	} else
-		LogService::Log("MDNS", "Started.");
+        return;
+    }
+
+    mdns_hostname_set("diamond");
+    mdns_instance_name_set("Nodes Controller");
+
+	LogService::Log("MDNS", "Started.");
 }
 
 void ESP32MeshNetService::on_this_became_root() {
@@ -699,6 +796,13 @@ void ESP32MeshNetService::on_routing_table_changed(){
 void ESP32MeshNetService::on_root_address() {
 	for (auto netdvs: _local)
 		netdvs.second->OnRootAddressObtainedEvent();
+
+
+	  if(!Ping.ping("8.8.8.8")){
+		  Serial.println("Ping failed");
+	  } else
+		  Serial.println("Ping succesful.");
+
 }
 
 uint64_t ESP32MeshNetService::self_address(uint16_t device_num) {
@@ -727,6 +831,98 @@ void ESP32MeshNetService::print_route_table() {
 	for (int i = 0; i < route_table_size; ++i) {
 		printf("%3d    " MACSTR "\n", i, MAC2STR(route_table[i].addr));
 	}
+}
+
+//void ESP32MeshNetService::mesh_rx_task(void *args) {
+
+void ESP32MeshNetService::wifi_scan(void)
+{
+	LogService::Log("wifi_scan", "");
+
+    xTaskCreate([](void* args) {
+    	static char *ap_name = "Tenda_0AD898";
+
+
+        wifi_scan_config_t cfg = {
+			.ssid = NULL,
+    //	        .ssid = (uint8_t*)ap_name,
+            .bssid = NULL,
+            .channel = 0,
+            .show_hidden = false,
+            .scan_type = WIFI_SCAN_TYPE_ACTIVE,
+        };
+
+        cfg.scan_time.passive = 4000;
+        cfg.scan_time.active.min = 0;
+        cfg.scan_time.active.max = 1000;
+
+
+        esp_mesh_stop();
+//        ESP_ERROR_CHECK(esp_mesh_set_self_organized(0, 0));
+//        esp_wifi_scan_stop();
+
+//        esp_wifi_disconnect();
+//        esp_mesh_disconnect();
+        delay(3000);
+        esp_mesh_start();
+
+        vTaskDelete(NULL);
+
+        return;
+
+
+//        esp_wifi_get_config(interface, conf)
+//        wifi_init_config_t wcfg = WIFI_INIT_CONFIG_DEFAULT();
+
+//        ESP_ERROR_CHECK(esp_wifi_stop());
+//        ESP_ERROR_CHECK(esp_wifi_init(&wcfg));
+
+
+//        ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config) );
+//        ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_APSTA));
+//        ESP_ERROR_CHECK(esp_wifi_start());
+
+
+        ESP_ERROR_CHECK(esp_wifi_scan_start(NULL, true));
+
+        wifi_ap_record_t *ap_info = NULL;
+    	uint16_t ap_count = 0;
+
+    	ESP_ERROR_CHECK(esp_wifi_scan_get_ap_num(&ap_count));
+
+    	LogService::Log("wifi_scan, count", String(ap_count));
+
+    	ap_info = new wifi_ap_record_t[ap_count];
+    	memset(ap_info, 0, sizeof(wifi_ap_record_t) * ap_count);
+    	LogService::Log("wifi_scan", "2");
+
+    	ESP_ERROR_CHECK(esp_wifi_scan_get_ap_records(&ap_count, ap_info));
+
+    	LogService::Log("wifi_scan", "3");
+
+    	for (int i = 0; i < ap_count; i++) {
+    		ESP_LOGI(TAG, "SSID \t\t%s     ", ap_info[i].ssid);
+    		ESP_LOGI(TAG, "RSSI \t\t%d     ", ap_info[i].rssi);
+    //        print_auth_mode(ap_info[i].authmode);
+    //        if (ap_info[i]->authmode != WIFI_AUTH_WEP) {
+    //            print_cipher_type(ap_info[i].pairwise_cipher, ap_info[i].group_cipher);
+    //        }
+    		ESP_LOGI(TAG, "Channel \t\t%d\n", ap_info[i].primary);
+    	}
+
+    	delete [] ap_info;
+
+//    	esp_mesh_start();
+
+//        esp_wifi_connect();
+
+
+    	ESP_ERROR_CHECK(esp_mesh_set_self_organized(1, 0));
+    	ESP_ERROR_CHECK(esp_mesh_connect());
+
+        vTaskDelete(NULL);
+
+    }, "WST", 0x1000, NULL, 5, NULL);
 }
 
 } /* namespace diamon */

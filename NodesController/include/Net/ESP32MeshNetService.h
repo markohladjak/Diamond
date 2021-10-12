@@ -47,6 +47,8 @@ class ESP32MeshNetService: public INetService {
 	static void init();
 	static void deinit();
 
+	static esp_err_t system_event_handler(void *ctx, system_event_t *event);
+
 	static void mesh_event_handler(mesh_event_t event);
 	static void mesh_scan_done_handler(int num);
 	static void mesh_data_rxtx_start();
@@ -63,6 +65,8 @@ class ESP32MeshNetService: public INetService {
 	static uint64_t self_address(uint16_t device_num);
 
 	static void print_route_table();
+
+	static void wifi_scan(void);
 
 public:
 	NetAddress Address;
@@ -83,9 +87,12 @@ public:
 	void Send(CommunicationData* data, NetAddress to) override;
 
 	void OnReceive(NetAddress from,	void (*onReceive)(NetMessage&)) override;
-	void setWIFIMode(WIFIMODE mode, String ssid, String pw) override;
+	void setWIFIMode(String ssid, String pw) override;
 
 	std::list<NetAddress> GetConnectedDevices() override;
+
+	void GetAPList() override;
+
 
 	static void OnLayerChangedCallbackRegister(_layer_changed_callback_funct_t funct);
 	static void OnIsRootCallbackRegister(_is_root_callback_funct_t funct);

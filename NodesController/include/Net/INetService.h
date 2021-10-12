@@ -18,11 +18,6 @@ namespace diamon {
 
 class NetMessage;
 
-enum class WIFIMODE {
-	AP,
-	STATION
-};
-
 typedef std::list<NetAddress> device_list_t;
 
 class INetService {
@@ -38,7 +33,9 @@ public:
 
 	virtual void OnReceive(NetAddress from, void (*onReceive)(NetMessage &msg)) = 0;
 
-	virtual void setWIFIMode(WIFIMODE mode, String ssid, String pw) = 0;
+	virtual void setWIFIMode(String ssid, String pw) = 0;
+
+	virtual void GetAPList() = 0;
 
 	TEvent<NetAddress> OnDeviceConnected;
 	TEvent<NetAddress> OnDeviceDisconnected;

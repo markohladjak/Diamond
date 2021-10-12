@@ -6,9 +6,11 @@
 
 #include <Net/FA/FirmwareUpdate.h>
 #include "SPIFFS.h"
-#include <ESPmDNS.h>
 #include <Update.h>
 #include <utils.h>
+#include <mdns.h>
+
+#include <LogService.h>
 
 namespace diamon {
 
@@ -30,19 +32,24 @@ FirmwareUpdate::~FirmwareUpdate() {
 	SPIFFS.end();
 }
 
+void print_request(AsyncWebServerRequest *request) {
+	LogService::Log("HTTP Request", "URI: " + request->url() + "   "
+								  + "Type:" + request->contentType() + "   "
+								  + "Method:" + request->methodToString() + "   "
+								  + "Args:");
+
+	for (int a = 0; a < request->args(); ++a)
+		LogService::Log("       " + request->argName(a), request->arg(a));
+}
+
 void FirmwareUpdate::setup(void) {
 	_ssid = ssidName();
 
 	WiFi.softAP(_ssid.c_str(), _password.c_str());
 
-//	WiFi.onEvent(wifiEventCallback, SYSTEM_EVENT_STA_CONNECTED);
+	WiFi.onEvent(wifiEventCallback);
 
 	Serial.println("");
-
-	if (!MDNS.begin(_host.c_str()))  //http://esp32.local
-		Serial.println("Error setting up MDNS responder!");
-	else
-		Serial.println("mDNS responder started");
 
 	_server->on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
 		request->send(200, "text/html", loginIndex);
@@ -58,16 +65,26 @@ void FirmwareUpdate::setup(void) {
 
 	_server->on("/update", HTTP_POST, [](AsyncWebServerRequest *request) {
 		request->send(200, "text/plain", (Update.hasError()) ? "FAIL" : "OK");
+
+		delay(5000);
+
+
 		ESP.restart();
 	}
 	, [](AsyncWebServerRequest *request,
 			const String &filename, size_t index, uint8_t *data, size_t len,
 			bool Final) {
+
+		print_request(request);
+
 		uploadHandler(request, filename, index, data, len, Final, U_FLASH);
 	});
 
 	_server->on("/updatefs", HTTP_POST, [](AsyncWebServerRequest *request) {
 		request->send(200, "text/plain", (Update.hasError()) ? "FAIL" : "OK");
+
+		delay(5000);
+
 		ESP.restart();
 	}
 	, [](AsyncWebServerRequest *request,
@@ -80,10 +97,13 @@ void FirmwareUpdate::setup(void) {
 void FirmwareUpdate::uploadHandler(AsyncWebServerRequest *request,
 		const String &filename, size_t index, uint8_t *data, size_t len,
 		bool Final, int command) {
+
 	if(!index){
 		Serial.printf("Upload Start: %s\n", filename.c_str());
-		if (!Update.begin(UPDATE_SIZE_UNKNOWN, command, LED_BUILTIN, HIGH)) {
+		if (!Update.begin(UPDATE_SIZE_UNKNOWN, command, LED_BUILTIN, LOW)) {
 			Update.printError(Serial);
+
+			return;
 		}
 	}
 
@@ -108,6 +128,19 @@ String FirmwareUpdate::ssidName() {
 	return FA_SSID_PREFIX + utils::ESPEFuseMacStr();
 }
 
+void FirmwareUpdate::run_mdns() {
+    esp_err_t err = mdns_init();
+    if (err) {
+		Serial.println("MDNS: Error setting up MDNS responder!\n");
+        return;
+    }
+
+//    mdns_hostname_set(_host.c_str());
+    mdns_hostname_set("esp32");
+
+    Serial.println("MDNS: Started.");
+}
+
 void FirmwareUpdate::wifiEventCallback(WiFiEvent_t event, WiFiEventInfo_t info)
 {
 	switch(event) {
@@ -121,6 +154,20 @@ void FirmwareUpdate::wifiEventCallback(WiFiEvent_t event, WiFiEventInfo_t info)
 		break;
 	case SYSTEM_EVENT_STA_LOST_IP:
 		break;
+	case SYSTEM_EVENT_AP_START:
+		Serial.println("SYSTEM_EVENT_AP_START");
+		run_mdns();
+		break;
+	case SYSTEM_EVENT_AP_STACONNECTED:
+		Serial.println("SYSTEM_EVENT_AP_STACONNECTED");
+		break;
+	case SYSTEM_EVENT_AP_STADISCONNECTED:
+		Serial.println("SYSTEM_EVENT_AP_STADISCONNECTED");
+		break;
+	case SYSTEM_EVENT_AP_STAIPASSIGNED:
+		Serial.println("SYSTEM_EVENT_AP_STAIPASSIGNED");
+		break;
+
 	default:
 		break;
 	}
@@ -137,8 +184,8 @@ const char* FirmwareUpdate::loginIndex =
             "<br>"
             "<br>"
         "</tr>"
-        "<td>Username:</td>"
-        "<td><input type='text' size=25 name='userid'><br></td>"
+			"<td>Username:</td>"
+        	"<td><input type='text' size=25 name='userid'><br></td>"
         "</tr>"
         "<br>"
         "<br>"
@@ -175,12 +222,12 @@ const char* FirmwareUpdate::serverIndex =
 "<script src='/src/jquery-3.3.1.min.js'></script>"
 "<form method='POST' action='#' enctype='multipart/form-data' id='upload_form'>"
    "<input type='file' name='update'>"
-        "<input type='submit' value='Update'>"
-    "</form>"
+   "<input type='submit' value='Update'>"
+"</form>"
 "<form method='POST' action='#' enctype='multipart/form-data' id='uploadfs_form'>"
    "<input type='file' name='update_fs'>"
-		"<input type='submit' value='Update FS'>"
-	"</form>"
+   "<input type='submit' value='Update FS'>"
+"</form>"
  "<div id='prg'>progress: 0%</div>"
  "<script>"
   "$('#upload_form').submit(function(e){"

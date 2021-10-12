@@ -39,7 +39,7 @@ class WebServer : public IInLoop {
 	void rq_report_all(AsyncWebServerRequest *request);
 	void rq_reset_all(AsyncWebServerRequest *request);
 	void rq_request_name(AsyncWebServerRequest *request);
-
+	void rq_request_settings(AsyncWebServerRequest *request);
 
 	void print_request(AsyncWebServerRequest *request);
 public:

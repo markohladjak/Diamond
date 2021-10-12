@@ -23,13 +23,14 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/core/variant}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/ArduinoJson/src}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/AsyncTCP-master/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/SPIFFS/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/Update/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/WiFi/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/FS/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/ESPAsyncWebServer/src}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/ESPmDNS/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/TaskScheduler/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/AsyncTCP-master/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/ESP32Ping}&quot;"/>
 								</option>
 								<inputType id="io.sloeber.compiler.cpp.sketch.input.148211775" name="CPP source files" superClass="io.sloeber.compiler.cpp.sketch.input"/>
 							</tool>
@@ -38,13 +39,14 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/core/core}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/core/variant}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/ArduinoJson/src}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/AsyncTCP-master/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/SPIFFS/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/Update/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/WiFi/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/FS/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/ESPAsyncWebServer/src}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/ESPmDNS/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/TaskScheduler/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/AsyncTCP-master/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/ESP32Ping}&quot;"/>
 								</option>
 								<inputType id="io.sloeber.compiler.c.sketch.input.1873873713" name="C Source Files" superClass="io.sloeber.compiler.c.sketch.input"/>
 							</tool>
@@ -53,13 +55,14 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/core/core}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/core/variant}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/ArduinoJson/src}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/AsyncTCP-master/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/SPIFFS/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/Update/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/WiFi/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/FS/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/ESPAsyncWebServer/src}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/ESPmDNS/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/TaskScheduler/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/AsyncTCP-master/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/ESP32Ping}&quot;"/>
 								</option>
 								<inputType id="io.sloeber.compiler.S.sketch.input.1379821700" name="Assembly source files" superClass="io.sloeber.compiler.S.sketch.input"/>
 							</tool>
@@ -71,7 +74,7 @@
 					</folderInfo>
 					<fileInfo id="io.sloeber.core.toolChain.release.2079085351.1641922771" name="NetService.h" rcbsApplicability="disable" resourcePath="include/Net/NetService.h" toolsToInvoke=""/>
 					<sourceEntries>
-						<entry excluding="include/Net/NetService.h|libraries/?*/**/test*/**|libraries/ESPAsyncTCP-master/.github|libraries/?*/**/?xamples/**|libraries/AsyncTCP-master/.github|libraries/?*/**/?xtras/**|src|libraries/ESPAsyncWebServer-master/.github|libraries/ESPAsyncTCP-master/ssl|libraries/?*/**/third-party/**|libraries/Painless_Mesh/doxygen|libraries/?*/utility/*/*|libraries/ESPAsyncWebServer/.git|libraries/**/._*|libraries/ESPAsyncWebServer/.github" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="libraries/ESP32Ping/.git|include/Net/NetService.h|libraries/?*/**/test*/**|libraries/ESPAsyncTCP-master/.github|libraries/?*/**/?xamples/**|libraries/AsyncTCP-master/.github|libraries/?*/**/?xtras/**|src|libraries/ESPAsyncWebServer-master/.github|libraries/ESPAsyncTCP-master/ssl|libraries/?*/**/third-party/**|libraries/Painless_Mesh/doxygen|libraries/?*/utility/*/*|libraries/ESPAsyncWebServer/.git|libraries/**/._*|libraries/ESPAsyncWebServer/.github" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 						<entry excluding="Net/NetService.cpp" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
@@ -103,7 +106,6 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/core/variant}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/ArduinoJson/src}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/AsyncTCP-master/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/SPIFFS/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/Update/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/WiFi/src}&quot;"/>
@@ -117,7 +119,6 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/core/core}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/core/variant}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/ArduinoJson/src}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/AsyncTCP-master/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/SPIFFS/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/Update/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/WiFi/src}&quot;"/>
@@ -131,7 +132,6 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/core/core}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/core/variant}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/ArduinoJson/src}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/AsyncTCP-master/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/SPIFFS/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/Update/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NodesController/libraries/WiFi/src}&quot;"/>

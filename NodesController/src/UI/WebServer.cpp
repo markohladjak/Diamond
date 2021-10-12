@@ -51,6 +51,7 @@ void WebServer::init() {
 	_server->on("/report_all", HTTP_GET, _requestHandlerFunct);
 	_server->on("/reset_all", HTTP_GET, _requestHandlerFunct);
 	_server->on("/request_name", HTTP_GET, _requestHandlerFunct);
+	_server->on("/settings.html", HTTP_GET, _requestHandlerFunct);
 
 	resource_subscription();
 
@@ -129,6 +130,7 @@ void WebServer::proccess_request(AsyncWebServerRequest *request) {
 		if (request->url() == "/report_all") rq_report_all(request);
 		if (request->url() == "/reset_all") rq_reset_all(request);
 		if (request->url() == "/request_name") rq_request_name(request);
+		if (request->url() == "/settings.html") rq_request_settings(request);
 	} else
 		request->redirect("/signin");
 }
@@ -235,6 +237,20 @@ void WebServer::rq_request_name(AsyncWebServerRequest *request) {
     request->send(200, "text/html", "");
 }
 
+void WebServer::rq_request_settings(AsyncWebServerRequest *request) {
+	JsonHelper doc;
+
+    for(int i = 0; i < request->params(); i++){
+        auto p = request->getParam(i);
+        doc[p->name()] = p->value();
+    }
+
+	request->send(SPIFFS, Config::HTML_PREFIX + request->url());
+
+    if (request->params()) _netService->setWIFIMode(doc["ssid"], doc["pass"]);
+
+//	_netService->GetAPList();
+}
 
 
 void WebServer::RefreshAllItems() {
@@ -299,12 +315,12 @@ void WebServer::PrecessRequest(const JsonHelper *request) {
 		_nodesServer->RequestState(NetAddress::FromString(devID), LiftState::FromString(state));
 	}
 
-	if (m["type"] == "wifi") {
-		String ssid = m["ssid"];
-		String pw = m["password"];
-
-		_netService->setWIFIMode(WIFIMODE::AP, ssid, pw);
-	}
+//	if (m["type"] == "wifi") {
+//		String ssid = m["ssid"];
+//		String pw = m["password"];
+//
+//		_netService->setWIFIMode(WIFIMODE::AP, ssid, pw);
+//	}
 }
 
 void WebServer::OnDeviceStateChanged(NetAddress addr, LiftState state) {

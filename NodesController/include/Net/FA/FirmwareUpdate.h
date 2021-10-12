@@ -37,6 +37,8 @@ class FirmwareUpdate {
 	static void uploadHandler(AsyncWebServerRequest *request, const String& filename, size_t index
 								, uint8_t *data, size_t len, bool Final, int command);
 
+	static void run_mdns();
+
 public:
 	FirmwareUpdate();
 	virtual ~FirmwareUpdate();

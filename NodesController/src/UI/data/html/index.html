@@ -52,145 +52,152 @@
 	</div>
 
 	<div id="mainContainer">
+		<div id="page_home" class="doc_pages" >
+			<div class="tab">
+				<button class="tablinks lefttablink active" onclick="openTab(event.currentTarget, 'List')"><span>Devices</span></button>
+				<button class="tablinks righttablink" onclick="openTab(event.currentTarget, 'Scheme')"><span>Scheme</span></button>
+			</div>
 
-		<div class="tab">
-			<button class="tablinks lefttablink active" onclick="openTab(event.currentTarget, 'List')"><span>Devices</span></button>
-			<button class="tablinks righttablink" onclick="openTab(event.currentTarget, 'Scheme')"><span>Scheme</span></button>
-		</div>
-
-		<div class="contentContainer">
-			<div class="listContainer tabContent" id="List">
-				<div class="listTitle">
-					<span>Name</span>
-					<span>Status</span>
-					<span>Action</span>
-					<span>Version</span>
-				</div>
-				
-				<div>
-				<div id="devicesList"></div>
-					<template id="deviceViewTemplate">
-						<div class="deviceView">
-							<div class=deviceNameContainer 
-								ondblclick="OnDeviceNameEditStarted(event)"
-								ontouchstart="OnDeviceNameContainerTouchStart(event)"
-								ontouchend="OnDeviceNameContainerTouchEnd(event)"
-								ontouchcancel="OnDeviceNameContainerTouchCancel(event)"
-								ontouchmove="OnDeviceNameContainerTouchMove(event)"
-											>
-								<input class="deviceName" type="text" spellcheck="false" readonly=true
-										ondblclick="this.readOnly=''; this.focus(); this.select();" 
-										onfocusout="OnDeviceNameEditFinished(event);"
-										onkeypress="OnDeviceNameKeyPress(event)">
-							</div>
-							<div class="deviceStatus" onclick="showActionPanel(this, event)">
-								<div class="statusContainer">
-									<span class="dot"></span>
-									<span class="deviceStatusText"></span>
+			<div class="contentContainer">
+				<div class="listContainer tabContent" id="List">
+					<div class="listTitle">
+						<span>Name</span>
+						<span>Status</span>
+						<span>Action</span>
+						<span>Version</span>
+					</div>
+					
+					<div>
+					<div id="devicesList"></div>
+						<template id="deviceViewTemplate">
+							<div class="deviceView">
+								<div class=deviceNameContainer 
+									ondblclick="OnDeviceNameEditStarted(event)"
+									ontouchstart="OnDeviceNameContainerTouchStart(event)"
+									ontouchend="OnDeviceNameContainerTouchEnd(event)"
+									ontouchcancel="OnDeviceNameContainerTouchCancel(event)"
+									ontouchmove="OnDeviceNameContainerTouchMove(event)"
+												>
+									<input class="deviceName" type="text" spellcheck="false" readonly=true
+											ondblclick="this.readOnly=''; this.focus(); this.select();" 
+											onfocusout="OnDeviceNameEditFinished(event);"
+											onkeypress="OnDeviceNameKeyPress(event)">
+								</div>
+								<div class="deviceStatus" onclick="showActionPanel(this, event)">
+									<div class="statusContainer">
+										<span class="dot"></span>
+										<span class="deviceStatusText"></span>
+									</div>
+								</div>
+								<div class="deviceAction" onclick="showActionPanel(this)">
+									<span class="dotAction"></span>
+									<span class="dotAction"></span>
+									<span class="dotAction"></span>
+								</div>
+								<div class="deviceVersion">
+									<span class="deviceVersionText"></span>
 								</div>
 							</div>
-							<div class="deviceAction" onclick="showActionPanel(this)">
-								<span class="dotAction"></span>
-								<span class="dotAction"></span>
-								<span class="dotAction"></span>
-							</div>
-							<div class="deviceVersion">
-								<span class="deviceVersionText"></span>
-							</div>
-						</div>
-					</template>
+						</template>
+					</div>
 				</div>
-			</div>
-			
-			<div class="schemeContainer tabContent" id="Scheme">
-				<iframe id="mainScheme" src="main_scheme.html" frameborder="0"
-						sandbox="allow-same-origin allow-forms allow-modals allow-pointer-lock allow-popups allow-popups-to-escape-sandbox allow-scripts allow-top-navigation"
-						onload="OnSchemeContainerLoaded(this)"></iframe>
-			</div>
+				
+				<div class="schemeContainer tabContent" id="Scheme">
+					<iframe id="mainScheme" src="main_scheme.html" frameborder="0"
+							sandbox="allow-same-origin allow-forms allow-modals allow-pointer-lock allow-popups allow-popups-to-escape-sandbox allow-scripts allow-top-navigation"
+							onload="OnSchemeContainerLoaded(this)"></iframe>
+				</div>
 
-			<div id="actionPanel" hidden>
-				<div class="actionPanelTitle" style="color: #FFFFFF; height:53px;">Node: </div>
-				<div class="dvsFREE" onclick="onActionSelect(this)">
-					<div class="actionChecked">
-						<img src="src/img/check.svg" class="checkedIcon">
-					</div>
-					<span class="dot dvsFREE"></span>
-					<span class="actionText">Free</span>
-				</div> 
-				<div class="dvsBUSY" onclick="onActionSelect(this)">
-					<div class="actionChecked">
-						<img src="src/img/check.svg" class="checkedIcon">
-					</div>
-					<span class="dot"></span>
-					<span class="actionText">Busy</span>
-				</div> 
-				<div class="dvsREADY" onclick="onActionSelect(this)">
-					<div class="actionChecked">
-						<img src="src/img/check.svg" class="checkedIcon">
-					</div>
-					<span class="dot"></span>
-					<span class="actionText">Ready</span>
-				</div> 
-				<div class="dvsSOS" onclick="onActionSelect(this)">
-					<div class="actionChecked">
-						<img src="src/img/check.svg" class="checkedIcon">
-					</div>
-					<span class="dot"></span>
-					<span class="actionText">SOS</span>
-				</div> 
-				<div style="height: 1px; margin: 5px; background-color: rgb(85, 85, 85);"></div>
-				<div class="dvsexHOLDED" onclick="onActionSelect(this)">
-					<div class="actionChecked">
-						<img src="src/img/check.svg" class="checkedIcon">
-					</div>
-					<span class="dot"></span>
-					<span class="actionText">Hold</span>
-				</div> 
-				<div class="dvsexTEST" onclick="onActionSelect(this)">
-					<div class="actionChecked">
-						<img src="src/img/check.svg" class="checkedIcon">
-					</div>
-					<span class="dot"></span>
-					<span class="actionText">Test</span>
-				</div> 
-				<div style="height: 1px; margin: 5px; background-color: rgb(85, 85, 85);"></div>
-				<div class="dvsexDISABLED" onclick="onActionSelect(this)">
-					<div class="actionChecked">
-						<img src="src/img/check.svg" class="checkedIcon">
-					</div>
-					<span class="dot"></span>
-					<span class="actionText">Disable</span>
-				</div> 
+				<div id="actionPanel" hidden>
+					<div class="actionPanelTitle" style="color: #FFFFFF; height:53px;">Node: </div>
+					<div class="dvsFREE" onclick="onActionSelect(this)">
+						<div class="actionChecked">
+							<img src="src/img/check.svg" class="checkedIcon">
+						</div>
+						<span class="dot dvsFREE"></span>
+						<span class="actionText">Free</span>
+					</div> 
+					<div class="dvsBUSY" onclick="onActionSelect(this)">
+						<div class="actionChecked">
+							<img src="src/img/check.svg" class="checkedIcon">
+						</div>
+						<span class="dot"></span>
+						<span class="actionText">Busy</span>
+					</div> 
+					<div class="dvsREADY" onclick="onActionSelect(this)">
+						<div class="actionChecked">
+							<img src="src/img/check.svg" class="checkedIcon">
+						</div>
+						<span class="dot"></span>
+						<span class="actionText">Ready</span>
+					</div> 
+					<div class="dvsSOS" onclick="onActionSelect(this)">
+						<div class="actionChecked">
+							<img src="src/img/check.svg" class="checkedIcon">
+						</div>
+						<span class="dot"></span>
+						<span class="actionText">SOS</span>
+					</div> 
+					<div style="height: 1px; margin: 5px; background-color: rgb(85, 85, 85);"></div>
+					<div class="dvsexHOLDED" onclick="onActionSelect(this)">
+						<div class="actionChecked">
+							<img src="src/img/check.svg" class="checkedIcon">
+						</div>
+						<span class="dot"></span>
+						<span class="actionText">Hold</span>
+					</div> 
+					<div class="dvsexTEST" onclick="onActionSelect(this)">
+						<div class="actionChecked">
+							<img src="src/img/check.svg" class="checkedIcon">
+						</div>
+						<span class="dot"></span>
+						<span class="actionText">Test</span>
+					</div> 
+					<div style="height: 1px; margin: 5px; background-color: rgb(85, 85, 85);"></div>
+					<div class="dvsexDISABLED" onclick="onActionSelect(this)">
+						<div class="actionChecked">
+							<img src="src/img/check.svg" class="checkedIcon">
+						</div>
+						<span class="dot"></span>
+						<span class="actionText">Disable</span>
+					</div> 
+				</div>
+				
 			</div>
-			
+	<!--	
+			<div id="London" class="tabcontent">
+				<h3>London</h3>
+				<p>London is the capital city of England.</p>
+			</div>
+		
+			<div id="Paris" class="tabcontent">
+				<h3>Paris</h3>
+				<p>Paris is the capital of France.</p>
+			</div>
+			-->
+			<div hidden>
+				<input id="wifi_ssid"></input>
+				<input id="wifi_password"></input>
+				<button onclick="changeWIFIMode()"></button>
+				
+			</div>
+			<div>
+				<button onclick="reportAll()">Report All</button>
+			</div>
+			<div style="display: flex; align-items: center; margin: 20px 0">
+				<label style="margin-right: 20px; color: lightgray;">Reset All:</label>
+				<button onclick="resetAll('None')">None</button>
+				<button onclick="resetAll('Free')">Free</button>
+				<button onclick="resetAll('Busy')">Busy</button>
+				<button onclick="resetAll('Ready')">Ready</button>
+				<button onclick="resetAll('SOS')">SOS</button>
+			</div>
 		</div>
-<!--	
-		<div id="London" class="tabcontent">
-			<h3>London</h3>
-			<p>London is the capital city of England.</p>
-		</div>
-	
-		<div id="Paris" class="tabcontent">
-			<h3>Paris</h3>
-			<p>Paris is the capital of France.</p>
-		</div>
-		-->
-		<div hidden>
-			<input id="wifi_ssid"></input>
-			<input id="wifi_password"></input>
-			<button onclick="changeWIFIMode()"></button>
-			
-		</div>
-		<div>
-			<button onclick="reportAll()">Report All</button>
-		</div>
-		<div style="display: flex; align-items: center; margin: 20px 0">
-			<label style="margin-right: 20px; color: lightgray;">Reset All:</label>
-			<button onclick="resetAll('None')">None</button>
-			<button onclick="resetAll('Free')">Free</button>
-			<button onclick="resetAll('Busy')">Busy</button>
-			<button onclick="resetAll('Ready')">Ready</button>
-			<button onclick="resetAll('SOS')">SOS</button>
+		<div id="page_settings" class="doc_pages">
+			<iframe id="form_settings" src="settings.html" frameborder="0"
+			style="height: 500px;"
+			sandbox="allow-same-origin allow-forms allow-modals allow-pointer-lock allow-popups allow-popups-to-escape-sandbox allow-scripts allow-top-navigation"
+			></iframe>
 		</div>
 	</div>
 	
