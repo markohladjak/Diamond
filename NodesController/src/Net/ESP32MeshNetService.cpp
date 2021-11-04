@@ -47,6 +47,10 @@ QueueHandle_t ESP32MeshNetService::_send_mutex = xSemaphoreCreateMutex();
 //String ESP32MeshNetService::_router_pw = "123321123";
 String ESP32MeshNetService::_router_ssid = "DiamandNC";
 String ESP32MeshNetService::_router_pw = "nodesAdmin";
+//String ESP32MeshNetService::_router_ssid = "Toyota_WiFi";
+//String ESP32MeshNetService::_router_pw = "Toyota2021";
+//String ESP32MeshNetService::_router_ssid = "TD3";
+//String ESP32MeshNetService::_router_pw = "ServiceStation1!";
 
 int	ESP32MeshNetService::_router_chennel = 1;
 
@@ -840,21 +844,21 @@ void ESP32MeshNetService::wifi_scan(void)
 	LogService::Log("wifi_scan", "");
 
     xTaskCreate([](void* args) {
-    	static char *ap_name = "Tenda_0AD898";
+//    	static const char *ap_name = "Tenda_0AD898";
 
 
-        wifi_scan_config_t cfg = {
-			.ssid = NULL,
-    //	        .ssid = (uint8_t*)ap_name,
-            .bssid = NULL,
-            .channel = 0,
-            .show_hidden = false,
-            .scan_type = WIFI_SCAN_TYPE_ACTIVE,
-        };
+//        wifi_scan_config_t cfg = {
+//			.ssid = NULL,
+//    //	        .ssid = (uint8_t*)ap_name,
+//            .bssid = NULL,
+//            .channel = 0,
+//            .show_hidden = false,
+//            .scan_type = WIFI_SCAN_TYPE_ACTIVE,
+//        };
 
-        cfg.scan_time.passive = 4000;
-        cfg.scan_time.active.min = 0;
-        cfg.scan_time.active.max = 1000;
+//        cfg.scan_time.passive = 4000;
+//        cfg.scan_time.active.min = 0;
+//        cfg.scan_time.active.max = 1000;
 
 
         esp_mesh_stop();

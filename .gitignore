@@ -11,3 +11,5 @@ internal_communication
 TWAITest
 cpp_test
 CAN_test
+can
+icmp_echo

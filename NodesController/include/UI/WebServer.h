@@ -19,11 +19,13 @@
 
 namespace diamon {
 
-class WebServer : public IInLoop {
+class WebServer {
 	NodesServer *_nodesServer = NULL;
 	INetService *_netService = NULL;
 
 	ArRequestHandlerFunction _requestHandlerFunct;
+	ArUploadHandlerFunction _uploadHandlerFunct;
+	ArUploadHandlerFunction _uploadfsHandlerFunct;
 
 	std::map<String, String> _access_list;
 
@@ -40,6 +42,10 @@ class WebServer : public IInLoop {
 	void rq_reset_all(AsyncWebServerRequest *request);
 	void rq_request_name(AsyncWebServerRequest *request);
 	void rq_request_settings(AsyncWebServerRequest *request);
+	void rq_update(AsyncWebServerRequest *request);
+
+	void update(AsyncWebServerRequest *request, const String& filename, size_t index, uint8_t *data, size_t len, bool final);
+	void updatefs(AsyncWebServerRequest *request, const String& filename, size_t index, uint8_t *data, size_t len, bool final);
 
 	void print_request(AsyncWebServerRequest *request);
 public:
@@ -49,7 +55,7 @@ public:
 	WebServer(int port, NodesServer *nodesServer, INetService *netService);
 	virtual ~WebServer();
 
-	void update() override;
+	void terminal();
 
 	void RefreshAllItems();
 	void PrecessRequest(const JsonHelper *request);
@@ -57,6 +63,9 @@ public:
 	void OnDeviceStateChanged(NetAddress addr, LiftState state);
 	void OnDeviceNameChanged(NetAddress addr, String name);
 	void OnDeviceAdded(NetAddress addr, LiftState state, String name);
+
+	QueueHandle_t _event_mutex  = xSemaphoreCreateMutex();
+	void send_event(const char *message, const char *event=NULL, uint32_t id=0, uint32_t reconnect=0);
 
 };
 

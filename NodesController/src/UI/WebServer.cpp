@@ -34,6 +34,10 @@ WebServer::WebServer(int port, NodesServer *nodesServer, INetService *netService
 	SPIFFS.begin();
 
 	_requestHandlerFunct = std::bind(&WebServer::proccess_request, this, std::placeholders::_1);
+	_uploadHandlerFunct = std::bind (&WebServer::update, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3
+			, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6);
+	_uploadfsHandlerFunct = std::bind (&WebServer::updatefs, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3
+			, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6);
 
 	init();
 
@@ -44,6 +48,28 @@ WebServer::WebServer(int port, NodesServer *nodesServer, INetService *netService
 	_nodesServer->DeviceNameChangedEvent += METHOD_HANDLER(WebServer::OnDeviceNameChanged);
 }
 
+void ping_test_task(void *arg)
+{
+	unsigned long i = 0;
+
+	while (1)
+	{
+		delay(1000);
+
+		((WebServer*)arg)->send_event(String(i++).c_str(), "ping");
+	}
+	vTaskDelete(NULL);
+}
+
+void WebServer::send_event(const char *message, const char *event, uint32_t id, uint32_t reconnect)
+{
+	xSemaphoreTake(_event_mutex, portMAX_DELAY);
+
+	_events->send(message, event, id, reconnect);
+
+	xSemaphoreGive(_event_mutex);
+}
+
 void WebServer::init() {
 	_server->on("/", HTTP_GET | HTTP_POST, _requestHandlerFunct);
 	_server->on("/signin", HTTP_GET | HTTP_POST, _requestHandlerFunct);
@@ -52,6 +78,27 @@ void WebServer::init() {
 	_server->on("/reset_all", HTTP_GET, _requestHandlerFunct);
 	_server->on("/request_name", HTTP_GET, _requestHandlerFunct);
 	_server->on("/settings.html", HTTP_GET, _requestHandlerFunct);
+	_server->on("/update", HTTP_POST, _requestHandlerFunct, _uploadHandlerFunct);
+	_server->on("/updatefs", HTTP_POST, _requestHandlerFunct, _uploadfsHandlerFunct);
+
+
+
+//	_server->on("/update", HTTP_POST, [this](AsyncWebServerRequest *request) {
+//		print_request(request);
+//
+//		request->send(200, "text/plain", "OK");
+////		ESP.restart();
+//	}
+//	, [=](AsyncWebServerRequest *request,
+//			const String &filename, size_t index, uint8_t *data, size_t len,
+//			bool Final) {
+//
+//		printf("%s :      %10d : %10d\n", filename.c_str(), index, len);
+//
+////		uploadHandler(request, filename, index, data, len, Final, U_FLASH);
+//	});
+
+
 
 	resource_subscription();
 
@@ -96,6 +143,8 @@ void WebServer::init() {
 	//	    request->send(SPIFFS, "/src/bootstrap.min.css", "text/css");
 	//		Serial.println("/src/bootstrap.min.css");
 	//	});
+
+	xTaskCreatePinnedToCore(ping_test_task, "PingTask", 4096, this, tskIDLE_PRIORITY, NULL, tskNO_AFFINITY);
 }
 
 void WebServer::resource_subscription() {
@@ -112,9 +161,13 @@ void WebServer::resource_subscription() {
 	_server->on("/src/img/visible.svg", HTTP_GET, resource_response);
 	_server->on("/src/css/status.css", HTTP_GET, resource_response);
 	_server->on("/main_scheme.html", HTTP_GET, resource_response);
+	_server->on("/src/js/jquery.js", HTTP_GET, resource_response);
+
 }
 
 void WebServer::resource_response(AsyncWebServerRequest *request) {
+	LogService::Log("proccess_request", request->url());
+
 	request->send(SPIFFS, Config::HTML_PREFIX + request->url());
 }
 
@@ -124,13 +177,15 @@ void WebServer::proccess_request(AsyncWebServerRequest *request) {
 
 	if (request->url() == "/signin")
 		rq_signin(request);
-	else if (check_access(request)){
+	else if (check_access(request)) {
 		if (request->url() == "/") rq_root(request);
 		if (request->url() == "/request") rq_request(request);
 		if (request->url() == "/report_all") rq_report_all(request);
 		if (request->url() == "/reset_all") rq_reset_all(request);
 		if (request->url() == "/request_name") rq_request_name(request);
 		if (request->url() == "/settings.html") rq_request_settings(request);
+		if (request->url() == "/update") rq_update(request);
+		if (request->url() == "/updatefs") rq_update(request);
 	} else
 		request->redirect("/signin");
 }
@@ -253,6 +308,30 @@ void WebServer::rq_request_settings(AsyncWebServerRequest *request) {
 }
 
 
+void WebServer::rq_update(AsyncWebServerRequest *request) {
+	request->send(200, "text/html", "");
+}
+
+void WebServer::update(AsyncWebServerRequest *request, const String& filename, size_t index, uint8_t *data, size_t len, bool final) {
+	if (index == 0)
+		_nodesServer->UpdateBegin();
+
+	_nodesServer->UpdateFA(index, data, len);
+
+	if (final)
+		_nodesServer->UpdateCommit(false);
+}
+
+void WebServer::updatefs(AsyncWebServerRequest *request, const String& filename, size_t index, uint8_t *data, size_t len, bool final) {
+	if (index == 0)
+		_nodesServer->UpdateBegin(2);
+
+	_nodesServer->UpdateFA(index, data, len);
+
+	if (final)
+		_nodesServer->UpdateCommit(false);
+}
+
 void WebServer::RefreshAllItems() {
 	auto list = _nodesServer->DevicesList();
 
@@ -273,7 +352,7 @@ void WebServer::RefreshAllItems() {
 
 	LogService::Log("RefreshAllItems:", json.c_str());
 
-	_events->send(json.c_str(), "state");
+	send_event(json.c_str(), "state");
 }
 
 WebServer::~WebServer() {
@@ -283,7 +362,7 @@ WebServer::~WebServer() {
 	delete _events;
 }
 
-void WebServer::update() {
+void WebServer::terminal() {
 	  if (Serial.available() > 0) {
 	    // read the incoming byte:
 
@@ -298,7 +377,7 @@ void WebServer::update() {
 //		serializeJson(doc, str);
 
 //	    {"command" : "add", "id" : "8", "state" : "Sos"}
-		_events->send(str.c_str(), "msg");
+	    send_event(str.c_str(), "msg");
 }
 
 }
@@ -330,7 +409,7 @@ void WebServer::OnDeviceStateChanged(NetAddress addr, LiftState state) {
 	m["id"] = addr.ToString();
 	m["state"] = state.ToString();
 
-	_events->send(((String)m).c_str(), "msg");
+	send_event(((String)m).c_str(), "msg");
 }
 
 void WebServer::OnDeviceNameChanged(NetAddress addr, String name) {
@@ -340,7 +419,7 @@ void WebServer::OnDeviceNameChanged(NetAddress addr, String name) {
 	m["id"] = addr.ToString();
 	m["name"] = name;
 
-	_events->send(((String)m).c_str(), "msg");
+	send_event(((String)m).c_str(), "msg");
 }
 
 void WebServer::OnDeviceAdded(NetAddress addr, LiftState state, String name) {
@@ -350,7 +429,7 @@ void WebServer::OnDeviceAdded(NetAddress addr, LiftState state, String name) {
 	m["id"] = addr.ToString();
 	m["state"] = state.ToString();
 
-	_events->send(((String)m).c_str(), "msg");
+	send_event(((String)m).c_str(), "msg");
 }
 
 void WebServer::print_request(AsyncWebServerRequest *request) {

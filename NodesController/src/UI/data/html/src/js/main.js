@@ -31,6 +31,10 @@ function serverSendInit() {
 
           refreshAll(e.data);
         }, false);
+
+        sse.addEventListener('ping', function (e) {
+          console.log("ping", e.data);
+        }, false);
 	}
 }
 

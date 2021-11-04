@@ -11,6 +11,7 @@
 #include <string.h>
 #include <Net/NetMessage.h>
 #include <Net/ComData/ComTypes.h>
+#include <Update.h>
 
 namespace diamon {
 
@@ -120,6 +121,37 @@ void NodesServer::request_report_all() {
 	LogService::Log("NodesServer::request_report_all","");
 
 	_netService->Send(new DeviceGetInfoCommand);
+}
+
+void NodesServer::UpdateBegin(int partition) {
+	if (partition == 2)
+		partition = U_SPIFFS;
+	else
+		partition = U_FLASH;
+
+	Update.begin(UPDATE_SIZE_UNKNOWN, partition);
+
+	LogService::Log("Upload", "");
+}
+
+void NodesServer::UpdateFA(size_t index, uint8_t *data, size_t len) {
+	Update.write(data, len);
+
+	static int cc = 0;
+	printf(".");
+	fflush(stdout);
+
+	if (cc++ > 80) {
+		printf("\n");
+		cc = 0;
+	}
+}
+
+void NodesServer::UpdateCommit(bool reboot) {
+	Update.end(true);
+
+	if (!Update.hasError() && reboot)
+		ESP.restart();
 }
 
 } /* namespace diamon */

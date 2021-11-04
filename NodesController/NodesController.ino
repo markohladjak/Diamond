@@ -223,7 +223,7 @@ void loop()
 
 	if (liftControlBox) liftControlBox->update();
 //	if (netService) netService->update();
-	if (webServer) webServer->update();
+	if (webServer) webServer->terminal();
 
 //	NetService::update();
 

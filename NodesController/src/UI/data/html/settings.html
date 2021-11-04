@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Diamond</title>
+
+	<!-- <link rel=stylesheet href=src/css/general.css> -->
+	<!-- <link rel=stylesheet href=src/css/status.css> -->
+</head>
+<style>
+    body {
+        color: #E2E2E7;
+    }
+
+	form {
+		border: solid 1px darkgreen ;
+		margin: 5px;
+		padding: 10px;
+	}
+</style>
+<body>
+    <form action=# method=GET>
+        <p>Mesh</p>
+        <p>Connected to:</p>
+        <div></div>
+        <br>
+        <label>SSID:</label>
+        <input type=text name=ssid>
+
+        <!-- <select name=ap_name>
+            <option value=volvo>Volvo</option>
+            <option value=BMW>BMW</option>
+        </select> -->
+        <br>
+        <label>password:</label>
+        <input type=text name=pass>
+        <br>
+        <input type=submit value=Connect>
+    </form>
+
+	<form method='POST' action='#' enctype='multipart/form-data' id='upload_form'>
+	    <input type='file' name='update'>
+	    <input type='submit' value='Update'>
+	</form>
+	<form method='POST' action='#' enctype='multipart/form-data' id='uploadfs_form'>
+	    <input type='file' name='update_fs'>
+	    <input type='submit' value='Update FS'>
+	</form>
+	<div id='prg'>progress: 0%</div>
+	<progress id="prg1" value="0" style="width: 250px;">
+	
+	<script src='src/js/jquery.js'></script>
+	<script>
+	    $('#upload_form').submit(function (e) {
+			console.log(e);
+			
+	        e.preventDefault();
+	        let form = $('#upload_form')[0];
+	        let data = new FormData(form);
+	        $.ajax({
+	            url: '/update',
+	            type: 'POST',
+	            data: data,
+	            contentType: false,
+	            processData: false,
+	            xhr: function () {
+	                let xhr = new window.XMLHttpRequest();
+	                xhr.upload.addEventListener('progress', function (evt) {
+	                    if (evt.lengthComputable) {
+	                        let per = evt.loaded / evt.total;
+	                        $('#prg').html('progress: ' + Math.round(per * 100) + '%');
+							$('#prg1').attr('max', evt.total);
+							$('#prg1').attr('value', evt.loaded);
+	                    }
+	                }, false);
+	                return xhr;
+	            },
+	            success: function (d, s) {
+					$('#prg1').attr('value', 0);
+	                console.log('success!')
+	            },
+	            error: function (a, b, c) {
+	            }
+	        });
+	    });
+
+	    $('#uploadfs_form').submit(function (e) {
+			console.log(e);
+			
+	        e.preventDefault();
+	        let form = $('#uploadfs_form')[0];
+	        let data = new FormData(form);
+	        $.ajax({
+	            url: '/updatefs',
+	            type: 'POST',
+	            data: data,
+	            contentType: false,
+	            processData: false,
+	            xhr: function () {
+	                let xhr = new window.XMLHttpRequest();
+	                xhr.upload.addEventListener('progress', function (evt) {
+	                    if (evt.lengthComputable) {
+	                        let per = evt.loaded / evt.total;
+	                        $('#prg').html('progress: ' + Math.round(per * 100) + '%');
+							$('#prg1').attr('max', evt.total);
+							$('#prg1').attr('value', evt.loaded);
+	                    }
+	                }, false);
+	                return xhr;
+	            },
+	            success: function (d, s) {
+					$('#prg1').attr('value', 0);
+	                console.log('success!')
+	            },
+	            error: function (a, b, c) {
+	            }
+	        });
+	    });
+
+	</script>
+
+</body>

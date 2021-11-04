@@ -57,6 +57,10 @@ public:
 
 	void OnNetMessage(NetAddress addr, NetMessage *msg);
 	void OnNetworkChanged();
+
+	void UpdateBegin(int partition = 1);
+	void UpdateFA(size_t index, uint8_t *data, size_t len);
+	void UpdateCommit(bool reboot = true);
 };
 
 } /* namespace diamon */
