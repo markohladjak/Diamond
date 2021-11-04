@@ -983,6 +983,6 @@ environment/project/io.sloeber.core.toolChain.release.2079085351/PATH/operation=
 environment/project/io.sloeber.core.toolChain.release.2079085351/PATH/value=${A.COMPILER.PATH}${PathDelimiter}${A.BUILD.GENERIC.PATH}${PathDelimiter}${PATH}
 environment/project/io.sloeber.core.toolChain.release.2079085351/VERSION/delimiter=\:
 environment/project/io.sloeber.core.toolChain.release.2079085351/VERSION/operation=replace
-environment/project/io.sloeber.core.toolChain.release.2079085351/VERSION/value=0.2.1
+environment/project/io.sloeber.core.toolChain.release.2079085351/VERSION/value=0.2.2
 environment/project/io.sloeber.core.toolChain.release.2079085351/append=true
 environment/project/io.sloeber.core.toolChain.release.2079085351/appendContributed=true
