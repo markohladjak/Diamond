@@ -79,6 +79,7 @@ void Lift::load_data() {
 	if (_storage->LoadKey(LIFT_MSG_TAG_STATE, state))
 		_state = LiftState::FromString(state);
 
+	show_state();
 }
 
 } /* namespace diamon */
