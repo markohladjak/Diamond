@@ -11,16 +11,18 @@
 #include <string.h>
 #include <Net/NetMessage.h>
 #include <Net/ComData/ComTypes.h>
-#include <Update.h>
+#include <Net/ESP32MeshNetService.h>
 
 namespace diamon {
 
-NodesServer::NodesServer(INetService *netService) :
+NodesServer::NodesServer(INetService *netService, SystemUpdate *update) :
 	_netService(netService){
 
 	_netService->OnReceiveEvent += METHOD_HANDLER(NodesServer::OnNetMessage);
 	_netService->OnLayoutChangedEvent += METHOD_HANDLER(NodesServer::OnNetworkChanged);
 
+	_update = update;
+	
 	request_report_all();
 }
 
@@ -124,18 +126,20 @@ void NodesServer::request_report_all() {
 }
 
 void NodesServer::UpdateBegin(int partition) {
-	if (partition == 2)
-		partition = U_SPIFFS;
-	else
-		partition = U_FLASH;
-
-	Update.begin(UPDATE_SIZE_UNKNOWN, partition);
+	_update->begin();
+//	if (partition == 2)
+//		partition = U_SPIFFS;
+//	else
+//		partition = U_FLASH;
+//
+//	Update.begin(UPDATE_SIZE_UNKNOWN, partition);
 
 	LogService::Log("Upload", "");
 }
 
 void NodesServer::UpdateFA(size_t index, uint8_t *data, size_t len) {
-	Update.write(data, len);
+//	Update.write(data, len);
+	_update->update(data, len);
 
 	static int cc = 0;
 	printf(".");
@@ -148,10 +152,11 @@ void NodesServer::UpdateFA(size_t index, uint8_t *data, size_t len) {
 }
 
 void NodesServer::UpdateCommit(bool reboot) {
-	Update.end(true);
-
-	if (!Update.hasError() && reboot)
-		ESP.restart();
+	_update->end();
+//	Update.end(true);
+//
+//	if (!Update.hasError() && reboot)
+//		ESP.restart();
 }
 
 } /* namespace diamon */

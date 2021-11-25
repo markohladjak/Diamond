@@ -78,6 +78,20 @@ void Subscribe(IDevice* device)
 //			lift->StateChangedEvent += METHOD_HANDLER(Node::OnLiftStateChanged);
 }
 
+void PrintTasksState()
+{
+    uint8_t _rx_buf[3000] = { 0 };
+
+    // vTaskGetRunTimeStats((char*)_rx_buf);
+    printf("Name          State   Priority  Stack  Num\n\
+******************************************\n");
+
+    vTaskList((char*)_rx_buf);
+    printf((char*)_rx_buf);
+
+    printf("\nTasks count: %d\n", uxTaskGetNumberOfTasks());
+}
+
 void Node::OnNetMessage(NetAddress form, NetMessage *message) {
 	LogService::Log("Node::OnNetMessage", *message);
 
@@ -89,8 +103,10 @@ void Node::OnNetMessage(NetAddress form, NetMessage *message) {
 		SendLiftInfo(state, name);
 	}
 
-	if (message->Context().getType() == "SetLiftStateCommand")
+	if (message->Context().getType() == "SetLiftStateCommand") {
 		((Lift*)(_devices.begin()->first))->SetState(   ( (SetLiftStateCommand&) (message->Context()) ).State  );
+//		PrintTasksState();
+	}
 
 	if (message->Context().getType() == "SetDeviceNameCommand")
 		((IDevice*)(_devices.begin()->first))->SetName(   ( (SetDeviceNameCommand&) (message->Context()) ).Name  );

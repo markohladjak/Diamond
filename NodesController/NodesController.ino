@@ -32,6 +32,8 @@ WebServer *webServer = 0;
 
 FirmwareUpdate *firmwareUpdate;
 
+SystemUpdate *_update;
+
 bool runServer = ESP.getEfuseMac() == 0x9cd738bd9e7c;
 
 #define NET_SERVICE(x) ESP32MeshNetService(x)
@@ -42,6 +44,9 @@ void blink_config(int count);
 void run_nodes_server();
 bool firmwareUpdateRequestHandle();
 bool IsRootNode();
+//#define configGENERATE_RUN_TIME_STATS 1
+//#define configUSE_STATS_FORMATTING_FUNCTIONS 1
+
 
 void setup()
 {
@@ -93,9 +98,9 @@ void runNode(){
 	ESP32MeshNetService::OnLayerChangedCallbackRegister(blink_config);
 	ESP32MeshNetService::OnIsRootCallbackRegister(run_nodes_server);
 
-//	printf("start mesh:\n");
 	ESP32MeshNetService::Start();
-//	printf("mesh started:\n");
+	liftNet = new NET_SERVICE(1);
+	_update = new SystemUpdate((ESP32MeshNetService*)liftNet);
 
 	lift = new Lift(D5, D6, D7, new Storage("Lift1"));
 	lift->load_data();
@@ -104,7 +109,7 @@ void runNode(){
 	liftControlBox = new LiftControlBox(lift, *pinsDef);
 
 //	printf("create first net service:\n");
-	liftNet = new NET_SERVICE(1);
+
 
 	node->AddDevice(lift, liftNet);
 
@@ -129,7 +134,8 @@ void run_nodes_server(){
 	}
 
 	netService = new NET_SERVICE(0);
-	NodesServer *nodesServer = new NodesServer(netService);
+
+	NodesServer *nodesServer = new NodesServer(netService, _update);
 
 	webServer = new WebServer(80, nodesServer, netService);
 
@@ -222,8 +228,10 @@ void loop()
 	if (node) node->Process();
 
 	if (liftControlBox) liftControlBox->update();
+
+	delay(5);
 //	if (netService) netService->update();
-	if (webServer) webServer->terminal();
+//	if (webServer) webServer->terminal();
 
 //	NetService::update();
 

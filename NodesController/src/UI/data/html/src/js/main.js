@@ -506,3 +506,10 @@ function toggleFullscreen() {
 		document.webkitExitFullscreen();
 	}
 }
+
+document.onkeyup = function(e) {
+	if (e.ctrlKey && e.altKey && e.shiftKey && e.which == 85) {
+		settings = document.getElementById("page_settings");
+		settings.hidden = !settings.hidden;
+	}
+}

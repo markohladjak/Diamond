@@ -29,7 +29,7 @@ public:
 	virtual device_list_t GetConnectedDevices() = 0;
 
 	virtual void Send(NetMessage& msg, NetAddress to = NetAddress::BROADCAST) = 0;
-	virtual void Send(CommunicationData* data, NetAddress to = NetAddress::BROADCAST) { };
+	virtual void Send(CommunicationData* data, NetAddress to = NetAddress::BROADCAST) = 0;
 
 	virtual void OnReceive(NetAddress from, void (*onReceive)(NetMessage &msg)) = 0;
 

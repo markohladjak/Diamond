@@ -39,14 +39,14 @@ QueueHandle_t ESP32MeshNetService::_send_mutex = xSemaphoreCreateMutex();
 
 //String ESP32MeshNetService::_router_ssid = "TP-LINK_18";
 //String ESP32MeshNetService::_router_pw = "13643522";
-//String ESP32MeshNetService::_router_ssid = "Tenda_0AD898";
-//String ESP32MeshNetService::_router_pw = "12345678";
+String ESP32MeshNetService::_router_ssid = "Tenda_0AD898";
+String ESP32MeshNetService::_router_pw = "12345678";
 //String ESP32MeshNetService::_router_ssid = "TP-Link_982C";
 //String ESP32MeshNetService::_router_pw = "33188805";
 //String ESP32MeshNetService::_router_ssid = "HUAWEI MediaPad T5";
 //String ESP32MeshNetService::_router_pw = "123321123";
-String ESP32MeshNetService::_router_ssid = "DiamandNC";
-String ESP32MeshNetService::_router_pw = "nodesAdmin";
+//String ESP32MeshNetService::_router_ssid = "DiamandNC";
+//String ESP32MeshNetService::_router_pw = "nodesAdmin";
 //String ESP32MeshNetService::_router_ssid = "Toyota_WiFi";
 //String ESP32MeshNetService::_router_pw = "Toyota2021";
 //String ESP32MeshNetService::_router_ssid = "TD3";
@@ -135,9 +135,9 @@ void ESP32MeshNetService::send_msg(NetMessage &msg, NetAddress to) {
     data.tos = MESH_TOS_P2P;
     bool to_server = false;
 
-//    if (to == NetAddress::BROADCAST)
-//    	esp_mesh_get_routing_table((mesh_addr_t *) &route_table, _max_device_count * 6, &route_table_size);
-//    else
+    if (to == NetAddress::BROADCAST)
+    	esp_mesh_get_routing_table((mesh_addr_t *) &route_table, _max_device_count * 6, &route_table_size);
+    else
     if (to == NetAddress::SERVER) {
     	route_table_size = 1;
 
@@ -719,10 +719,21 @@ void ESP32MeshNetService::mesh_rx_task(void *args) {
     while (is_rx_running) {
         data.size = RX_SIZE;
         err = esp_mesh_recv(&from, &data, portMAX_DELAY, &flag, NULL, 0);
+
         if (err != ESP_OK || !data.size) {
             ESP_LOGE(MESH_TAG, "err:0x%x, size:%d", err, data.size);
             continue;
         }
+
+        if (data.proto == MESH_PROTO_BIN) {
+            LogService::Log("MESH_PROTO_BIN", "");
+            for (auto &l: _local)
+            	if (l.second->_binary_callback_funct)
+            		l.second->_binary_callback_funct(data.data, data.size);
+
+        	continue;
+        }
+
 
         data.data[data.size] = 0;
 
@@ -927,6 +938,47 @@ void ESP32MeshNetService::wifi_scan(void)
         vTaskDelete(NULL);
 
     }, "WST", 0x1000, NULL, 5, NULL);
+}
+
+NetAddressList ESP32MeshNetService::devices_address_list(){
+	return NetAddressList();
+}
+
+void ESP32MeshNetService::receive_callback_register(data_receive_callback_t callback_funct)
+{
+	_binary_callback_funct = callback_funct;
+}
+
+int ESP32MeshNetService::tttsend(uint8_t *data, int lenght)
+{
+	xSemaphoreTake(_send_mutex, portMAX_DELAY);
+
+	esp_err_t err;
+    mesh_addr_t route_table[_max_device_count];
+    int route_table_size = 0;
+
+    mesh_data_t msg;
+    msg.data = data;
+    msg.size = lenght;
+    msg.proto = MESH_PROTO_BIN;
+    msg.tos = MESH_TOS_P2P;
+
+	esp_mesh_get_routing_table((mesh_addr_t *) &route_table, _max_device_count * 6, &route_table_size);
+
+	for (int i = 0; i < route_table_size; ++i) {
+		printf("bin >%3d    " MACSTR "", i, MAC2STR(route_table[i].addr));
+
+		err = esp_mesh_send(&route_table[i], &msg, MESH_DATA_P2P | MESH_DATA_NONBLOCK, NULL, 0);
+		if (err) {
+			printf("  |   error: %s\n", esp_err_to_name(err));
+		}
+		else
+			printf("  |   ok\n");
+	}
+
+	xSemaphoreGive(_send_mutex);
+
+	return 0;
 }
 
 } /* namespace diamon */

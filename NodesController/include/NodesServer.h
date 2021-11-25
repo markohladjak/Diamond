@@ -15,6 +15,8 @@
 #include <Net/INetService.h>
 #include <Net/NCVersion.h>
 
+#include <Net/FA/SystemUpdate.h>
+
 namespace diamon {
 
 class Device {
@@ -32,13 +34,15 @@ class NodesServer {
 
 	INetService *_netService;
 
+	SystemUpdate *_update;
+
 	void set_info(NetAddress addr, LiftState state, String name);
 	void set_status(NetAddress addr, LiftState state);
 	void set_name(NetAddress addr, String name);
 	void request_report_all();
 
 public:
-	NodesServer(INetService *netService = NULL);
+	NodesServer(INetService *netService = NULL, SystemUpdate *update = NULL);
 	virtual ~NodesServer();
 
 	size_t DevicesCount();

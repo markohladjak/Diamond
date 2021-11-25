@@ -10,6 +10,9 @@
 
 #include <Net/INetService.h>
 #include "esp_mesh.h"
+#include "Net/FA/SystemUpdate.h"
+
+
 #include <map>
 
 namespace diamon {
@@ -17,7 +20,7 @@ namespace diamon {
 typedef void (*_layer_changed_callback_funct_t)(int);
 typedef void (*_is_root_callback_funct_t)();
 
-class ESP32MeshNetService: public INetService {
+class ESP32MeshNetService: public INetService, public INetwork {
 	static QueueHandle_t _send_mutex;
 	// Mesh
 	static String _router_ssid;
@@ -96,6 +99,14 @@ public:
 
 	static void OnLayerChangedCallbackRegister(_layer_changed_callback_funct_t funct);
 	static void OnIsRootCallbackRegister(_is_root_callback_funct_t funct);
+
+
+	data_receive_callback_t _binary_callback_funct ;
+
+	NetAddressList devices_address_list() override;
+	void receive_callback_register(data_receive_callback_t callback_funct) override;
+	int tttsend(uint8_t *data, int lenght) override;
+
 
 private:
 	void send_msg(NetMessage &msg, NetAddress to);
